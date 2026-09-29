@@ -213,10 +213,6 @@
   text-align: center;
 }
 
-.withNotes {
-  max-width: 1360px;
-}
-
 .topRowSide {
   display: flex;
   align-items: center;
@@ -227,7 +223,7 @@
 .split {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 22px;
+  gap: clamp(22px, 3vw, 44px);
   align-items: start;
 }
 

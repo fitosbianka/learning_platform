@@ -77,6 +77,12 @@ async function main() {
     'split view. the notes pane does not sit beside the lesson',
   );
 
+  // The split uses the whole screen width, not the narrow reading column.
+  const containerWidth = await page.evaluate(
+    () => document.querySelector('.containerWide')?.getBoundingClientRect().width ?? 0,
+  );
+  check(containerWidth > 1150, `split view. expected full width at 1280px, got ${containerWidth}px`);
+
   // 2. Write a note with title, bold text and a list.
   await editor.click();
   await page.keyboard.type('Merksatz zum Gebiss');
@@ -113,7 +119,11 @@ async function main() {
   });
   check(storedHtml.includes('Merksatz zum Gebiss'), 'storage. the saved note misses the title text');
   check(storedHtml.includes('<h1>'), 'storage. the saved note misses the title markup');
+  await page.setViewportSize({ width: 1728, height: 1050 });
+  await page.waitForTimeout(300);
   await page.screenshot({ path: join(shotsDir, 'lektion-notizen.jpg'), fullPage: false, quality: 60, type: 'jpeg' });
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.waitForTimeout(200);
 
   // A second note in week two. The pane stays open across the lesson
   // change, otherwise the toggle brings it back.

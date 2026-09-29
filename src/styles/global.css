@@ -186,6 +186,15 @@ button {
   padding: 0 16px;
 }
 
+/*
+ * Full width mode for the split lesson view with the notes pane. The
+ * double class wins over the base width above on purpose.
+ */
+.container.containerWide {
+  max-width: none;
+  padding: 0 clamp(16px, 2.5vw, 44px);
+}
+
 .skipLink {
   position: absolute;
   left: -999px;
