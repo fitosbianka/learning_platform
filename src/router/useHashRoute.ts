@@ -6,7 +6,7 @@
  * to path based.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export function currentPath(): string {
   const hash = window.location.hash;
@@ -23,7 +23,7 @@ export function hrefFor(path: string): string {
   return `#${path}`;
 }
 
-export function useHashRoute(): { path: string; segments: string[] } {
+export function useHashRoute(): { path: string; segments: string[]; query: URLSearchParams } {
   const [path, setPath] = useState(currentPath);
 
   const onHashChange = useCallback(() => {
@@ -35,6 +35,10 @@ export function useHashRoute(): { path: string; segments: string[] } {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, [onHashChange]);
 
-  const segments = path.split('/').filter((s) => s !== '');
-  return { path, segments };
+  const questionMark = path.indexOf('?');
+  const pathname = questionMark === -1 ? path : path.slice(0, questionMark);
+  const queryString = questionMark === -1 ? '' : path.slice(questionMark + 1);
+  const query = useMemo(() => new URLSearchParams(queryString), [queryString]);
+  const segments = pathname.split('/').filter((s) => s !== '');
+  return { path: pathname, segments, query };
 }

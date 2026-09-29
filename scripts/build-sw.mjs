@@ -69,6 +69,8 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  // The sync endpoint must always hit the network, never the cache.
+  if (url.pathname.startsWith('/api/')) return;
 
   if (request.mode === 'navigate') {
     // Network first, so a new deployment arrives as soon as possible.

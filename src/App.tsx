@@ -18,7 +18,7 @@ function PageFallback() {
   return <div className="container" style={{ padding: '48px 16px' }} aria-hidden="true" />;
 }
 
-function RouteView({ path, segments }: { path: string; segments: string[] }) {
+function RouteView({ path, segments, query }: { path: string; segments: string[]; query: URLSearchParams }) {
   // Scroll to the top on every navigation. Jumps inside the lesson page
   // (for example to the test) are handled by the page itself.
   useEffect(() => {
@@ -63,7 +63,7 @@ function RouteView({ path, segments }: { path: string; segments: string[] }) {
   if (first === 'einstellungen' && segments.length === 1) {
     return (
       <Suspense fallback={<PageFallback />}>
-        <SettingsPage />
+        <SettingsPage joinCode={query.get('verbinden')} />
       </Suspense>
     );
   }
@@ -72,7 +72,7 @@ function RouteView({ path, segments }: { path: string; segments: string[] }) {
 }
 
 export function App() {
-  const { path, segments } = useHashRoute();
+  const { path, segments, query } = useHashRoute();
 
   return (
     <AppStateProvider>
@@ -90,7 +90,7 @@ export function App() {
       </a>
       <TopBar path={path} />
       <main id="main" tabIndex={-1} style={{ outline: 'none' }}>
-        <RouteView path={path} segments={segments} />
+        <RouteView path={path} segments={segments} query={query} />
       </main>
     </AppStateProvider>
   );

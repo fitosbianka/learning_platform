@@ -33,6 +33,25 @@ export interface StoreData {
 }
 
 export const STORAGE_KEY = 'zahnkurs.store.v1';
+export const SYNC_KEY = 'zahnkurs.sync.v1';
+
+/** Local settings of the device sync, kept outside the learning data. */
+export interface SyncSettings {
+  /** The shared device code, null while sync is off */
+  code: string | null;
+  lastSyncAt: string | null;
+}
+
+/**
+ * The record that travels between the devices. Theme and other device
+ * preferences stay local on purpose.
+ */
+export interface SyncPayload {
+  finishedLessons: number[];
+  attempts: Record<string, TestAttempt[]>;
+  lastLesson: number | null;
+  updatedAt: string;
+}
 
 export function defaultStore(): StoreData {
   return {
@@ -129,6 +148,50 @@ export function mergeStores(current: StoreData, imported: StoreData): StoreData 
   return { ...current, finishedLessons: finished, attempts };
 }
 
+export function buildSyncPayload(data: StoreData): SyncPayload {
+  return {
+    finishedLessons: data.finishedLessons,
+    attempts: data.attempts,
+    lastLesson: data.lastLesson,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+/** Validates a record coming back from the sync endpoint. Throws. */
+export function parseSyncPayload(x: unknown): SyncPayload {
+  if (typeof x !== 'object' || x === null) throw new Error('not an object');
+  const s = x as Record<string, unknown>;
+  const viaStore = parseStoreData({
+    version: 1,
+    finishedLessons: s.finishedLessons,
+    attempts: s.attempts,
+    theme: null,
+    lastLesson: s.lastLesson,
+  });
+  return {
+    finishedLessons: viaStore.finishedLessons,
+    attempts: viaStore.attempts,
+    lastLesson: viaStore.lastLesson,
+    updatedAt: typeof s.updatedAt === 'string' ? s.updatedAt : '',
+  };
+}
+
+/**
+ * Merges the remote record into the local store. Finished lessons
+ * become the union, attempts are combined without duplicates, the last
+ * visited lesson is only taken over when this device has none yet.
+ */
+export function mergeSyncPayload(current: StoreData, remote: SyncPayload): StoreData {
+  const merged = mergeStores(current, {
+    version: 1,
+    finishedLessons: remote.finishedLessons,
+    attempts: remote.attempts,
+    theme: null,
+    lastLesson: null,
+  });
+  return { ...merged, lastLesson: current.lastLesson ?? remote.lastLesson };
+}
+
 export interface ExportFile {
   app: 'zahnmedizin-grundkurs';
   exportedAt: string;
@@ -155,6 +218,8 @@ export interface AppStorage {
   readonly persistent: boolean;
   load(): StoreData;
   save(data: StoreData): void;
+  loadSync(): SyncSettings;
+  saveSync(settings: SyncSettings): void;
 }
 
 function detectStorage(): StorageLike | null {
@@ -177,11 +242,41 @@ function detectStorage(): StorageLike | null {
 export function createAppStorage(backend?: StorageLike | null): AppStorage {
   const storage = backend === undefined ? detectStorage() : backend;
   let memory: StoreData | null = null;
+  let syncMemory: SyncSettings | null = null;
   let persistent = storage !== null;
 
   return {
     get persistent() {
       return persistent;
+    },
+    loadSync(): SyncSettings {
+      if (syncMemory) return syncMemory;
+      if (storage) {
+        try {
+          const raw = storage.getItem(SYNC_KEY);
+          if (raw !== null) {
+            const parsed = JSON.parse(raw) as Record<string, unknown>;
+            syncMemory = {
+              code: typeof parsed.code === 'string' ? parsed.code : null,
+              lastSyncAt: typeof parsed.lastSyncAt === 'string' ? parsed.lastSyncAt : null,
+            };
+            return syncMemory;
+          }
+        } catch {
+          // Unreadable, start fresh below.
+        }
+      }
+      syncMemory = { code: null, lastSyncAt: null };
+      return syncMemory;
+    },
+    saveSync(settings: SyncSettings): void {
+      syncMemory = settings;
+      if (!storage) return;
+      try {
+        storage.setItem(SYNC_KEY, JSON.stringify(settings));
+      } catch {
+        persistent = false;
+      }
     },
     load(): StoreData {
       if (memory) return memory;

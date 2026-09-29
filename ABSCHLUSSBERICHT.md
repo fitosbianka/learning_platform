@@ -59,6 +59,17 @@ Damit Vercel die Seite baut, den Branch auf main mergen, zum Beispiel auf GitHub
 
 Nach dem Merge erscheint das Deployment im Vercel Dashboard unter dem Projekt learning_platform. Die Live Adresse steht dort oben unter Domains. Falls der Build fehlschlaegt, zuerst die Build Logs des roten Deployments lesen, dann pruefen, dass das Framework Preset Vite ist, der Build Command npm run build und der Output Ordner dist.
 
+## Nachtrag. Synchronisation zwischen Geraeten
+
+Auf Wunsch nachgeruestet. Der Lernstand gleicht sich automatisch zwischen allen gekoppelten Geraeten ab.
+
+* Eine kleine Serverfunktion unter api/sync.ts speichert pro Geraetecode einen Datensatz in einer Upstash Redis Datenbank, die einmalig im Vercel Dashboard angelegt und mit dem Projekt verbunden wird. Die Schritte stehen im README unter Synchronisation
+* Gekoppelt wird mit einem einmaligen Geraetecode oder noch einfacher mit einem Kopplungslink, den man auf dem anderen Geraet oeffnet
+* Die App gleicht beim Oeffnen, beim Zurueckwechseln in den Browser, in einem sanften Intervall und kurz nach jeder Aenderung ab. Zusammenfuehren statt Ueberschreiben, Testversuche gehen nie verloren
+* Ohne eingerichtete Datenablage laeuft alles wie bisher, die Einstellungen zeigen dann eine freundliche Anleitung
+* Der Dunkelmodus bleibt bewusst eine Einstellung pro Geraet
+* Abgesichert mit 10 neuen Tests fuer Codes, Datensaetze, Zusammenfuehrung und Transport sowie einem eigenen Browserdurchlauf mit zwei simulierten Geraeten, Kopplungslink und dem Fall ohne Datenablage, alles ohne Konsolenfehler. Lighthouse bleibt bei 100 in allen Kategorien
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.
