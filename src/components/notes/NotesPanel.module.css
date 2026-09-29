@@ -141,26 +141,15 @@
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding: 12px 14px;
   background: var(--surface);
 }
 
 .paper {
-  min-height: calc(100% - 2px);
-  padding: 30px 22px 60px 56px;
+  min-height: 100%;
+  padding: 20px 24px 64px;
   outline: none;
   caret-color: var(--accent-strong);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: var(--shadow);
-  background-color: var(--note-paper);
-  background-image:
-    linear-gradient(to right, transparent 0 40px, var(--note-margin) 40px 42px, transparent 42px),
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0 calc(var(--note-rule-h) - 1px),
-      var(--note-rule) calc(var(--note-rule-h) - 1px) var(--note-rule-h)
-    );
+  background: var(--surface);
 }
 
 .paper ::selection {
@@ -169,10 +158,10 @@
 
 .placeholder {
   position: absolute;
-  top: 42px;
-  left: 70px;
-  right: 40px;
-  line-height: var(--note-rule-h);
+  top: 20px;
+  left: 24px;
+  right: 24px;
+  line-height: 1.65;
   color: var(--text-soft);
   pointer-events: none;
   margin: 0;

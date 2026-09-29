@@ -564,20 +564,13 @@ svg .visLabelStrong {
   border: 0;
 }
 
-/* Notebook paper for the lesson notes and the marker pen */
+/* Colors of the marker pen in the lessons */
 :root {
-  --note-paper: #fffdf5;
-  --note-rule: #dfe7ee;
-  --note-margin: #ecc6c1;
-  --note-rule-h: 30px;
   --marker: #ffe89e;
   --marker-strong: #e8c95d;
 }
 
 html[data-theme='dark'] {
-  --note-paper: #20262d;
-  --note-rule: #333c46;
-  --note-margin: #5c4341;
   --marker: #5c4f22;
   --marker-strong: #8a7433;
 }
@@ -598,43 +591,45 @@ mark.userMark:hover {
 
 /*
  * Typography of a note, shared by the editor, the notes page and the
- * print view. The line height matches the ruling of the paper.
+ * print view. Clean text in the style of the platform.
  */
 .noteContent {
   font-size: 1rem;
-  line-height: var(--note-rule-h);
+  line-height: 1.65;
   overflow-wrap: anywhere;
 }
 
 .noteContent p,
 .noteContent div {
   margin: 0;
-  min-height: var(--note-rule-h);
+  min-height: 1.65em;
 }
 
 .noteContent h1 {
-  font-size: 1.28rem;
-  line-height: var(--note-rule-h);
-  margin: 0;
+  font-size: 1.3rem;
+  line-height: 1.35;
+  margin: 18px 0 6px;
   font-weight: 750;
 }
 
 .noteContent h2,
 .noteContent h3 {
-  font-size: 1.1rem;
-  line-height: var(--note-rule-h);
-  margin: 0;
+  font-size: 1.08rem;
+  line-height: 1.4;
+  margin: 14px 0 4px;
   font-weight: 700;
+}
+
+.noteContent h1:first-child,
+.noteContent h2:first-child,
+.noteContent h3:first-child {
+  margin-top: 0;
 }
 
 .noteContent ul,
 .noteContent ol {
-  margin: 0;
-  padding-left: 28px;
-}
-
-.noteContent li {
-  line-height: var(--note-rule-h);
+  margin: 4px 0;
+  padding-left: 26px;
 }
 
 .noteContent u {
@@ -699,22 +694,8 @@ mark.userMark:hover {
     padding-bottom: 8px;
   }
 
-  .notePrintArea .noteContent,
   .notePrintArea .noteContent p,
-  .notePrintArea .noteContent div,
-  .notePrintArea .noteContent li {
-    line-height: 1.55;
+  .notePrintArea .noteContent div {
     min-height: 0;
-  }
-
-  .notePrintArea .noteContent h1 {
-    line-height: 1.3;
-    margin: 14px 0 4px;
-  }
-
-  .notePrintArea .noteContent h2,
-  .notePrintArea .noteContent h3 {
-    line-height: 1.35;
-    margin: 10px 0 2px;
   }
 }

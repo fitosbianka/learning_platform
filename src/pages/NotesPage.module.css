@@ -82,20 +82,11 @@
 }
 
 .noteView {
-  background: var(--note-paper);
-  border: 1px solid var(--border);
+  background: var(--surface-2);
   border-radius: var(--radius-small);
-  padding: 0 18px 18px 52px;
+  padding: 16px 18px;
   max-height: 420px;
   overflow-y: auto;
-  background-image:
-    linear-gradient(to right, transparent 0 36px, var(--note-margin) 36px 38px, transparent 38px),
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0 calc(var(--note-rule-h) - 1px),
-      var(--note-rule) calc(var(--note-rule-h) - 1px) var(--note-rule-h)
-    );
-  background-attachment: local;
 }
 
 .noteActions {

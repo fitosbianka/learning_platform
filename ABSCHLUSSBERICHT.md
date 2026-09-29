@@ -84,9 +84,9 @@ Auf Wunsch nachgeruestet. Eine eigene Seite Anki mit selbst erstellten Lernkarte
 
 ## Nachtrag. Notizen
 
-Auf Wunsch nachgeruestet. Ein Heft fuer eigene Notizen direkt neben dem Lernstoff.
+Auf Wunsch nachgeruestet. Eigene Notizen direkt neben dem Lernstoff.
 
-* In jeder Lektion oeffnet der Knopf Notizen ein Notizblatt im Heftlook mit Linien und rotem Rand, auf grossen Bildschirmen als geteilte Ansicht neben dem Text, auf dem Handy als Blatt ueber der Lektion. Die Schrift bleibt die der Plattform
+* In jeder Lektion oeffnet der Knopf Notizen die Notizansicht, auf grossen Bildschirmen als geteilte Ansicht neben dem Text, auf dem Handy ueber der Lektion. Look und Schrift entsprechen dem Rest der Plattform
 * Formatierung mit Titel, Untertitel, Fett, Kursiv, Unterstrichen, Aufzaehlung, nummerierter Liste, drei Schriftarten und vier Schriftgroessen
 * Speichern per Knopf und zusaetzlich automatisch kurz nach dem Tippen, auch beim Verlassen der Ansicht geht nichts verloren. Die Notizen synchronisieren auf alle gekoppelten Geraete, Loeschungen setzen sich durch
 * Die Seite Notizen gruppiert alle Blaetter nach Woche und Lektion, mit Kopieren fuer die Notizen App auf MacBook und Handy, Teilen ueber das Teilen Menue des Handys, PDF Druck pro Notiz oder fuer alles zusammen und Loeschen mit Rueckfrage
@@ -99,7 +99,7 @@ Auf Wunsch nachgeruestet.
 
 * Beim Markieren einer Textstelle erscheinen jetzt zwei Knoepfe. Markieren malt die Stelle dauerhaft mit dem gelben Leuchtstift an, Lernkarte macht daraus eine Karte. Markierungen ueberleben das Neuladen, synchronisieren auf alle Geraete und lassen sich per Tipp und Markierung entfernen wieder loeschen
 * Der Karteneditor bringt fuer jede Kartenart einen fertigen Vorschlag aus der markierten Stelle mit. Bei Auswahl A B C wird das Schluesselwort zur Luecke in der Frage und zwei plausible falsche Antworten kommen aus dem Glossar, sodass die Karte ohne Tippen speicherbar ist
-* Die geteilte Ansicht nutzt seit dem letzten Nachtrag die volle Bildschirmbreite, das Heft liegt jetzt als eigenes Blatt mit Rundung und Schatten in der Ansicht und die Auswahlfelder der Werkzeugleiste tragen den Look der Plattform
+* Die geteilte Ansicht nutzt seit dem letzten Nachtrag die volle Bildschirmbreite, die Notizen tragen durchgehend den klaren Look der Plattform und die Auswahlfelder der Werkzeugleiste den Chip Stil der Seite
 * Abgesichert mit 12 neuen Tests fuer Verankerung im Text, Zusammenfuehrung, Speicherung und Vorschlaege sowie erweiterten Browserdurchlaeufen fuer Leuchtstift und Vorschlaege, alles ohne Konsolenfehler
 
 ## Notizen zum Inhalt

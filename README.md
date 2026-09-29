@@ -104,11 +104,11 @@ Beim Markieren einer Textstelle in einer Lektion erscheinen zwei Knoepfe. Markie
 
 ## 7. Notizen
 
-Zu jeder Lektion gibt es ein eigenes Notizblatt im Stil eines Hefts, mit Linien und rotem Rand, aber in der Schrift der Plattform.
+Zu jeder Lektion gibt es eigene Notizen, im gleichen klaren Look wie der Rest der Plattform.
 
-* In der Lektion den Knopf Notizen druecken. Auf grossen Bildschirmen teilt sich die Seite, links der Lernstoff, rechts das Heft. Auf dem Handy legt sich das Heft ueber die Lektion.
+* In der Lektion den Knopf Notizen druecken. Auf grossen Bildschirmen teilt sich die Seite, links der Lernstoff, rechts die Notizen. Auf dem Handy legen sich die Notizen ueber die Lektion.
 * Beim Schreiben stehen Titel, Untertitel, Fett, Kursiv, Unterstrichen, Aufzaehlung, nummerierte Liste, drei Schriftarten und vier Schriftgroessen bereit.
-* Der Knopf Speichern sichert sofort, zusaetzlich sichert das Heft kurz nach dem Tippen automatisch. Die Notizen wandern ueber die Synchronisation mit auf die anderen Geraete.
+* Der Knopf Speichern sichert sofort, zusaetzlich wird kurz nach dem Tippen automatisch gesichert. Die Notizen wandern ueber die Synchronisation mit auf die anderen Geraete.
 * Die Seite Notizen sammelt alle Notizblaetter nach Woche und Lektion. Dort gibt es pro Notiz Kopieren fuer die Notizen App auf MacBook oder Handy, Teilen fuers Handy, Als PDF drucken sowie Loeschen, und oben Alle als PDF drucken.
 
 ## 8. Tests und Qualitaetslauf
@@ -118,7 +118,7 @@ Zu jeder Lektion gibt es ein eigenes Notizblatt im Stil eines Hefts, mit Linien 
     npm run typecheck   TypeScript im strikten Modus
     npm run build       Produktion bauen, inklusive Service Worker
 
-Der komplette Browserdurchlauf oeffnet jede Lektion in Chromium, prueft alle Visuals, macht jeden Test mit Zufallsantworten, prueft die Handyansicht mit 390 Pixel Breite und legt Screenshots in den Ordner screenshots. Der zweite Durchlauf prueft die Synchronisation mit zwei simulierten Geraeten und dem Kopplungslink. Der dritte Durchlauf prueft die Anki Karten und den Leuchtstift, vom Markieren im Text mit Neuladen und Entfernen ueber alle drei Kartenarten samt Vorschlaegen und eine Lernrunde mit Fehlversuch bis zu Bearbeiten, Loeschen und Neuladen. Der vierte Durchlauf prueft die Notizen, vom Schreiben und Formatieren im Heft ueber Speichern, Kopieren und den PDF Druck bis zu Bearbeiten, Loeschen und Neuladen.
+Der komplette Browserdurchlauf oeffnet jede Lektion in Chromium, prueft alle Visuals, macht jeden Test mit Zufallsantworten, prueft die Handyansicht mit 390 Pixel Breite und legt Screenshots in den Ordner screenshots. Der zweite Durchlauf prueft die Synchronisation mit zwei simulierten Geraeten und dem Kopplungslink. Der dritte Durchlauf prueft die Anki Karten und den Leuchtstift, vom Markieren im Text mit Neuladen und Entfernen ueber alle drei Kartenarten samt Vorschlaegen und eine Lernrunde mit Fehlversuch bis zu Bearbeiten, Loeschen und Neuladen. Der vierte Durchlauf prueft die Notizen, vom Schreiben und Formatieren ueber Speichern, Kopieren und den PDF Druck bis zu Bearbeiten, Loeschen und Neuladen.
 
     npm run build
     npm run preview
