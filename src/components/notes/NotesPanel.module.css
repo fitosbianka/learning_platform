@@ -49,21 +49,27 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  padding: 0 12px 10px;
+  gap: 8px;
+  padding: 0 14px 12px;
   border-bottom: 1px solid var(--border);
 }
 
 .toolSelect {
-  min-height: 34px;
-  padding: 4px 8px;
+  min-height: 36px;
+  padding: 4px 10px;
   font: inherit;
   font-size: 0.85rem;
+  font-weight: 550;
   color: var(--text);
-  background: var(--surface);
-  border: 1.5px solid var(--border-strong);
-  border-radius: 8px;
+  background: var(--surface-2);
+  border: 1px solid transparent;
+  border-radius: 10px;
   max-width: 100%;
+  cursor: pointer;
+}
+
+.toolSelect:hover {
+  background: var(--accent-soft);
 }
 
 .toolSelect:focus-visible {
@@ -73,17 +79,20 @@
 
 .toolGroup {
   display: flex;
-  gap: 4px;
+  gap: 3px;
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 3px;
 }
 
 .toolButton {
   width: 34px;
-  height: 34px;
+  height: 30px;
   display: grid;
   place-items: center;
-  border: 1.5px solid var(--border-strong);
+  border: none;
   border-radius: 8px;
-  background: var(--surface);
+  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: 0.9rem;
@@ -91,19 +100,21 @@
 }
 
 .toolButton:hover {
-  border-color: var(--accent);
   background: var(--accent-soft);
 }
 
 .toolButton:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline-offset: -2px;
 }
 
 .toolActive {
   background: var(--accent);
-  border-color: var(--accent);
   color: var(--accent-contrast);
+}
+
+.toolActive:hover {
+  background: var(--accent);
 }
 
 .paperWrap {

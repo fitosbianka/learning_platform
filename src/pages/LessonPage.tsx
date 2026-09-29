@@ -203,7 +203,7 @@ export function LessonPage({
   const revealed = isFinished || forceTest;
 
   return (
-    <div className={`container ${notesOpen ? styles.withNotes : ''}`}>
+    <div className={`container ${notesOpen ? 'containerWide' : ''}`}>
       <ReadingProgress target={articleRef} />
       <div className={styles.topRow}>
         <Link to="/" className={styles.backLink}>
