@@ -1,0 +1,197 @@
+.readingProgress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 50;
+  background: transparent;
+  pointer-events: none;
+}
+
+.readingProgressFill {
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left;
+  transition: transform 0.08s linear;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 20px;
+  flex-wrap: wrap;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--text-soft);
+  font-weight: 550;
+}
+
+.backLink:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.breadcrumb {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.title {
+  margin: 10px 0 4px;
+}
+
+.metaLine {
+  color: var(--text-soft);
+  margin-bottom: 26px;
+}
+
+.goalsBox {
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 22px;
+}
+
+.goalsBox h2 {
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-strong);
+  margin-bottom: 8px;
+}
+
+.goalsBox ul {
+  margin: 0;
+}
+
+.whyBox {
+  border-left: 4px solid var(--accent);
+  background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 16px 20px;
+  margin-bottom: 30px;
+  box-shadow: var(--shadow);
+}
+
+.whyBox h2 {
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.whyBox p {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.content h2 {
+  margin-top: 40px;
+  padding-top: 4px;
+}
+
+.markReadArea {
+  margin: 40px 0;
+  text-align: center;
+}
+
+.markReadHint {
+  margin-top: 12px;
+}
+
+.markedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ok);
+  font-weight: 650;
+  min-height: 44px;
+}
+
+.checkPop {
+  animation: checkPop 0.45s ease;
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0.4);
+  }
+  60% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.summaryBox {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin: 30px 0;
+}
+
+.summaryBox h2 {
+  font-size: 1.05rem;
+}
+
+.summaryBox p {
+  margin: 0;
+}
+
+.nav {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin: 44px 0 56px;
+}
+
+@media (min-width: 600px) {
+  .nav {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.navLink {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  min-height: 44px;
+}
+
+.navLink:hover {
+  border-color: var(--accent);
+  text-decoration: none;
+}
+
+.navNext {
+  text-align: right;
+}
+
+.navLabel {
+  font-size: 0.82rem;
+  color: var(--text-soft);
+}
+
+.navTitle {
+  font-weight: 600;
+}
+
+.loading {
+  padding: 60px 0;
+  color: var(--text-soft);
+  text-align: center;
+}

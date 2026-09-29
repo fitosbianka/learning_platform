@@ -1,0 +1,179 @@
+.header {
+  padding: 36px 0 10px;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin: 4px 0 22px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-weight: 600;
+  color: var(--text-soft);
+  border: 1px solid transparent;
+}
+
+.tab:hover {
+  background: var(--surface-2);
+  text-decoration: none;
+}
+
+.tabActive {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.search {
+  margin-bottom: 8px;
+}
+
+.searchInput {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 16px;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: 999px;
+}
+
+.searchInput:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+.resultCount {
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  margin: 8px 2px 18px;
+}
+
+.group {
+  margin-bottom: 26px;
+}
+
+.groupTitle {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-strong);
+  margin-bottom: 10px;
+}
+
+.entryList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.entry {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+  padding: 12px 16px;
+}
+
+.term {
+  font-weight: 700;
+  margin: 0;
+}
+
+.entryText {
+  margin: 2px 0 0;
+  color: var(--text-soft);
+}
+
+.lessonLinks {
+  margin: 6px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lessonLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.lessonLink:hover {
+  text-decoration: none;
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.noResults {
+  color: var(--text-soft);
+  padding: 24px 0;
+}
+
+.sheetList {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 48px;
+}
+
+.sheetCard {
+  padding: 0;
+  overflow: hidden;
+}
+
+.sheetHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  min-height: 56px;
+}
+
+.sheetHeader:hover {
+  background: var(--surface-2);
+}
+
+.sheetTitle {
+  font-size: 1.05rem;
+  font-weight: 650;
+  margin: 0;
+}
+
+.sheetChevron {
+  transition: transform 0.2s ease;
+  color: var(--text-soft);
+  flex: 0 0 auto;
+}
+
+.sheetChevronOpen {
+  transform: rotate(180deg);
+}
+
+.sheetBody {
+  padding: 4px 20px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.sheetBody > :global(p):first-child {
+  margin-top: 12px;
+}
