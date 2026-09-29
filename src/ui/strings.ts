@@ -117,6 +117,35 @@ export const strings = {
     closeSheet: 'Schliessen',
   },
 
+  sync: {
+    title: 'Synchronisation zwischen Geräten',
+    introOff:
+      'Verbindet deine Geräte über eine kleine Cloudablage in deinem Vercel Projekt. Der Lernstand gleicht sich danach automatisch ab.',
+    introOn: 'Dieses Gerät gleicht den Lernstand automatisch mit deinen anderen Geräten ab.',
+    enable: 'Synchronisation einschalten',
+    yourCode: 'Dein Gerätecode',
+    codeHint: 'Öffne den Kopplungslink auf dem anderen Gerät oder gib dort diesen Code ein.',
+    copyLink: 'Kopplungslink kopieren',
+    linkCopied: 'Link kopiert. Schick ihn dir zum Beispiel per Nachricht aufs andere Gerät und öffne ihn dort.',
+    linkManual: 'Kopieren klappt hier nicht automatisch. Markiere den Link unten von Hand.',
+    joinTitle: 'Anderes Gerät verbinden',
+    joinLabel: 'Code vom anderen Gerät',
+    joinPlaceholder: 'zum Beispiel abcd efgh 2345',
+    joinButton: 'Mit Code verbinden',
+    joined: 'Verbunden. Der Lernstand beider Geräte wurde zusammengeführt.',
+    invalidCode: 'Dieser Code stimmt so nicht. Prüfe die Eingabe.',
+    unknownCode: 'Diesen Code gibt es nicht. Schalte die Synchronisation zuerst auf dem ersten Gerät ein und prüfe die Eingabe.',
+    syncNow: 'Jetzt abgleichen',
+    disable: 'Synchronisation ausschalten',
+    statusOk: 'Alles abgeglichen.',
+    lastSync: (time: string) => `Zuletzt abgeglichen um ${time} Uhr.`,
+    neverSynced: 'Noch nie abgeglichen.',
+    statusWorking: 'Wird gerade abgeglichen.',
+    statusError: 'Gerade keine Verbindung zur Cloudablage. Es wird automatisch weiter versucht.',
+    notConfigured:
+      'Die Cloudablage ist noch nicht eingerichtet. Lege im Vercel Dashboard unter Storage eine Upstash Redis Datenbank an und verbinde sie mit dem Projekt learning_platform. Die genauen Schritte stehen im README unter Synchronisation.',
+  },
+
   settings: {
     title: 'Einstellungen',
     appearance: 'Darstellung',
@@ -143,7 +172,7 @@ export const strings = {
       'Dein Browser erlaubt kein Speichern. Die Plattform funktioniert, der Fortschritt geht beim Schliessen aber verloren.',
     about: 'Über diese Plattform',
     aboutText:
-      'Persönliche Lernplattform für den Zahnmedizin Grundkurs. Alle Daten bleiben in deinem Browser, nichts wird an einen Server geschickt.',
+      'Persönliche Lernplattform für den Zahnmedizin Grundkurs. Deine Daten bleiben in deinem Browser. Nur wenn die Synchronisation eingeschaltet ist, liegt eine Kopie des Lernstands zusätzlich in der Cloudablage deines eigenen Vercel Projekts.',
   },
 
   visuals: {
@@ -158,6 +187,13 @@ export const strings = {
     toDashboard: 'Zur Übersicht',
   },
 } as const;
+
+/** Formats an ISO date as a time like 14.32, without forbidden characters. */
+export function formatTime(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return `${d.getHours()}.${String(d.getMinutes()).padStart(2, '0')}`;
+}
 
 /** Formats an ISO date as Swiss style date without forbidden characters. */
 export function formatDate(iso: string): string {

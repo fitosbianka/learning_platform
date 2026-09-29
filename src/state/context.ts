@@ -3,7 +3,22 @@ import type { TestAttempt } from '../storage/storage';
 
 export type Theme = 'light' | 'dark';
 
+export type SyncStatus = 'off' | 'ok' | 'working' | 'error' | 'unconfigured';
+
+export interface SyncState {
+  code: string | null;
+  status: SyncStatus;
+  lastSyncAt: string | null;
+}
+
+export type JoinResult = 'ok' | 'invalid' | 'unknown' | 'unconfigured' | 'error';
+
 export interface AppState {
+  sync: SyncState;
+  enableSync: () => Promise<void>;
+  joinSync: (raw: string) => Promise<JoinResult>;
+  disableSync: () => void;
+  syncNow: () => Promise<void>;
   finished: ReadonlySet<number>;
   attempts: Readonly<Record<string, TestAttempt[]>>;
   /** The effective theme currently applied */

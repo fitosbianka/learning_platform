@@ -50,18 +50,42 @@ So gehst du vor
 
 Die Texte der Oberflaeche, also Knoepfe und Meldungen, liegen gesammelt in src/ui/strings.ts. Die Visuals liegen in src/visuals, pro Lektion ein Ordner, pro Visual eine Datei.
 
-## 4. Tests und Qualitaetslauf
+## 4. Synchronisation zwischen Geraeten
+
+Der Lernstand kann automatisch zwischen MacBook, Handy und weiteren Geraeten abgeglichen werden. Dafuer braucht die Plattform eine kleine Datenablage in deinem Vercel Projekt. Sie wird einmalig eingerichtet, ist im kostenlosen Umfang von Vercel enthalten und die Zugangsdaten werden automatisch hinterlegt, es muss nichts im Code eingetragen werden.
+
+Einmalige Einrichtung
+
+1. Im Vercel Dashboard das Projekt learning_platform oeffnen und oben den Reiter Storage waehlen.
+2. Create Database anklicken und Upstash for Redis auswaehlen, je nach Ansicht heisst es auch Upstash KV oder Redis. Den kostenlosen Plan nehmen, einen beliebigen Namen vergeben und die Datenbank mit dem Projekt learning_platform verbinden.
+3. Danach einmal neu deployen, damit die Funktion die Zugangsdaten erhaelt. Unter Deployments beim obersten Eintrag das Menue mit den drei Punkten oeffnen und Redeploy waehlen. Alternativ genuegt auch der naechste Push auf main.
+
+Geraete koppeln
+
+1. Auf dem ersten Geraet die Einstellungen oeffnen und Synchronisation einschalten druecken. Es erscheint ein Geraetecode.
+2. Kopplungslink kopieren druecken und den Link an dich selbst schicken, zum Beispiel per Nachricht oder Mail. Auf dem anderen Geraet den Link oeffnen, fertig. Alternativ kann dort auch der Code von Hand eingegeben werden.
+3. Ab jetzt gleichen sich die Geraete automatisch ab, beim Oeffnen der Seite, beim Wechsel zurueck in den Browser und kurz nach jeder abgeschlossenen Lektion oder jedem Test. In den Einstellungen zeigt eine Statuszeile den letzten Abgleich, dort gibt es auch Jetzt abgleichen und Synchronisation ausschalten.
+
+Gut zu wissen
+
+* Der Geraetecode ist der Schluessel zu deinem Lernstand. Nur Geraete mit diesem Code sehen ihn. Wer die Webseite ohne Code oeffnet, sieht nichts von deinem Fortschritt.
+* Synchronisiert werden Lernstand und Testversuche. Der Dunkelmodus bleibt bewusst pro Geraet einstellbar.
+* Ohne eingerichtete Datenablage funktioniert die Plattform wie bisher, nur eben pro Geraet. Die Einstellungen zeigen in dem Fall einen Hinweis mit diesen Schritten.
+* Lokal mit npm run dev gibt es den Abgleichdienst nicht, er laeuft nur auf der veroeffentlichten Seite.
+
+## 5. Tests und Qualitaetslauf
 
     npm test            alle Vitest Tests, Parser, Inhalte, Speicher, Quiz, Suche
     npm run lint        ESLint ohne Warnungen
     npm run typecheck   TypeScript im strikten Modus
     npm run build       Produktion bauen, inklusive Service Worker
 
-Der komplette Browserdurchlauf oeffnet jede Lektion in Chromium, prueft alle Visuals, macht jeden Test mit Zufallsantworten, prueft die Handyansicht mit 390 Pixel Breite und legt Screenshots in den Ordner screenshots
+Der komplette Browserdurchlauf oeffnet jede Lektion in Chromium, prueft alle Visuals, macht jeden Test mit Zufallsantworten, prueft die Handyansicht mit 390 Pixel Breite und legt Screenshots in den Ordner screenshots. Der zweite Durchlauf prueft die Synchronisation mit zwei simulierten Geraeten und dem Kopplungslink.
 
     npm run build
     npm run preview
     node scripts/qa.mjs
+    node scripts/qa-sync.mjs
 
 Er meldet jeden Konsolenfehler und jede Warnung und bricht dann ab. Fuer die Lighthouse Messung auf dem Produktionsbuild
 

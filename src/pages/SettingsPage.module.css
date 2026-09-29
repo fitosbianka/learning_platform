@@ -69,6 +69,42 @@
   border-color: var(--accent-strong);
 }
 
+.syncInput {
+  min-height: 44px;
+  padding: 8px 14px;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: 999px;
+  width: 220px;
+  max-width: 100%;
+}
+
+.syncInput:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+.syncCode {
+  font-size: 1.5rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  margin: 10px 0 4px;
+  color: var(--accent-strong);
+  overflow-wrap: anywhere;
+}
+
+.syncLink {
+  font-size: 0.85rem;
+  background: var(--surface-2);
+  border-radius: var(--radius-small);
+  padding: 8px 12px;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
 .status {
   margin: 12px 0 0;
   padding: 10px 14px;

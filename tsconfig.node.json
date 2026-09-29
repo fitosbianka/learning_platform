@@ -23,5 +23,5 @@
 
     "types": ["node"]
   },
-  "include": ["vite.config.ts", "scripts", "src/content/types.ts"]
+  "include": ["vite.config.ts", "scripts", "api", "src/content/types.ts"]
 }
