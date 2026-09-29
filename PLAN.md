@@ -35,12 +35,14 @@ Lesson mit id, title, week, day, durationMinutes, metaLine, goals, why, sections
 1. Grundgeruest mit Vite, React, TypeScript strict, ESLint, Vitest. Erledigt
 2. Content Pipeline mit Parser, Fixtures, Generierung und Validierungstests. Erledigt
 3. Storage, Shuffle, Fortschrittslogik mit Tests. Erledigt
-4. App Shell, Router, Dashboard, Lektionsseite mit Quiz und Tastatursteuerung, zuerst Lektion 3
-5. FDI Zahnschema als wiederverwendbare Komponente samt Uebungsmodus, danach alle Visuals Lektion fuer Lektion
-6. Nachschlagen mit Glossarsuche und Spickzetteln, Einstellungen, Export, Import, Reset, Dunkelmodus
-7. Offline Support ueber generierten Service Worker mit Precache aller Chunks
-8. Qualitaetslauf. Build, Lint, Typecheck, Tests, Browserdurchlauf aller 21 Lektionen mit Screenshots, Lighthouse
-9. README, Abschlussbericht, NOTES_FOR_REVIEW
+4. App Shell, Router, Dashboard, Lektionsseite mit Quiz und Tastatursteuerung, zuerst Lektion 3. Erledigt
+5. FDI Zahnschema als wiederverwendbare Komponente samt Uebungsmodus, danach alle Visuals Lektion fuer Lektion. Erledigt
+6. Nachschlagen mit Glossarsuche und Spickzetteln, Einstellungen, Export, Import, Reset, Dunkelmodus. Erledigt
+7. Offline Support ueber generierten Service Worker mit Precache aller Chunks. Erledigt
+8. Qualitaetslauf. Build, Lint, Typecheck, Tests, Browserdurchlauf aller 21 Lektionen mit Screenshots, Lighthouse. Erledigt
+9. README, Abschlussbericht, NOTES_FOR_REVIEW. Erledigt
+
+Ergebnis im ABSCHLUSSBERICHT.md.
 
 ## Entscheidungen
 

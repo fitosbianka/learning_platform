@@ -6,6 +6,8 @@ import { Blocks } from '../components/Blocks';
 import { Link } from '../router/Link';
 import { navigate } from '../router/useHashRoute';
 import { strings } from '../ui/strings';
+import { FdiChart } from '../visuals/common/FdiChart';
+import type { Dentition } from '../visuals/common/fdiData';
 import styles from './ReferencePage.module.css';
 
 const t = strings.reference;
@@ -86,6 +88,35 @@ function GlossaryTab() {
   );
 }
 
+/** The tooth chart from lesson 3, embedded in the Zahnschema cheat sheet. */
+function SheetChart() {
+  const [dentition, setDentition] = useState<Dentition>('permanent');
+  return (
+    <div style={{ margin: '12px 0 4px' }}>
+      <div className="visualControls" style={{ marginTop: 0, marginBottom: 4 }}>
+        <button
+          type="button"
+          className={`btn btnSmall ${dentition === 'permanent' ? 'btnPrimary' : ''}`}
+          aria-pressed={dentition === 'permanent'}
+          onClick={() => setDentition('permanent')}
+        >
+          Bleibendes Gebiss
+        </button>
+        <button
+          type="button"
+          className={`btn btnSmall ${dentition === 'primary' ? 'btnPrimary' : ''}`}
+          aria-pressed={dentition === 'primary'}
+          onClick={() => setDentition('primary')}
+        >
+          Milchgebiss
+        </button>
+      </div>
+      <FdiChart dentition={dentition} />
+      <p className="visualHint">Rechts und links aus Sicht der Patientin, Quadrant 1 liegt links im Bild.</p>
+    </div>
+  );
+}
+
 function SheetCard({ sheet, open }: { sheet: CheatSheet; open: boolean }) {
   const contentId = `sheet-${sheet.id}`;
   return (
@@ -113,6 +144,7 @@ function SheetCard({ sheet, open }: { sheet: CheatSheet; open: boolean }) {
       </button>
       {open && (
         <div id={contentId} className={styles.sheetBody}>
+          {sheet.id === 1 && <SheetChart />}
           <Blocks blocks={sheet.blocks} />
         </div>
       )}

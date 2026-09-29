@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc -b --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "qa": "node scripts/qa.mjs"
   },
   "dependencies": {
     "react": "^19.3.0",
