@@ -1,0 +1,401 @@
+/*
+ * Design tokens and base styles.
+ * Calm, clean, clinical but warm. One accent in soft petrol, a warm
+ * neutral background, dark slate text. Green and red only for correct
+ * and wrong. Dark mode via [data-theme] on the html element.
+ */
+
+:root {
+  /* Surfaces and text */
+  --bg: #f7f4ef;
+  --surface: #ffffff;
+  --surface-2: #efece5;
+  --text: #2c3540;
+  --text-soft: #5f6a76;
+  --border: #e3ded4;
+  --border-strong: #cfc8bb;
+
+  /* Accent */
+  --accent: #206e69;
+  --accent-strong: #17544f;
+  --accent-soft: #dcecea;
+  --accent-contrast: #ffffff;
+
+  /* Semantic */
+  --ok: #257a3e;
+  --ok-soft: #ddefe0;
+  --err: #b3362d;
+  --err-soft: #f7e2e0;
+  --warn-soft: #f6ecd4;
+
+  /* Visual palette, used by every illustration */
+  --vis-teal: #4a9a94;
+  --vis-blue: #5b87b5;
+  --vis-sand: #d9c39a;
+  --vis-rose: #c98d94;
+  --vis-violet: #8d85b8;
+  --vis-amber: #d8a457;
+  --vis-green: #7aa869;
+  --vis-gray: #9aa3ab;
+
+  /* Anatomy colors shared by the tooth cross sections */
+  --tooth-enamel: #f3efe6;
+  --tooth-dentin: #e8d5a8;
+  --tooth-pulp: #d98d85;
+  --tooth-bone: #d9c39a;
+  --tooth-gum: #dda1a1;
+  --tooth-outline: #4b5563;
+
+  --radius: 14px;
+  --radius-small: 9px;
+  --shadow: 0 1px 3px rgb(44 53 64 / 0.06);
+  --topbar-h: 56px;
+
+  --font:
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif;
+}
+
+html[data-theme='dark'] {
+  --bg: #14181c;
+  --surface: #1d2329;
+  --surface-2: #262d34;
+  --text: #e6e4df;
+  --text-soft: #a3adb7;
+  --border: #333b44;
+  --border-strong: #46505a;
+
+  --accent: #63b8b1;
+  --accent-strong: #8ccfc9;
+  --accent-soft: #21393a;
+  --accent-contrast: #10211f;
+
+  --ok: #7cc48b;
+  --ok-soft: #21382a;
+  --err: #e59189;
+  --err-soft: #46262a;
+  --warn-soft: #3d3524;
+
+  --vis-teal: #58aaa3;
+  --vis-blue: #6f9cc9;
+  --vis-sand: #c0a97e;
+  --vis-rose: #c88f96;
+  --vis-violet: #9c94c7;
+  --vis-amber: #cfa45e;
+  --vis-green: #85b174;
+  --vis-gray: #8a949d;
+
+  --tooth-enamel: #e9e4d8;
+  --tooth-dentin: #d3bd8c;
+  --tooth-pulp: #cd837b;
+  --tooth-bone: #b7a179;
+  --tooth-gum: #c08c8c;
+  --tooth-outline: #cbd2d9;
+
+  --shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+@media (min-width: 720px) {
+  html {
+    font-size: 17.5px;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.25;
+  margin: 0 0 0.5em;
+  font-weight: 650;
+}
+
+h1 {
+  font-size: 1.55rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+ul,
+ol {
+  margin: 0 0 1em;
+  padding-left: 1.35em;
+}
+
+li {
+  margin-bottom: 0.4em;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+.container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.skipLink {
+  position: absolute;
+  left: -999px;
+  top: 8px;
+  background: var(--surface);
+  color: var(--accent);
+  padding: 10px 16px;
+  border-radius: var(--radius-small);
+  border: 1px solid var(--border-strong);
+  z-index: 100;
+}
+
+.skipLink:focus-visible {
+  left: 8px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 550;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+a.btn:hover {
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: var(--surface-2);
+}
+
+.btnPrimary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.btnPrimary:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+.btnGhost {
+  border-color: transparent;
+  background: transparent;
+}
+
+.btnGhost:hover {
+  background: var(--surface-2);
+}
+
+.btnSmall {
+  min-height: 36px;
+  padding: 4px 14px;
+  font-size: 0.9rem;
+}
+
+.btnDanger {
+  border-color: var(--err);
+  color: var(--err);
+  background: var(--surface);
+}
+
+.btnDanger:hover {
+  background: var(--err-soft);
+}
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+@media (min-width: 720px) {
+  .card {
+    padding: 24px;
+  }
+}
+
+/* Generic reveal animation */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.reveal {
+  animation: reveal 0.45s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Content blocks */
+.blockLabel {
+  font-weight: 650;
+  margin-bottom: 0.35em;
+}
+
+/* Visuals */
+.visualFrame {
+  margin: 26px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.visualBody {
+  width: 100%;
+}
+
+.visualBody[style*='--visual-aspect'] {
+  aspect-ratio: var(--visual-aspect);
+}
+
+.visualBody > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.visualCaption {
+  margin-top: 10px;
+  font-size: 0.88rem;
+  color: var(--text-soft);
+  text-align: center;
+}
+
+.visualControls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.visualHint {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  text-align: center;
+  margin: 8px 0 0;
+}
+
+.visualStepText {
+  text-align: center;
+  min-height: 3.2em;
+  margin: 10px auto 0;
+  max-width: 52ch;
+  font-size: 0.95rem;
+}
+
+svg .visLabel {
+  font-family: var(--font);
+  font-size: 13px;
+  fill: var(--text);
+}
+
+svg .visLabelSoft {
+  font-family: var(--font);
+  font-size: 12px;
+  fill: var(--text-soft);
+}
+
+svg .visLabelStrong {
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 650;
+  fill: var(--text);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

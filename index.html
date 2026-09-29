@@ -10,6 +10,27 @@
     />
     <meta name="theme-color" content="#2a7f7a" />
     <title>Zahnmedizin Grundkurs</title>
+    <script>
+      // Applies the theme before the first paint to avoid a flash.
+      // Keep the storage key in sync with src/storage/storage.ts.
+      (function () {
+        var theme = null;
+        try {
+          var raw = localStorage.getItem('zahnkurs.store.v1');
+          if (raw) theme = JSON.parse(raw).theme || null;
+        } catch (e) {
+          theme = null;
+        }
+        if (theme !== 'light' && theme !== 'dark') {
+          try {
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          } catch (e) {
+            theme = 'light';
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

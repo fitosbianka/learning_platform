@@ -63,6 +63,7 @@ export const strings = {
       `${n} Fragen aus dem ganzen Kurs. Bestanden ab ${pass} richtigen Antworten, beliebig viele Versuche.`,
     start: 'Test starten',
     restart: 'Test nochmals machen',
+    revealEarly: 'Test schon jetzt machen',
     questionOf: (i: number, n: number) => `Frage ${i} von ${n}`,
     confirm: 'Antwort bestätigen',
     next: 'Weiter',

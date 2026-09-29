@@ -1,0 +1,116 @@
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: var(--topbar-h);
+}
+
+.brand {
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+}
+
+.brand:hover {
+  text-decoration: none;
+  color: var(--accent);
+}
+
+.brandIcon {
+  flex: 0 0 auto;
+  display: inline-flex;
+}
+
+.nav {
+  display: none;
+  gap: 4px;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  color: var(--text-soft);
+  font-weight: 550;
+}
+
+.navLink:hover {
+  background: var(--surface-2);
+  text-decoration: none;
+  color: var(--text);
+}
+
+.navLinkActive {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+}
+
+.menuButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+
+.menuButton:hover {
+  background: var(--surface-2);
+}
+
+.mobileMenu {
+  border-top: 1px solid var(--border);
+  padding: 8px 0 12px;
+  display: grid;
+  gap: 2px;
+}
+
+.mobileLink {
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+  padding: 0 12px;
+  border-radius: var(--radius-small);
+  color: var(--text);
+  font-weight: 550;
+}
+
+.mobileLink:hover {
+  background: var(--surface-2);
+  text-decoration: none;
+}
+
+.mobileLinkActive {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+}
+
+@media (min-width: 720px) {
+  .nav {
+    display: flex;
+  }
+
+  .menuButton,
+  .mobileMenu {
+    display: none;
+  }
+}

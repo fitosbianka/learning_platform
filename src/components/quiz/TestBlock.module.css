@@ -1,0 +1,262 @@
+.block {
+  margin: 30px 0;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.attempts {
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  margin: 4px 0 14px;
+}
+
+.attempts span {
+  margin-right: 12px;
+}
+
+.intro p {
+  color: var(--text-soft);
+}
+
+.keyboardHint {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  margin-top: 14px;
+}
+
+.progressLine {
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--accent-strong);
+  margin-bottom: 6px;
+}
+
+.questionText {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.options {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.option {
+  margin: 0;
+}
+
+.optionButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-small);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+  line-height: 1.45;
+}
+
+.optionButton:hover:enabled {
+  border-color: var(--accent);
+}
+
+.optionKey {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  color: var(--text-soft);
+  font-weight: 650;
+  font-size: 0.85rem;
+}
+
+.optionSelected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.optionSelected .optionKey {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.optionCorrect {
+  border-color: var(--ok);
+  background: var(--ok-soft);
+}
+
+.optionCorrect .optionKey {
+  background: var(--ok);
+  color: #ffffff;
+}
+
+.optionWrong {
+  border-color: var(--err);
+  background: var(--err-soft);
+}
+
+.optionWrong .optionKey {
+  background: var(--err);
+  color: #ffffff;
+}
+
+.optionButton:disabled {
+  cursor: default;
+}
+
+.resultIcon {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.feedback {
+  border-radius: var(--radius-small);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.feedbackTitle {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.feedbackOk {
+  color: var(--ok);
+}
+
+.feedbackErr {
+  color: var(--err);
+}
+
+.feedback p {
+  margin: 0;
+}
+
+.explanationLabel {
+  font-weight: 650;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.result {
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.scoreLine {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 6px 0 0;
+}
+
+.percentLine {
+  color: var(--text-soft);
+  margin: 0 0 8px;
+}
+
+.encourage {
+  font-size: 1.02rem;
+  margin-bottom: 4px;
+}
+
+.passBanner {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-weight: 700;
+  margin: 10px 0;
+}
+
+.passBannerOk {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.passBannerNo {
+  background: var(--warn-soft);
+  color: var(--text);
+}
+
+.resultList {
+  list-style: none;
+  margin: 18px 0;
+  padding: 0;
+  text-align: left;
+  display: grid;
+  gap: 6px;
+}
+
+.resultItem {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.resultItem svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.resultActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+/* Small confetti for a perfect score */
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confettiPiece {
+  position: absolute;
+  top: -12px;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: confettiFall 1.6s ease-in forwards;
+}
+
+@keyframes confettiFall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(340px) rotate(340deg);
+  }
+}

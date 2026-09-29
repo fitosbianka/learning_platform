@@ -1,0 +1,138 @@
+.header {
+  padding: 36px 0 10px;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-size: 1.05rem;
+  margin-bottom: 12px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.rowText {
+  flex: 1 1 260px;
+}
+
+.rowTitle {
+  font-weight: 600;
+  margin: 0;
+}
+
+.hint {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  margin: 2px 0 0;
+}
+
+.switch {
+  position: relative;
+  width: 56px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  flex: 0 0 auto;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  transition: transform 0.18s ease;
+}
+
+.switchOn {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.switchOn::after {
+  transform: translateX(24px);
+  border-color: var(--accent-strong);
+}
+
+.status {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-small);
+  font-size: 0.92rem;
+}
+
+.statusOk {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.statusErr {
+  background: var(--err-soft);
+  color: var(--err);
+}
+
+.warning {
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--warn-soft);
+  border: 1px solid var(--border-strong);
+  font-size: 0.94rem;
+}
+
+.about {
+  color: var(--text-soft);
+  font-size: 0.92rem;
+  margin: 26px 0 56px;
+}
+
+/* Confirm dialog */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(20 24 28 / 0.55);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 80;
+}
+
+.dialog {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 24px;
+  max-width: 420px;
+  width: 100%;
+}
+
+.dialogTitle {
+  margin-bottom: 6px;
+}
+
+.dialogText {
+  color: var(--text-soft);
+  margin-bottom: 18px;
+}
+
+.dialogActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
