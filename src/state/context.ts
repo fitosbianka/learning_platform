@@ -22,6 +22,7 @@ export interface AppState {
   saveCard: (card: AnkiCard) => void;
   deleteCard: (id: string) => void;
   passCardReview: (id: string) => void;
+  failCardReview: (id: string) => void;
   /** Lesson notes that hold content, tombstones filtered out */
   notes: readonly LessonNote[];
   saveNote: (lessonId: number, html: string) => void;

@@ -1,8 +1,9 @@
 /**
  * Runs one learning session over the cards that are due today. A wrong
- * answer shows the correct one and puts the card back at the end of the
- * queue, so it returns until it is answered correctly. A correct answer
- * advances the schedule of the card.
+ * or missed answer throws the card back to round one and puts it at
+ * the end of the queue, so it returns until it sits. A correct answer
+ * advances the schedule. Question cards are graded by the learner
+ * after revealing the answer.
  */
 
 import { useEffect, useMemo, useState } from 'react';
@@ -20,10 +21,10 @@ import styles from './ReviewSession.module.css';
 
 const t = strings.anki;
 
-type Phase = { name: 'answering' } | { name: 'feedback'; correct: boolean };
+type Phase = { name: 'answering' } | { name: 'revealed' } | { name: 'feedback'; correct: boolean };
 
 function correctAnswerText(content: CardContent): string {
-  if (content.kind === 'yesno') return content.answerYes ? t.yes : t.no;
+  if (content.kind === 'qa') return content.answer;
   if (content.kind === 'choice') {
     const letter = ['A', 'B', 'C'][content.correctIndex] ?? '';
     return `${letter}. ${content.options[content.correctIndex] ?? ''}`;
@@ -77,7 +78,7 @@ function ClozePrompt({ content, typed, disabled, onType, onCheck }: {
 }
 
 export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => void }) {
-  const { cards, passCardReview } = useAppState();
+  const { cards, passCardReview, failCardReview } = useAppState();
   const [queue, setQueue] = useState<string[]>(() => dueCards(cards, today).map((c) => c.id));
   const [doneCount, setDoneCount] = useState(0);
   const [phase, setPhase] = useState<Phase>({ name: 'answering' });
@@ -110,6 +111,7 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
     if (typeof value === 'number' || typeof value === 'boolean') setPicked(value);
     setShownRound(reviewNumber(card));
     if (correct) passCardReview(card.id);
+    else failCardReview(card.id);
     setPhase({ name: 'feedback', correct });
   };
 
@@ -123,28 +125,57 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
     setShownRound(null);
   };
 
-  // Keyboard support. Enter continues, on Ja oder Nein and Auswahl the
-  // digits pick an answer. The cloze input handles Enter itself.
+  /** Question cards uncover their answer first. */
+  const reveal = () => {
+    if (phase.name === 'answering') setPhase({ name: 'revealed' });
+  };
+
+  /** The honest self check on a question card. */
+  const grade = (knew: boolean) => {
+    if (!card || phase.name !== 'revealed') return;
+    if (knew) {
+      passCardReview(card.id);
+      setDoneCount((n) => n + 1);
+      setQueue((q) => q.slice(1));
+    } else {
+      failCardReview(card.id);
+      setQueue((q) => [...q.slice(1), ...q.slice(0, 1)]);
+    }
+    setPhase({ name: 'answering' });
+    setTyped('');
+    setPicked(null);
+    setShownRound(null);
+  };
+
+  // Keyboard support. Enter continues or reveals, the digits pick an
+  // answer or grade the self check. The cloze input handles Enter itself.
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
-      if (e.key === 'Enter' && phase.name === 'feedback') {
-        e.preventDefault();
-        next();
+      if (e.key === 'Enter') {
+        if (phase.name === 'feedback') {
+          e.preventDefault();
+          next();
+          return;
+        }
+        if (phase.name === 'answering' && card?.content.kind === 'qa') {
+          e.preventDefault();
+          reveal();
+          return;
+        }
+      }
+      if (phase.name === 'revealed') {
+        if (e.key === '1') grade(true);
+        if (e.key === '2') grade(false);
         return;
       }
-      if (phase.name !== 'answering' || !card || card.content.kind === 'cloze') return;
-      if (card.content.kind === 'yesno') {
-        if (e.key === '1') answer(true);
-        if (e.key === '2') answer(false);
-      } else {
-        const index = ['1', '2', '3'].indexOf(e.key);
-        if (index >= 0) answer(index);
-      }
+      if (phase.name !== 'answering' || !card || card.content.kind !== 'choice') return;
+      const index = ['1', '2', '3'].indexOf(e.key);
+      if (index >= 0) answer(index);
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-    // answer and next read fresh state through card and phase above.
+    // The handlers read fresh state through card and phase above.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, card]);
 
@@ -175,34 +206,35 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
         </button>
       </div>
 
-      {content.kind === 'yesno' && (
+      {content.kind === 'qa' && (
         <>
-          <p className={styles.kicker}>{t.trueOrFalse}</p>
-          <p className={styles.prompt}>{content.statement}</p>
-          <div className={styles.answerRow}>
-            {(
-              [
-                [true, t.yes],
-                [false, t.no],
-              ] as [boolean, string][]
-            ).map(([value, label]) => (
-              <button
-                key={String(value)}
-                type="button"
-                className={`${styles.answerButton} ${
-                  showFeedback && value === content.answerYes
-                    ? styles.answerRight
-                    : showFeedback && picked === value
-                      ? styles.answerWrong
-                      : ''
-                }`}
-                disabled={showFeedback}
-                onClick={() => answer(value)}
-              >
-                {label}
+          <p className={styles.prompt}>{content.question}</p>
+          {phase.name === 'answering' && (
+            <>
+              <p className={styles.selfHint}>{t.selfAnswerHint}</p>
+              <button type="button" className="btn btnPrimary" onClick={reveal}>
+                {t.reveal}
               </button>
-            ))}
-          </div>
+            </>
+          )}
+          {phase.name === 'revealed' && (
+            <>
+              <div className={styles.qaAnswerBox}>
+                <p className={styles.qaAnswerLabel}>{t.qaAnswerLabel}</p>
+                <p className={styles.qaAnswerText}>{content.answer}</p>
+              </div>
+              <p className={styles.selfGrade}>{t.selfGradeLabel}</p>
+              <div className={styles.answerRow}>
+                <button type="button" className="btn btnPrimary" onClick={() => grade(true)}>
+                  {t.knew}
+                </button>
+                <button type="button" className="btn" onClick={() => grade(false)}>
+                  {t.notKnew}
+                </button>
+              </div>
+              <p className={styles.gradeNote}>{t.notKnewNote}</p>
+            </>
+          )}
         </>
       )}
 

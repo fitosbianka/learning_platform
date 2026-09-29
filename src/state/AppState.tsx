@@ -19,7 +19,7 @@ import {
   type SyncSettings,
 } from '../storage/storage';
 import { generateSyncCode, normalizeSyncCode, pullRemote, pushRemote } from '../sync/sync';
-import { passReview, type AnkiCard } from '../anki/cards';
+import { failReview, passReview, type AnkiCard } from '../anki/cards';
 import { isEmptyNote, sanitizeNoteHtml, type LessonNote } from '../notes/notes';
 import type { Marking } from '../marks/marks';
 import { AppStateContext, type AppState, type JoinResult, type SyncStatus, type Theme } from './context';
@@ -291,6 +291,11 @@ export function AppStateProvider({
         update((prev) => ({
           ...prev,
           cards: prev.cards.map((c) => (c.id === id ? passReview(c) : c)),
+        })),
+      failCardReview: (id) =>
+        update((prev) => ({
+          ...prev,
+          cards: prev.cards.map((c) => (c.id === id ? failReview(c) : c)),
         })),
       notes: store.notes.filter((n) => !isEmptyNote(n.html)),
       saveNote: (lessonId, html) =>

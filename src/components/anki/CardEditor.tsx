@@ -6,7 +6,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { autoGap, newCard, tokenize, type AnkiCard, type CardContent } from '../../anki/cards';
-import { suggestChoice } from '../../anki/suggest';
+import { suggestChoice, suggestQa } from '../../anki/suggest';
 import { lessonIndex } from '../../content/generated/lessonsIndex';
 import { strings } from '../../ui/strings';
 import styles from './CardEditor.module.css';
@@ -44,13 +44,20 @@ export function CardEditor({ initial, prefillText, lessonId, allowLessonPick = f
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
-
-  const [kind, setKind] = useState<Kind>(initialContent?.kind ?? (prefill ? 'cloze' : 'yesno'));
-  const [lesson, setLesson] = useState<number>(initial?.lessonId ?? lessonId);
-  const [statement, setStatement] = useState(
-    initialContent?.kind === 'yesno' ? initialContent.statement : prefill,
+  const qaSuggestion = useMemo(
+    () => (initialContent === null && prefill ? suggestQa(prefill) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
-  const [answerYes, setAnswerYes] = useState(initialContent?.kind === 'yesno' ? initialContent.answerYes : true);
+
+  const [kind, setKind] = useState<Kind>(initialContent?.kind ?? (prefill ? 'cloze' : 'qa'));
+  const [lesson, setLesson] = useState<number>(initial?.lessonId ?? lessonId);
+  const [qaQuestion, setQaQuestion] = useState(
+    initialContent?.kind === 'qa' ? initialContent.question : (qaSuggestion?.question ?? ''),
+  );
+  const [qaAnswer, setQaAnswer] = useState(
+    initialContent?.kind === 'qa' ? initialContent.answer : (qaSuggestion?.answer ?? prefill),
+  );
   const [question, setQuestion] = useState(
     initialContent?.kind === 'choice' ? initialContent.question : (choiceSuggestion?.question ?? ''),
   );
@@ -116,10 +123,11 @@ export function CardEditor({ initial, prefillText, lessonId, allowLessonPick = f
   };
 
   const buildContent = (): CardContent | null => {
-    if (kind === 'yesno') {
-      const s = statement.trim();
-      if (!s) return null;
-      return { kind: 'yesno', statement: s, answerYes };
+    if (kind === 'qa') {
+      const q = qaQuestion.trim();
+      const a = qaAnswer.trim();
+      if (!q || !a) return null;
+      return { kind: 'qa', question: q, answer: a };
     }
     if (kind === 'choice') {
       const q = question.trim();
@@ -194,7 +202,7 @@ export function CardEditor({ initial, prefillText, lessonId, allowLessonPick = f
         <div className={styles.kindTabs} role="group" aria-label="Kartentyp">
           {(
             [
-              ['yesno', t.kindYesno],
+              ['qa', t.kindQa],
               ['choice', t.kindChoice],
               ['cloze', t.kindCloze],
             ] as [Kind, string][]
@@ -213,33 +221,32 @@ export function CardEditor({ initial, prefillText, lessonId, allowLessonPick = f
 
         {prefill !== '' && initialContent === null && <p className={styles.suggestHint}>{t.suggestHint}</p>}
 
-        {kind === 'yesno' && (
+        {kind === 'qa' && (
           <>
             <div className={styles.field}>
-              <label className={styles.label} htmlFor="card-statement">
-                {t.statementLabel}
+              <label className={styles.label} htmlFor="card-qa-question">
+                {t.questionLabel}
               </label>
               <textarea
-                id="card-statement"
+                id="card-qa-question"
                 ref={firstFieldRef}
                 className={styles.textarea}
-                value={statement}
-                onChange={(e) => setStatement(e.target.value)}
+                style={{ minHeight: 56 }}
+                value={qaQuestion}
+                onChange={(e) => setQaQuestion(e.target.value)}
               />
-              <p className={styles.hint}>{t.statementHint}</p>
             </div>
             <div className={styles.field}>
-              <span className={styles.label}>{t.correctAnswerLabel}</span>
-              <div className={styles.radioRow} role="radiogroup" aria-label={t.correctAnswerLabel}>
-                <label>
-                  <input type="radio" name="yesno-answer" checked={answerYes} onChange={() => setAnswerYes(true)} />
-                  {t.yes}
-                </label>
-                <label>
-                  <input type="radio" name="yesno-answer" checked={!answerYes} onChange={() => setAnswerYes(false)} />
-                  {t.no}
-                </label>
-              </div>
+              <label className={styles.label} htmlFor="card-qa-answer">
+                {t.qaAnswerLabel}
+              </label>
+              <textarea
+                id="card-qa-answer"
+                className={styles.textarea}
+                value={qaAnswer}
+                onChange={(e) => setQaAnswer(e.target.value)}
+              />
+              <p className={styles.hint}>{t.qaAnswerHint}</p>
             </div>
           </>
         )}

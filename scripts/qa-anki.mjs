@@ -103,6 +103,12 @@ async function main() {
   await page.getByText('Der Vorschlag kommt aus deiner markierten Stelle', { exact: false }).waitFor();
   const gapCount = await page.locator('[class*="tokenGap"]').count();
   check(gapCount >= 1, `highlight editor. expected a suggested gap, found ${gapCount}`);
+  // The question kind carries a written question with the passage as answer.
+  await page.getByRole('button', { name: 'Frage und Antwort' }).click();
+  const qaQuestion = await page.getByLabel('Frage', { exact: true }).inputValue();
+  const qaAnswer = await page.getByLabel('Antwort', { exact: true }).inputValue();
+  check(qaQuestion.trim().length > 0, 'suggestion. the question card question is empty');
+  check(qaAnswer.trim().length > 0, 'suggestion. the question card answer is empty');
   // The choice kind is fully prefilled from the highlight.
   await page.getByRole('button', { name: 'Auswahl A B C' }).click();
   const suggestedQuestion = await page.getByLabel('Frage', { exact: true }).inputValue();
@@ -123,12 +129,12 @@ async function main() {
   const chipText = (await chip.textContent()) ?? '';
   check(chipText.includes('Durchgang 1'), `overview. unexpected round chip text ${chipText}`);
 
-  // 3. A brand new Ja oder Nein card for lesson 3.
+  // 3. A brand new question card for lesson 3.
   await page.getByRole('button', { name: 'Neue Karte' }).click();
   await page.getByRole('heading', { name: 'Neue Lernkarte' }).waitFor();
   await page.getByLabel('Gehört zu Lektion').selectOption('3');
-  await page.getByLabel('Aussage', { exact: true }).fill('Der Mensch hat zwanzig Milchzähne.');
-  await page.getByRole('radio', { name: 'Ja' }).check();
+  await page.getByLabel('Frage', { exact: true }).fill('Wie viele Milchzähne hat der Mensch?');
+  await page.getByLabel('Antwort', { exact: true }).fill('Zwanzig, pro Kieferhälfte fünf.');
   await page.getByRole('button', { name: 'Speichern' }).click();
   await page.getByText('Heute 2 Karten zum Wiederholen').waitFor();
 
@@ -159,15 +165,16 @@ async function main() {
   await page.getByLabel('Deine Antwort für die Lücke').fill('absichtlich falsch');
   await page.getByRole('button', { name: 'Prüfen' }).click();
   await page.getByText('Leider nicht richtig').waitFor();
+  await page.getByText('fällt zurück auf Durchgang 1').waitFor();
   const clozeAnswer = (await page.locator('[class*="feedbackAnswer"] strong').textContent()) ?? '';
   check(clozeAnswer.trim().length > 0, 'session. missing correct answer text after a wrong cloze answer');
   await page.getByRole('button', { name: 'Weiter', exact: true }).click();
 
-  // Ja oder Nein card, correct right away.
-  await page.getByText('Stimmt diese Aussage?').waitFor();
-  await page.getByRole('button', { name: 'Ja', exact: true }).click();
-  await page.getByText('Richtig!').waitFor();
-  await page.getByRole('button', { name: 'Weiter', exact: true }).click();
+  // The question card, revealed and graded as known.
+  await page.getByText('Wie viele Milchzähne hat der Mensch?').waitFor();
+  await page.getByRole('button', { name: 'Antwort zeigen' }).click();
+  await page.getByText('Zwanzig, pro Kieferhälfte fünf.').waitFor();
+  await page.getByRole('button', { name: 'Gewusst', exact: true }).click();
 
   // Auswahl card, correct right away.
   await page.getByText('Welches Material ist zahnfarben?').waitFor();
@@ -207,12 +214,12 @@ async function main() {
   }
 
   // 7. Editing a card from the list.
-  const yesnoRow = page.locator('li', { hasText: 'Der Mensch hat zwanzig Milchzähne.' }).last();
-  await yesnoRow.getByRole('button', { name: 'Bearbeiten' }).click();
+  const qaRow = page.locator('li', { hasText: 'Wie viele Milchzähne hat der Mensch?' }).last();
+  await qaRow.getByRole('button', { name: 'Bearbeiten' }).click();
   await page.getByRole('heading', { name: 'Lernkarte bearbeiten' }).waitFor();
-  await page.getByLabel('Aussage', { exact: true }).fill('Das Milchgebiss hat zwanzig Zähne.');
+  await page.getByLabel('Frage', { exact: true }).fill('Wie viele Zähne hat das Milchgebiss?');
   await page.getByRole('button', { name: 'Speichern' }).click();
-  await page.getByText('Das Milchgebiss hat zwanzig Zähne.').waitFor();
+  await page.getByText('Wie viele Zähne hat das Milchgebiss?').waitFor();
 
   // 8. Everything survives a reload.
   await page.reload({ waitUntil: 'networkidle' });

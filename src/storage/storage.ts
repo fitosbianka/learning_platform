@@ -103,9 +103,21 @@ function parseAttempt(x: unknown): TestAttempt | null {
 function parseCardContent(x: unknown): CardContent | null {
   if (typeof x !== 'object' || x === null) return null;
   const c = x as Record<string, unknown>;
+  if (c.kind === 'qa') {
+    if (typeof c.question !== 'string' || c.question === '' || typeof c.answer !== 'string' || c.answer === '') {
+      return null;
+    }
+    return { kind: 'qa', question: c.question, answer: c.answer };
+  }
   if (c.kind === 'yesno') {
+    // Cards from before the question card replaced the yes or no kind
+    // are carried over as question cards.
     if (typeof c.statement !== 'string' || c.statement === '' || typeof c.answerYes !== 'boolean') return null;
-    return { kind: 'yesno', statement: c.statement, answerYes: c.answerYes };
+    return {
+      kind: 'qa',
+      question: `${c.statement} Stimmt das?`,
+      answer: c.answerYes ? 'Ja' : 'Nein',
+    };
   }
   if (c.kind === 'choice') {
     if (typeof c.question !== 'string' || c.question === '') return null;

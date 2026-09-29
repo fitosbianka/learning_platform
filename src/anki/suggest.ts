@@ -18,6 +18,41 @@ const termPool = glossaryGroups
   .flatMap((group) => group.entries.map((entry) => entry.term))
   .filter((term) => term.length >= 3 && term.length <= 34);
 
+export interface QaSuggestion {
+  question: string;
+  answer: string;
+}
+
+const ARTICLE_RE = /^(Der|Die|Das|Ein|Eine|Dem|Den)\b/;
+
+function lowerArticle(subject: string): string {
+  return ARTICLE_RE.test(subject) ? subject.charAt(0).toLowerCase() + subject.slice(1) : subject;
+}
+
+/**
+ * Writes a question for the highlighted passage. Definitions like
+ * "X ist Y" become "Was ist X?", everything else asks about the key
+ * word. The full passage stays as the answer on the back.
+ */
+export function suggestQa(text: string): QaSuggestion | null {
+  const clean = text.replace(/\s+/g, ' ').trim();
+  if (!clean) return null;
+  const answer = clean;
+
+  const firstSentence = clean.split(/(?<=[.!?])\s/)[0] ?? clean;
+  const verbMatch = firstSentence.match(/^(.{2,60}?)\s(ist|sind)\s/);
+  const subject = verbMatch?.[1]?.replace(/[,;]+$/, '').trim();
+  if (verbMatch && subject && subject.split(' ').length <= 8) {
+    const verb = verbMatch[2];
+    return { question: `Was ${verb} ${lowerArticle(subject)}?`, answer };
+  }
+
+  const gap = autoGap(clean);
+  if (!gap) return null;
+  const term = clean.slice(gap.gapStart, gap.gapEnd);
+  return { question: `Was bedeutet ${term}?`, answer };
+}
+
 export function suggestChoice(text: string, random: () => number = Math.random): ChoiceSuggestion | null {
   const gap = autoGap(text);
   if (!gap) return null;
