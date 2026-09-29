@@ -205,6 +205,11 @@ export function LessonPage({ lessonId, goToTest }: { lessonId: number; goToTest:
           </section>
 
           <div className={styles.content}>
+            {state.visuals
+              .filter((v) => v.afterSection === -1)
+              .map((v) => (
+                <v.Component key={v.id} />
+              ))}
             {state.lesson.sections.map((section, index) => (
               <section key={index}>
                 <h2>{section.heading}</h2>

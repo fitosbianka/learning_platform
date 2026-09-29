@@ -300,6 +300,7 @@ a.btn:hover {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
@@ -386,6 +387,160 @@ svg .visLabelStrong {
   font-size: 13px;
   font-weight: 650;
   fill: var(--text);
+}
+
+.fdiTooth {
+  cursor: pointer;
+}
+
+.fdiTooth:hover rect {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.fdiTooth:focus-visible {
+  outline: none;
+}
+
+.fdiTooth:focus-visible rect {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.visualDetail {
+  margin: 12px auto 0;
+  max-width: 54ch;
+  background: var(--surface-2);
+  border-radius: var(--radius-small);
+  padding: 12px 16px;
+  font-size: 0.95rem;
+}
+
+.visualDetail p {
+  margin: 0 0 4px;
+}
+
+.visualDetail p:last-child {
+  margin-bottom: 0;
+}
+
+/* HTML card grids inside visuals */
+.visCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+  margin: 4px 0;
+}
+
+.visCard {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+  padding: 12px 14px;
+  font-size: 0.92rem;
+}
+
+.visCard h4 {
+  font-size: 0.98rem;
+  margin: 0 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.visCard p {
+  margin: 0 0 4px;
+  color: var(--text-soft);
+}
+
+.visCard ul {
+  margin: 0;
+  padding-left: 1.1em;
+  color: var(--text-soft);
+}
+
+.visCard li {
+  margin-bottom: 2px;
+}
+
+.visCardButton {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.12s ease;
+}
+
+.visCardButton:hover {
+  border-color: var(--accent);
+}
+
+.visCardActive {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.visChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+.visChip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 2px 12px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+
+.visChip:hover {
+  border-color: var(--accent);
+}
+
+.visChipActive {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 650;
+}
+
+.visSlider {
+  width: 100%;
+  max-width: 420px;
+  accent-color: var(--accent);
+  min-height: 44px;
+}
+
+.visLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.visLegend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.visSwatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid var(--border-strong);
+  display: inline-block;
 }
 
 .visuallyHidden {
