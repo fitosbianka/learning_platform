@@ -62,6 +62,7 @@ function NotePrint({ jobs, onDone }: { jobs: LessonNote[]; onDone: () => void })
             {strings.appName}, {t.title}
           </p>
           <h1 className="printNoteTitle">{lessonTitle(job.lessonId)}</h1>
+          <p className="printNoteMeta">{t.updated(formatDate(job.updatedAt))}</p>
           <div className="noteContent" dangerouslySetInnerHTML={{ __html: job.html }} />
         </article>
       ))}

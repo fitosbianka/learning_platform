@@ -79,7 +79,7 @@ Die Seite Anki wiederholt selbst erstellte Lernkarten nach einem festen Plan, so
 
 Karten erstellen
 
-* In einer Lektion eine Textstelle markieren und auf Lernkarte tippen. Der Editor oeffnet sich mit einem fertigen Vorschlag fuer jede Kartenart. Beim Lueckentext ist die Luecke schon gesetzt, bei Frage und Antwort schreibt die Plattform eine Frage zur markierten Stelle und legt die Stelle als Antwort auf die Rueckseite, und bei Auswahl A B C sind Frage und alle drei Antworten ausgefuellt, mit zwei plausiblen falschen Antworten aus dem Glossar. Alles laesst sich anpassen oder direkt speichern.
+* In einer Lektion eine Textstelle markieren und auf Lernkarte tippen. Der Editor oeffnet sich mit einem fertigen Vorschlag fuer jede Kartenart. Beim Lueckentext ist die Luecke schon gesetzt. Bei Frage und Antwort liest die Plattform den Satz rund um die Markierung mit und erkennt gaengige Muster, aus X ist Y wird Was ist X, aus X hat 20 Y wird Wie viele Y hat X, ein markierter Fachbegriff wird durch seinen ganzen Satz erklaert, und auf der Rueckseite steht nur die kurze Antwort statt des ganzen Texts. Bei Auswahl A B C sind Frage und alle drei Antworten ausgefuellt, die falschen Antworten kommen bevorzugt aus dem Glossar derselben Lektion. Alles laesst sich anpassen oder direkt speichern.
 * Auf der Seite Anki laesst sich mit Neue Karte jederzeit eine Karte von Grund auf anlegen, inklusive Wahl der Lektion.
 * Drei Kartenarten stehen bereit. Frage und Antwort, Auswahl A B C und Lueckentext. Bei Frage und Antwort beantwortest du die Frage zuerst fuer dich, deckst die Antwort auf und stufst mit Gewusst oder Nicht gewusst ehrlich ein. Beim Lueckentext genuegt ein Tipp auf ein Wort, um es zur Luecke zu machen, ein Tipp auf ein weiteres Wort verlaengert die Luecke bis dorthin.
 
@@ -109,6 +109,7 @@ Zu jeder Lektion gibt es eigene Notizen, im gleichen klaren Look wie der Rest de
 * In der Lektion den Knopf Notizen druecken. Auf grossen Bildschirmen teilt sich die Seite, links der Lernstoff, rechts die Notizen. Auf dem Handy legen sich die Notizen ueber die Lektion.
 * Beim Schreiben stehen Titel, Untertitel, Fett, Kursiv, Unterstrichen, Aufzaehlung, nummerierte Liste, drei Schriftarten und vier Schriftgroessen bereit.
 * Der Knopf Speichern sichert sofort, zusaetzlich wird kurz nach dem Tippen automatisch gesichert. Die Notizen wandern ueber die Synchronisation mit auf die anderen Geraete.
+* Ein Tipp auf eine Zeichnung in der Lektion bietet Bild in die Notizen einfügen an. Die Zeichnung landet gestochen scharf in den Notizen der Lektion, samt Bildunterschrift, und erscheint auch im PDF Druck.
 * Die Seite Notizen sammelt alle Notizblaetter nach Woche und Lektion. Dort gibt es pro Notiz Kopieren fuer die Notizen App auf MacBook oder Handy, Teilen fuers Handy, Als PDF drucken sowie Loeschen, und oben Alle als PDF drucken.
 
 ## 8. Tests und Qualitaetslauf

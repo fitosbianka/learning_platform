@@ -72,7 +72,16 @@ function readToolbarState(): ToolbarState {
   };
 }
 
-export function NotesPanel({ lessonId, onClose }: { lessonId: number; onClose: () => void }) {
+export function NotesPanel({
+  lessonId,
+  onClose,
+  apiRef,
+}: {
+  lessonId: number;
+  onClose: () => void;
+  /** Lets the lesson page drop content, such as a drawing, into the open pane */
+  apiRef?: React.MutableRefObject<{ insert: (html: string) => void } | null>;
+}) {
   const { notes, saveNote } = useAppState();
   const editorRef = useRef<HTMLDivElement>(null);
   const htmlRef = useRef('');
@@ -151,6 +160,24 @@ export function NotesPanel({ lessonId, onClose }: { lessonId: number; onClose: (
     window.clearTimeout(timerRef.current);
     timerRef.current = window.setTimeout(() => doSave(lessonId), AUTOSAVE_MS);
   }, [doSave, lessonId]);
+
+  // The lesson page can drop content into the open pane, for example a
+  // drawing, without losing what is being typed right now.
+  useEffect(() => {
+    if (!apiRef) return;
+    apiRef.current = {
+      insert: (html: string) => {
+        const editor = editorRef.current;
+        if (!editor) return;
+        editor.innerHTML += html;
+        markChanged();
+        editor.parentElement?.scrollTo({ top: editor.parentElement.scrollHeight });
+      },
+    };
+    return () => {
+      apiRef.current = null;
+    };
+  }, [apiRef, markChanged]);
 
   const restoreSelection = () => {
     const editor = editorRef.current;

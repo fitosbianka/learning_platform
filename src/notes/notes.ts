@@ -12,7 +12,7 @@ export interface LessonNote {
 }
 
 /** Hard cap so a runaway note can never blow up the sync record. */
-export const NOTE_MAX_CHARS = 200000;
+export const NOTE_MAX_CHARS = 600000;
 
 /** Elements the editor produces, everything else is unwrapped or dropped. */
 const ALLOWED_TAGS = new Set([
@@ -32,6 +32,7 @@ const ALLOWED_TAGS = new Set([
   'BR',
   'SPAN',
   'FONT',
+  'IMG',
 ]);
 
 /** Whole subtree disappears for these. */
@@ -39,6 +40,9 @@ const DROPPED_TAGS = new Set(['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED', 'L
 
 const FACE_RE = /^[a-zA-Z0-9 ,'-]{1,60}$/;
 const SIZE_RE = /^[1-7]$/;
+/** Only self contained images may live inside a note. */
+const IMG_SRC_RE = /^data:image\/(?:png|jpe?g|svg\+xml);base64,[A-Za-z0-9+/=]+$/;
+const IMG_SRC_MAX = 180000;
 
 function cleanNode(node: Node, doc: Document, target: Node): void {
   for (const child of [...node.childNodes]) {
@@ -53,6 +57,16 @@ function cleanNode(node: Node, doc: Document, target: Node): void {
     if (!ALLOWED_TAGS.has(tag)) {
       // Unknown element, keep only its children.
       cleanNode(el, doc, target);
+      continue;
+    }
+    if (tag === 'IMG') {
+      const src = el.getAttribute('src') ?? '';
+      if (!IMG_SRC_RE.test(src) || src.length > IMG_SRC_MAX) continue;
+      const img = doc.createElement('img');
+      img.setAttribute('src', src);
+      const alt = el.getAttribute('alt');
+      if (alt) img.setAttribute('alt', alt.slice(0, 200));
+      target.appendChild(img);
       continue;
     }
     const copy = doc.createElement(tag.toLowerCase());

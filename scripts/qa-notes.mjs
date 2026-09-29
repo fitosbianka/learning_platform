@@ -49,9 +49,14 @@ async function stubPrint(page) {
     window.print = () => {
       const w = /** @type {Window & { __printCount?: number }} */ (window);
       w.__printCount = (w.__printCount ?? 0) + 1;
-      window.dispatchEvent(new Event('afterprint'));
     };
   });
+}
+
+/** @param {import('playwright').Page} page */
+async function finishPrint(page) {
+  await page.evaluate(() => window.dispatchEvent(new Event('afterprint')));
+  await page.locator('.notePrintArea').waitFor({ state: 'detached' });
 }
 
 async function main() {
@@ -119,6 +124,20 @@ async function main() {
   });
   check(storedHtml.includes('Merksatz zum Gebiss'), 'storage. the saved note misses the title text');
   check(storedHtml.includes('<h1>'), 'storage. the saved note misses the title markup');
+
+  // A tap on a drawing drops it into the open notes as a vector image.
+  await page.locator('.visualBody svg').first().click();
+  await page.getByRole('button', { name: 'Bild in die Notizen einfügen' }).click();
+  await page.locator('[contenteditable] img').first().waitFor();
+  await page.getByRole('button', { name: 'Speichern' }).click();
+  const withImage = await page.evaluate(() => {
+    const raw = localStorage.getItem('zahnkurs.store.v1');
+    if (!raw) throw new Error('store missing');
+    /** @type {{notes?: {lessonId: number, html: string}[]}} */
+    const data = JSON.parse(raw);
+    return data.notes?.find((n) => n.lessonId === 2)?.html ?? '';
+  });
+  check(withImage.includes('data:image/svg+xml'), 'image. the drawing was not stored inside the note');
   await page.setViewportSize({ width: 1728, height: 1050 });
   await page.waitForTimeout(300);
   await page.screenshot({ path: join(shotsDir, 'lektion-notizen.jpg'), fullPage: false, quality: 60, type: 'jpeg' });
@@ -157,13 +176,23 @@ async function main() {
   check(clipboard.includes('Lektion 2.'), 'copy. the lesson title is missing in the clipboard');
   check(clipboard.includes('Der sechste Zahn'), 'copy. the note text is missing in the clipboard');
 
-  // 6. Print a single note and all notes, with a stubbed dialog.
+  // The inserted drawing shows on the notes page as well.
+  await card2.locator('img').first().waitFor();
+
+  // 6. Print a single note and all notes, with a stubbed dialog. The
+  // print sheet carries title, date line and the drawing.
   await stubPrint(page);
   await card2.getByRole('button', { name: 'Als PDF drucken' }).click();
   await page.waitForFunction(() => /** @type {Window & { __printCount?: number }} */ (window).__printCount === 1);
+  await page.locator('.notePrintArea .printNoteMeta').first().waitFor({ state: 'attached' });
+  await page.locator('.notePrintArea .noteContent img').first().waitFor({ state: 'attached' });
+  await finishPrint(page);
   await stubPrint(page);
   await page.getByRole('button', { name: 'Alle als PDF drucken' }).click();
   await page.waitForFunction(() => /** @type {Window & { __printCount?: number }} */ (window).__printCount === 1);
+  const printCount = await page.locator('.notePrintArea .printNote').count();
+  check(printCount === 2, `print. expected 2 notes on the sheet, found ${printCount}`);
+  await finishPrint(page);
 
   // 7. The edit button lands in the lesson with the pane open.
   await card2.getByRole('link', { name: 'In der Lektion bearbeiten' }).click();

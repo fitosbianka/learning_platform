@@ -100,7 +100,7 @@ describe('card editor', () => {
     await user.click(screen.getByRole('button', { name: 'Frage und Antwort' }));
     expect((screen.getByLabelText('Frage') as HTMLTextAreaElement).value).toBe('Was ist der Zahnschmelz?');
     expect((screen.getByLabelText('Antwort', { exact: true }) as HTMLTextAreaElement).value).toBe(
-      'Der Zahnschmelz ist die härteste Substanz im Körper',
+      'Die härteste Substanz im Körper.',
     );
   });
 
