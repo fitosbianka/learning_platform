@@ -93,6 +93,15 @@ Auf Wunsch nachgeruestet. Ein Heft fuer eigene Notizen direkt neben dem Lernstof
 * Gespeicherte Notizen werden beim Laden bereinigt, sodass nur die Elemente des Editors im Speicher landen
 * Abgesichert mit 23 neuen Tests und einem eigenen Browserdurchlauf fuer Schreiben, Formatieren, Speichern, Kopieren, Drucken, Bearbeiten, Loeschen und Neuladen, alles ohne Konsolenfehler. Lighthouse bleibt auf der Startseite bei 100 in allen Kategorien, die Seite Notizen erreicht 99 bei der Performance und sonst 100
 
+## Nachtrag. Leuchtstift und fertige Kartenvorschlaege
+
+Auf Wunsch nachgeruestet.
+
+* Beim Markieren einer Textstelle erscheinen jetzt zwei Knoepfe. Markieren malt die Stelle dauerhaft mit dem gelben Leuchtstift an, Lernkarte macht daraus eine Karte. Markierungen ueberleben das Neuladen, synchronisieren auf alle Geraete und lassen sich per Tipp und Markierung entfernen wieder loeschen
+* Der Karteneditor bringt fuer jede Kartenart einen fertigen Vorschlag aus der markierten Stelle mit. Bei Auswahl A B C wird das Schluesselwort zur Luecke in der Frage und zwei plausible falsche Antworten kommen aus dem Glossar, sodass die Karte ohne Tippen speicherbar ist
+* Die geteilte Ansicht nutzt seit dem letzten Nachtrag die volle Bildschirmbreite, das Heft liegt jetzt als eigenes Blatt mit Rundung und Schatten in der Ansicht und die Auswahlfelder der Werkzeugleiste tragen den Look der Plattform
+* Abgesichert mit 12 neuen Tests fuer Verankerung im Text, Zusammenfuehrung, Speicherung und Vorschlaege sowie erweiterten Browserdurchlaeufen fuer Leuchtstift und Vorschlaege, alles ohne Konsolenfehler
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.

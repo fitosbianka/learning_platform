@@ -93,6 +93,7 @@ describe('sync payload', () => {
       lastLesson: 9,
       cards: [],
       notes: [],
+      markings: [],
       updatedAt: '2026-01-03T10:00:00.000Z',
     };
     const merged = mergeSyncPayload(base, remote);

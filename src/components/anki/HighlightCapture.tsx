@@ -1,15 +1,18 @@
 /**
  * Watches the text selection inside the lesson article and shows a
- * floating button over the highlighted passage. A tap on it hands the
- * text to the card editor.
+ * small floating menu over the highlighted passage. One button paints
+ * a lasting marking, the other hands the text to the card editor.
  */
 
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { buildTextIndex, rangeToAnchor } from '../../marks/dom';
+import type { TextAnchor } from '../../marks/marks';
 import { strings } from '../../ui/strings';
 import styles from './HighlightCapture.module.css';
 
 const t = strings.anki;
+const tm = strings.marks;
 
 interface Spot {
   top: number;
@@ -19,14 +22,16 @@ interface Spot {
 
 const MIN_LENGTH = 3;
 const MAX_LENGTH = 600;
-const EDGE = 96;
+const EDGE = 130;
 
 export function HighlightCapture({
   containerRef,
   onCapture,
+  onMark,
 }: {
   containerRef: React.RefObject<HTMLElement | null>;
   onCapture: (text: string) => void;
+  onMark: (anchor: TextAnchor) => void;
 }) {
   const [spot, setSpot] = useState<Spot | null>(null);
   const frameRef = useRef(0);
@@ -54,7 +59,7 @@ export function HighlightCapture({
       }
       const middle = rect.left + rect.width / 2 + window.scrollX;
       const left = Math.min(Math.max(middle, window.scrollX + EDGE), window.scrollX + window.innerWidth - EDGE);
-      setSpot({ top: Math.max(rect.top + window.scrollY - 52, 8), left, text });
+      setSpot({ top: Math.max(rect.top + window.scrollY - 54, 8), left, text });
     };
     const schedule = () => {
       if (frameRef.current === 0) frameRef.current = requestAnimationFrame(measure);
@@ -75,25 +80,83 @@ export function HighlightCapture({
     onCapture(text);
   };
 
+  const mark = () => {
+    const container = containerRef.current;
+    const selection = window.getSelection();
+    if (!container || !selection || selection.rangeCount === 0) return;
+    const anchor = rangeToAnchor(buildTextIndex(container), selection.getRangeAt(0));
+    setSpot(null);
+    selection.removeAllRanges();
+    if (anchor) onMark(anchor);
+  };
+
   return createPortal(
-    <button
-      type="button"
-      className={styles.button}
+    <div
+      className={styles.menu}
       style={{ top: spot.top, left: spot.left }}
       // Without this the press would first collapse the selection and
-      // the button would vanish before the click arrives.
+      // the menu would vanish before the click arrives.
       onMouseDown={(e) => e.preventDefault()}
-      onTouchEnd={(e) => {
-        e.preventDefault();
-        capture();
-      }}
-      onClick={capture}
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-      </svg>
-      {t.highlightButton}
-    </button>,
+      <button
+        type="button"
+        className={styles.menuButton}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          mark();
+        }}
+        onClick={mark}
+      >
+        <span className={styles.markSwatch} aria-hidden="true" />
+        {tm.markButton}
+      </button>
+      <span className={styles.divider} aria-hidden="true" />
+      <button
+        type="button"
+        className={styles.menuButton}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          capture();
+        }}
+        onClick={capture}
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+        </svg>
+        {t.highlightButton}
+      </button>
+    </div>,
+    document.body,
+  );
+}
+
+/** Floating removal button over a tapped marking. */
+export function MarkRemoveButton({
+  top,
+  left,
+  onRemove,
+}: {
+  top: number;
+  left: number;
+  onRemove: () => void;
+}) {
+  return createPortal(
+    <div className={styles.menu} style={{ top, left }} data-mark-remove onMouseDown={(e) => e.preventDefault()}>
+      <button
+        type="button"
+        className={styles.menuButton}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          onRemove();
+        }}
+        onClick={onRemove}
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+        </svg>
+        {tm.removeButton}
+      </button>
+    </div>,
     document.body,
   );
 }

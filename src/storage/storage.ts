@@ -8,6 +8,7 @@
 
 import { mergeCards, type AnkiCard, type CardContent } from '../anki/cards';
 import { mergeNotes, sanitizeNoteHtml, NOTE_MAX_CHARS, type LessonNote } from '../notes/notes';
+import { mergeMarkings, MARK_TEXT_MAX, type Marking } from '../marks/marks';
 
 export interface TestAttemptAnswer {
   questionId: string;
@@ -37,6 +38,8 @@ export interface StoreData {
   cards: AnkiCard[];
   /** One note per lesson, empty html works as a tombstone */
   notes: LessonNote[];
+  /** Marker pen passages in the lessons, including tombstones */
+  markings: Marking[];
 }
 
 export const STORAGE_KEY = 'zahnkurs.store.v1';
@@ -59,6 +62,7 @@ export interface SyncPayload {
   lastLesson: number | null;
   cards: AnkiCard[];
   notes: LessonNote[];
+  markings: Marking[];
   updatedAt: string;
 }
 
@@ -71,6 +75,7 @@ export function defaultStore(): StoreData {
     lastLesson: null,
     cards: [],
     notes: [],
+    markings: [],
   };
 }
 
@@ -194,6 +199,33 @@ export function parseStoreData(x: unknown): StoreData {
       });
     }
   }
+  // Markings arrived together with the notes feature wave.
+  const markings: Marking[] = [];
+  if (s.markings !== undefined) {
+    if (!Array.isArray(s.markings)) throw new Error('markings broken');
+    for (const raw of s.markings) {
+      if (typeof raw !== 'object' || raw === null) throw new Error('marking broken');
+      const m = raw as Record<string, unknown>;
+      if (typeof m.id !== 'string' || m.id === '') throw new Error('marking broken');
+      if (!isFiniteNumber(m.lessonId) || m.lessonId < 1 || m.lessonId > 21) throw new Error('marking broken');
+      if (typeof m.text !== 'string' || m.text === '' || m.text.length > MARK_TEXT_MAX + 10) {
+        throw new Error('marking broken');
+      }
+      if (typeof m.prefix !== 'string' || typeof m.suffix !== 'string') throw new Error('marking broken');
+      if (m.prefix.length > 64 || m.suffix.length > 64) throw new Error('marking broken');
+      if (typeof m.createdAt !== 'string' || typeof m.updatedAt !== 'string') throw new Error('marking broken');
+      markings.push({
+        id: m.id,
+        lessonId: m.lessonId,
+        text: m.text,
+        prefix: m.prefix,
+        suffix: m.suffix,
+        createdAt: m.createdAt,
+        updatedAt: m.updatedAt,
+        deleted: m.deleted === true,
+      });
+    }
+  }
   return {
     version: 1,
     finishedLessons: [...new Set(s.finishedLessons as number[])].sort((a, b) => a - b),
@@ -202,6 +234,7 @@ export function parseStoreData(x: unknown): StoreData {
     lastLesson,
     cards,
     notes,
+    markings,
   };
 }
 
@@ -237,6 +270,7 @@ export function mergeStores(current: StoreData, imported: StoreData): StoreData 
     attempts,
     cards: mergeCards(current.cards, imported.cards),
     notes: mergeNotes(current.notes, imported.notes),
+    markings: mergeMarkings(current.markings, imported.markings),
   };
 }
 
@@ -247,6 +281,7 @@ export function buildSyncPayload(data: StoreData): SyncPayload {
     lastLesson: data.lastLesson,
     cards: data.cards,
     notes: data.notes,
+    markings: data.markings,
     updatedAt: new Date().toISOString(),
   };
 }
@@ -263,6 +298,7 @@ export function parseSyncPayload(x: unknown): SyncPayload {
     lastLesson: s.lastLesson,
     cards: s.cards,
     notes: s.notes,
+    markings: s.markings,
   });
   return {
     finishedLessons: viaStore.finishedLessons,
@@ -270,6 +306,7 @@ export function parseSyncPayload(x: unknown): SyncPayload {
     lastLesson: viaStore.lastLesson,
     cards: viaStore.cards,
     notes: viaStore.notes,
+    markings: viaStore.markings,
     updatedAt: typeof s.updatedAt === 'string' ? s.updatedAt : '',
   };
 }
@@ -288,6 +325,7 @@ export function mergeSyncPayload(current: StoreData, remote: SyncPayload): Store
     lastLesson: null,
     cards: remote.cards,
     notes: remote.notes,
+    markings: remote.markings,
   });
   return { ...merged, lastLesson: current.lastLesson ?? remote.lastLesson };
 }

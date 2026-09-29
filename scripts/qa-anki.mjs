@@ -47,38 +47,71 @@ async function main() {
   const page = await context.newPage();
   watchConsole(page, 'anki');
 
-  // 1. Highlight flow inside a lesson. Select a passage by script, the
-  // floating button appears, the editor opens with a cloze suggestion.
+  /** Selects a long passage inside the lesson article. */
+  const selectPassage = async (/** @type {import('playwright').Page} */ target) => {
+    await target.evaluate(() => {
+      const article = document.querySelector('article');
+      if (!article) throw new Error('article not found');
+      const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT);
+      let node = null;
+      while (walker.nextNode()) {
+        const current = walker.currentNode;
+        const parent = current.parentElement;
+        if (!parent || parent.closest('h1, h2, h3, button, a, mark')) continue;
+        if ((current.textContent ?? '').trim().length >= 60) {
+          node = current;
+          break;
+        }
+      }
+      if (!node) throw new Error('no long text node found');
+      const range = document.createRange();
+      range.setStart(node, 0);
+      range.setEnd(node, 60);
+      const selection = window.getSelection();
+      if (!selection) throw new Error('no selection api');
+      selection.removeAllRanges();
+      selection.addRange(range);
+    });
+  };
+
+  // 1. The marker pen. Select a passage, paint it, it survives a
+  // reload and disappears again through the removal bubble.
   await page.goto(`${base}/#/lektion/2`, { waitUntil: 'networkidle' });
   await page.waitForSelector('article h1');
-  await page.evaluate(() => {
-    const article = document.querySelector('article');
-    if (!article) throw new Error('article not found');
-    const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT);
-    let node = null;
-    while (walker.nextNode()) {
-      const current = walker.currentNode;
-      const parent = current.parentElement;
-      if (!parent || parent.closest('h1, h2, h3, button, a')) continue;
-      if ((current.textContent ?? '').trim().length >= 60) {
-        node = current;
-        break;
-      }
-    }
-    if (!node) throw new Error('no long text node found');
-    const range = document.createRange();
-    range.setStart(node, 0);
-    range.setEnd(node, 60);
-    const selection = window.getSelection();
-    if (!selection) throw new Error('no selection api');
-    selection.removeAllRanges();
-    selection.addRange(range);
+  await selectPassage(page);
+  await page.getByRole('button', { name: 'Markieren', exact: true }).click();
+  await page.locator('mark[data-mark]').first().waitFor();
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.locator('mark[data-mark]').first().waitFor();
+  await page.locator('mark[data-mark]').first().click();
+  await page.getByRole('button', { name: 'Markierung entfernen' }).click();
+  await page.locator('mark[data-mark]').waitFor({ state: 'detached' });
+  const markTombstone = await page.evaluate(() => {
+    const raw = localStorage.getItem('zahnkurs.store.v1');
+    if (!raw) throw new Error('store missing');
+    /** @type {{markings?: {deleted: boolean}[]}} */
+    const data = JSON.parse(raw);
+    return data.markings?.[0]?.deleted ?? null;
   });
-  await page.getByRole('button', { name: 'Lernkarte erstellen' }).click();
+  check(markTombstone === true, 'marker. the removed marking left no tombstone');
+
+  // 2. Highlight flow into a card. Every kind carries a suggestion,
+  // the cloze kind is preselected with a gap.
+  await selectPassage(page);
+  await page.getByRole('button', { name: 'Lernkarte', exact: true }).click();
   await page.getByRole('heading', { name: 'Neue Lernkarte' }).waitFor();
-  // The cloze kind is preselected and a gap is suggested.
+  await page.getByText('Der Vorschlag kommt aus deiner markierten Stelle', { exact: false }).waitFor();
   const gapCount = await page.locator('[class*="tokenGap"]').count();
   check(gapCount >= 1, `highlight editor. expected a suggested gap, found ${gapCount}`);
+  // The choice kind is fully prefilled from the highlight.
+  await page.getByRole('button', { name: 'Auswahl A B C' }).click();
+  const suggestedQuestion = await page.getByLabel('Frage', { exact: true }).inputValue();
+  check(suggestedQuestion.includes('Welches Wort fehlt?'), 'suggestion. the choice question is not prefilled');
+  for (const letter of ['A', 'B', 'C']) {
+    const value = await page.getByLabel(`Antwort ${letter}`).inputValue();
+    check(value.trim().length > 0, `suggestion. option ${letter} is empty`);
+  }
+  await page.getByRole('button', { name: 'Lückentext' }).click();
   await page.getByRole('button', { name: 'Speichern' }).click();
   await page.getByText('Lernkarte gespeichert').waitFor();
 
@@ -198,6 +231,14 @@ async function main() {
   const phone = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const phonePage = await phone.newPage();
   watchConsole(phonePage, 'anki phone');
+
+  // The marker pen also works on the phone.
+  await phonePage.goto(`${base}/#/lektion/3`, { waitUntil: 'networkidle' });
+  await phonePage.waitForSelector('article h1');
+  await selectPassage(phonePage);
+  await phonePage.getByRole('button', { name: 'Markieren', exact: true }).click();
+  await phonePage.locator('mark[data-mark]').first().waitFor();
+
   await phonePage.goto(`${base}/#/anki`, { waitUntil: 'networkidle' });
   await phonePage.getByRole('button', { name: 'Neue Karte' }).waitFor();
   const overflow = await phonePage.evaluate(

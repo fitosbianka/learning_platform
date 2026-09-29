@@ -21,6 +21,7 @@ import {
 import { generateSyncCode, normalizeSyncCode, pullRemote, pushRemote } from '../sync/sync';
 import { passReview, type AnkiCard } from '../anki/cards';
 import { isEmptyNote, sanitizeNoteHtml, type LessonNote } from '../notes/notes';
+import type { Marking } from '../marks/marks';
 import { AppStateContext, type AppState, type JoinResult, type SyncStatus, type Theme } from './context';
 
 function systemTheme(): Theme {
@@ -39,6 +40,7 @@ function comparable(data: StoreData): string {
     l: data.lastLesson,
     c: data.cards,
     n: data.notes,
+    m: data.markings,
   });
 }
 
@@ -48,8 +50,15 @@ function comparableCore(data: {
   attempts: StoreData['attempts'];
   cards: AnkiCard[];
   notes: LessonNote[];
+  markings: Marking[];
 }): string {
-  return JSON.stringify({ f: data.finishedLessons, a: data.attempts, c: data.cards, n: data.notes });
+  return JSON.stringify({
+    f: data.finishedLessons,
+    a: data.attempts,
+    c: data.cards,
+    n: data.notes,
+    m: data.markings,
+  });
 }
 
 const PUSH_DEBOUNCE_MS = 2500;
@@ -303,6 +312,18 @@ export function AppStateProvider({
           ...prev,
           notes: prev.notes.map((n) =>
             n.lessonId === lessonId ? { ...n, html: '', updatedAt: new Date().toISOString() } : n,
+          ),
+        })),
+      markings: store.markings.filter((m) => !m.deleted),
+      addMarking: (marking) =>
+        update((prev) =>
+          prev.markings.some((m) => m.id === marking.id) ? prev : { ...prev, markings: [...prev.markings, marking] },
+        ),
+      deleteMarking: (id) =>
+        update((prev) => ({
+          ...prev,
+          markings: prev.markings.map((m) =>
+            m.id === id ? { ...m, deleted: true, updatedAt: new Date().toISOString() } : m,
           ),
         })),
       theme,

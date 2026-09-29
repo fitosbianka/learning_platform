@@ -6,6 +6,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { autoGap, newCard, tokenize, type AnkiCard, type CardContent } from '../../anki/cards';
+import { suggestChoice } from '../../anki/suggest';
 import { lessonIndex } from '../../content/generated/lessonsIndex';
 import { strings } from '../../ui/strings';
 import styles from './CardEditor.module.css';
@@ -35,17 +36,34 @@ export function CardEditor({ initial, prefillText, lessonId, allowLessonPick = f
   const prefill = cleanHighlight(prefillText ?? '');
   const initialContent = initial?.content ?? null;
 
+  // A highlighted passage fills every kind with a ready suggestion, so
+  // the card can be saved as it is or adjusted first.
+  const choiceSuggestion = useMemo(
+    () => (initialContent === null && prefill ? suggestChoice(prefill) : null),
+    // The prefill never changes while the editor is open.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   const [kind, setKind] = useState<Kind>(initialContent?.kind ?? (prefill ? 'cloze' : 'yesno'));
   const [lesson, setLesson] = useState<number>(initial?.lessonId ?? lessonId);
   const [statement, setStatement] = useState(
     initialContent?.kind === 'yesno' ? initialContent.statement : prefill,
   );
   const [answerYes, setAnswerYes] = useState(initialContent?.kind === 'yesno' ? initialContent.answerYes : true);
-  const [question, setQuestion] = useState(initialContent?.kind === 'choice' ? initialContent.question : '');
-  const [options, setOptions] = useState<string[]>(
-    initialContent?.kind === 'choice' ? [...initialContent.options] : [prefill, '', ''],
+  const [question, setQuestion] = useState(
+    initialContent?.kind === 'choice' ? initialContent.question : (choiceSuggestion?.question ?? ''),
   );
-  const [correctIndex, setCorrectIndex] = useState(initialContent?.kind === 'choice' ? initialContent.correctIndex : 0);
+  const [options, setOptions] = useState<string[]>(
+    initialContent?.kind === 'choice'
+      ? [...initialContent.options]
+      : choiceSuggestion
+        ? [...choiceSuggestion.options]
+        : [prefill, '', ''],
+  );
+  const [correctIndex, setCorrectIndex] = useState(
+    initialContent?.kind === 'choice' ? initialContent.correctIndex : (choiceSuggestion?.correctIndex ?? 0),
+  );
   const [clozeText, setClozeText] = useState(initialContent?.kind === 'cloze' ? initialContent.text : prefill);
   const [gap, setGap] = useState<{ start: number; end: number } | null>(() => {
     if (initialContent?.kind === 'cloze') return { start: initialContent.gapStart, end: initialContent.gapEnd };
@@ -192,6 +210,8 @@ export function CardEditor({ initial, prefillText, lessonId, allowLessonPick = f
             </button>
           ))}
         </div>
+
+        {prefill !== '' && initialContent === null && <p className={styles.suggestHint}>{t.suggestHint}</p>}
 
         {kind === 'yesno' && (
           <>
