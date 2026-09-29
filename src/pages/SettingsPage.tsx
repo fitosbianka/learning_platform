@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { useAppState } from '../state/context';
 import { navigate } from '../router/useHashRoute';
 import { formatSyncCode, pairingLink } from '../sync/sync';
@@ -139,64 +140,6 @@ function SyncSection({ joinCode }: { joinCode: string | null }) {
   );
 }
 
-function ConfirmDialog({
-  title,
-  text,
-  confirmLabel,
-  onConfirm,
-  onCancel,
-}: {
-  title: string;
-  text: string;
-  confirmLabel: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  const cancelRef = useRef<HTMLButtonElement>(null);
-  const confirmRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    cancelRef.current?.focus();
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onCancel();
-      } else if (e.key === 'Tab') {
-        // Tiny focus trap between the two buttons.
-        e.preventDefault();
-        if (document.activeElement === cancelRef.current) confirmRef.current?.focus();
-        else cancelRef.current?.focus();
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [onCancel]);
-
-  return (
-    <div className={styles.overlay} onClick={onCancel}>
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="confirm-title"
-        className={styles.dialog}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 id="confirm-title" className={styles.dialogTitle}>
-          {title}
-        </h2>
-        <p className={styles.dialogText}>{text}</p>
-        <div className={styles.dialogActions}>
-          <button ref={cancelRef} type="button" className="btn" onClick={onCancel}>
-            {t.resetCancel}
-          </button>
-          <button ref={confirmRef} type="button" className="btn btnDanger" onClick={onConfirm}>
-            {confirmLabel}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function exportFileName(): string {
   const now = new Date();
@@ -347,6 +290,7 @@ export function SettingsPage({ joinCode = null }: { joinCode?: string | null }) 
           title={t.resetConfirm1Title}
           text={t.resetConfirm1Text}
           confirmLabel={t.resetConfirmYes}
+          cancelLabel={t.resetCancel}
           onCancel={() => setResetStep(0)}
           onConfirm={() => setResetStep(2)}
         />
@@ -356,6 +300,7 @@ export function SettingsPage({ joinCode = null }: { joinCode?: string | null }) 
           title={t.resetConfirm2Title}
           text={t.resetConfirm2Text}
           confirmLabel={t.resetConfirmYes}
+          cancelLabel={t.resetCancel}
           onCancel={() => setResetStep(0)}
           onConfirm={() => {
             resetAll();

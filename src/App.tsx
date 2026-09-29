@@ -13,6 +13,7 @@ const ReferencePage = lazy(() =>
 const SettingsPage = lazy(() =>
   import('./pages/SettingsPage').then((m) => ({ default: m.SettingsPage })),
 );
+const AnkiPage = lazy(() => import('./pages/AnkiPage').then((m) => ({ default: m.AnkiPage })));
 
 function PageFallback() {
   return <div className="container" style={{ padding: '48px 16px' }} aria-hidden="true" />;
@@ -58,6 +59,14 @@ function RouteView({ path, segments, query }: { path: string; segments: string[]
       }
     }
     return <NotFoundPage />;
+  }
+
+  if (first === 'anki' && segments.length === 1) {
+    return (
+      <Suspense fallback={<PageFallback />}>
+        <AnkiPage />
+      </Suspense>
+    );
   }
 
   if (first === 'einstellungen' && segments.length === 1) {

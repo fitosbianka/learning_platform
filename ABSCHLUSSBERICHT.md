@@ -70,6 +70,18 @@ Auf Wunsch nachgeruestet. Der Lernstand gleicht sich automatisch zwischen allen 
 * Der Dunkelmodus bleibt bewusst eine Einstellung pro Geraet
 * Abgesichert mit 10 neuen Tests fuer Codes, Datensaetze, Zusammenfuehrung und Transport sowie einem eigenen Browserdurchlauf mit zwei simulierten Geraeten, Kopplungslink und dem Fall ohne Datenablage, alles ohne Konsolenfehler. Lighthouse bleibt bei 100 in allen Kategorien
 
+## Nachtrag. Anki Lernkarten
+
+Auf Wunsch nachgeruestet. Eine eigene Seite Anki mit selbst erstellten Lernkarten und festem Wiederholungsplan, angelehnt an das gleichnamige Programm.
+
+* In jeder Lektion laesst sich eine Textstelle markieren, darueber erscheint der Knopf Lernkarte erstellen. Der Editor oeffnet sich mit einem fertigen Vorschlag aus der markierten Stelle, beim Lueckentext ist das laengste Wort bereits als Luecke vorgeschlagen
+* Drei Kartenarten. Ja oder Nein, Auswahl A B C und Lueckentext. Die Luecke wird durch einfaches Antippen eines Wortes gewaehlt, ein Tipp auf ein weiteres Wort verlaengert sie bis dorthin
+* Fester Plan. Faellig am Erstelltag, dann nach 1, 3 und 7 Tagen, nach der vierten richtigen Antwort gilt die Karte als gelernt. Die Seite zeigt die faelligen Karten pro Tag, aufgeteilt nach Durchgang 1 bis 4
+* Beim Lernen wird jede Antwort geprueft, bei einem Fehler zeigt die Seite die richtige Loesung und die Karte kommt am selben Tag so lange wieder, bis sie sitzt. Erst die richtige Antwort rueckt sie im Plan weiter
+* Auf der Seite Anki sind die Karten nach Woche und Lektion gruppiert und lassen sich dort bearbeiten, loeschen oder komplett neu anlegen
+* Die Karten wandern ueber die bestehende Synchronisation mit auf alle gekoppelten Geraete, geloeschte Karten bleiben geloescht, auch wenn ein anderes Geraet noch eine alte Kopie hat
+* Abgesichert mit 19 neuen Tests fuer Plan, Luecken, Antwortpruefung, Zusammenfuehrung, Editor, Lernrunde und Seite sowie einem eigenen Browserdurchlauf, der das Markieren, alle drei Kartenarten, eine Lernrunde mit Fehlversuch, Speicherung, Bearbeiten, Loeschen und Neuladen prueft, alles ohne Konsolenfehler. Lighthouse bleibt auf der Startseite bei 100 in allen Kategorien, die Seite Anki erreicht 99 bei der Performance und sonst 100
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.

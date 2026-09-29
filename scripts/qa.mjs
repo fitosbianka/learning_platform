@@ -139,6 +139,11 @@ async function main() {
   await page.waitForSelector('.fdiChart');
   await page.screenshot({ path: join(shotsDir, 'spickzettel.jpg'), fullPage: true, quality: 60, type: 'jpeg' });
 
+  // Anki page in its empty state. The full card flow runs in qa-anki.mjs.
+  await page.goto(`${base}/#/anki`, { waitUntil: 'networkidle' });
+  await page.getByText('Noch keine Lernkarten').waitFor();
+  await page.getByRole('button', { name: 'Neue Karte' }).waitFor();
+
   // Settings with dark mode.
   await page.goto(`${base}/#/einstellungen`, { waitUntil: 'networkidle' });
   await page.getByRole('switch').click();

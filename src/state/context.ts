@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 import type { TestAttempt } from '../storage/storage';
+import type { AnkiCard } from '../anki/cards';
 
 export type Theme = 'light' | 'dark';
 
@@ -14,6 +15,11 @@ export interface SyncState {
 export type JoinResult = 'ok' | 'invalid' | 'unknown' | 'unconfigured' | 'error';
 
 export interface AppState {
+  /** Study cards without the deleted ones */
+  cards: readonly AnkiCard[];
+  saveCard: (card: AnkiCard) => void;
+  deleteCard: (id: string) => void;
+  passCardReview: (id: string) => void;
   sync: SyncState;
   enableSync: () => Promise<void>;
   joinSync: (raw: string) => Promise<JoinResult>;

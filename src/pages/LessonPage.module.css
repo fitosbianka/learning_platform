@@ -195,3 +195,20 @@
   color: var(--text-soft);
   text-align: center;
 }
+
+.cardToast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 90;
+  max-width: min(92vw, 460px);
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--surface);
+  font-size: 0.92rem;
+  font-weight: 550;
+  box-shadow: 0 8px 24px rgb(15 30 40 / 0.3);
+  text-align: center;
+}

@@ -19,6 +19,7 @@ import {
   type SyncSettings,
 } from '../storage/storage';
 import { generateSyncCode, normalizeSyncCode, pullRemote, pushRemote } from '../sync/sync';
+import { passReview, type AnkiCard } from '../anki/cards';
 import { AppStateContext, type AppState, type JoinResult, type SyncStatus, type Theme } from './context';
 
 function systemTheme(): Theme {
@@ -31,12 +32,16 @@ function systemTheme(): Theme {
 
 /** The part of the store that travels between devices, for comparisons. */
 function comparable(data: StoreData): string {
-  return JSON.stringify({ f: data.finishedLessons, a: data.attempts, l: data.lastLesson });
+  return JSON.stringify({ f: data.finishedLessons, a: data.attempts, l: data.lastLesson, c: data.cards });
 }
 
 /** Learning data only. Decides whether the cloud needs an update. */
-function comparableCore(data: { finishedLessons: number[]; attempts: StoreData['attempts'] }): string {
-  return JSON.stringify({ f: data.finishedLessons, a: data.attempts });
+function comparableCore(data: {
+  finishedLessons: number[];
+  attempts: StoreData['attempts'];
+  cards: AnkiCard[];
+}): string {
+  return JSON.stringify({ f: data.finishedLessons, a: data.attempts, c: data.cards });
 }
 
 const PUSH_DEBOUNCE_MS = 2500;
@@ -248,6 +253,28 @@ export function AppStateProvider({
     return {
       finished: new Set(store.finishedLessons),
       attempts: store.attempts,
+      cards: store.cards.filter((c) => !c.deleted),
+      saveCard: (card) =>
+        update((prev) => {
+          const stamped = { ...card, updatedAt: new Date().toISOString() };
+          const exists = prev.cards.some((c) => c.id === card.id);
+          return {
+            ...prev,
+            cards: exists ? prev.cards.map((c) => (c.id === card.id ? stamped : c)) : [...prev.cards, stamped],
+          };
+        }),
+      deleteCard: (id) =>
+        update((prev) => ({
+          ...prev,
+          cards: prev.cards.map((c) =>
+            c.id === id ? { ...c, deleted: true, updatedAt: new Date().toISOString() } : c,
+          ),
+        })),
+      passCardReview: (id) =>
+        update((prev) => ({
+          ...prev,
+          cards: prev.cards.map((c) => (c.id === id ? passReview(c) : c)),
+        })),
       theme,
       themeSetting: store.theme,
       storageAvailable: appStorage.persistent,

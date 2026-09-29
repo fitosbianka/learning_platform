@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import type { Lesson } from '../content/types';
 import { lessonIndex } from '../content/generated/lessonsIndex';
 import { Blocks } from '../components/Blocks';
+import { HighlightCapture } from '../components/anki/HighlightCapture';
 import { TestBlock } from '../components/quiz/TestBlock';
 import { Link } from '../router/Link';
 import { useAppState } from '../state/context';
@@ -11,6 +12,12 @@ import { NotFoundPage } from './NotFoundPage';
 import styles from './LessonPage.module.css';
 
 const t = strings.lesson;
+
+// The card editor is only needed once a passage is highlighted, so it
+// stays out of the main bundle.
+const CardEditor = lazy(() =>
+  import('../components/anki/CardEditor').then((m) => ({ default: m.CardEditor })),
+);
 
 // Code splitting per lesson. Each lesson chunk contains its content module
 // and its visuals and loads on demand.
@@ -110,13 +117,20 @@ type LoadState =
   | { status: 'ready'; lesson: Lesson; visuals: LessonVisual[] };
 
 export function LessonPage({ lessonId, goToTest }: { lessonId: number; goToTest: boolean }) {
-  const { finished, markFinished, setLastLesson } = useAppState();
+  const { finished, markFinished, setLastLesson, saveCard } = useAppState();
   const [state, setState] = useState<LoadState>({ status: 'loading' });
   const [forceTest, setForceTest] = useState(goToTest);
   const [justMarked, setJustMarked] = useState(false);
+  const [cardDraft, setCardDraft] = useState<string | null>(null);
+  const [cardSaved, setCardSaved] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
   const testRef = useRef<HTMLDivElement>(null);
+  const toastTimerRef = useRef(0);
   const meta = lessonIndex[lessonId - 1];
+
+  useEffect(() => {
+    return () => window.clearTimeout(toastTimerRef.current);
+  }, []);
 
   useEffect(() => {
     setForceTest(goToTest);
@@ -264,6 +278,32 @@ export function LessonPage({ lessonId, goToTest }: { lessonId: number; goToTest:
 
           <LessonNav id={lessonId} />
         </article>
+      )}
+
+      <HighlightCapture containerRef={articleRef} onCapture={setCardDraft} />
+
+      {cardDraft !== null && (
+        <Suspense fallback={null}>
+          <CardEditor
+            initial={null}
+            prefillText={cardDraft}
+            lessonId={lessonId}
+            onSave={(card) => {
+              saveCard(card);
+              setCardDraft(null);
+              setCardSaved(true);
+              window.clearTimeout(toastTimerRef.current);
+              toastTimerRef.current = window.setTimeout(() => setCardSaved(false), 4200);
+            }}
+            onCancel={() => setCardDraft(null)}
+          />
+        </Suspense>
+      )}
+
+      {cardSaved && (
+        <p className={styles.cardToast} role="status">
+          {strings.anki.savedToast}
+        </p>
       )}
     </div>
   );

@@ -6,6 +6,8 @@
  * keeps working without persistence.
  */
 
+import { mergeCards, type AnkiCard, type CardContent } from '../anki/cards';
+
 export interface TestAttemptAnswer {
   questionId: string;
   selectedIndex: number;
@@ -30,6 +32,8 @@ export interface StoreData {
   /** null means follow the system setting */
   theme: 'light' | 'dark' | null;
   lastLesson: number | null;
+  /** Anki study cards, including tombstones of deleted ones */
+  cards: AnkiCard[];
 }
 
 export const STORAGE_KEY = 'zahnkurs.store.v1';
@@ -50,6 +54,7 @@ export interface SyncPayload {
   finishedLessons: number[];
   attempts: Record<string, TestAttempt[]>;
   lastLesson: number | null;
+  cards: AnkiCard[];
   updatedAt: string;
 }
 
@@ -60,6 +65,7 @@ export function defaultStore(): StoreData {
     attempts: {},
     theme: null,
     lastLesson: null,
+    cards: [],
   };
 }
 
@@ -82,6 +88,51 @@ function parseAttempt(x: unknown): TestAttempt | null {
     answers.push({ questionId: ans.questionId, selectedIndex: ans.selectedIndex, correct: ans.correct });
   }
   return { date: a.date, score: a.score, total: a.total, seed: a.seed, answers };
+}
+
+function parseCardContent(x: unknown): CardContent | null {
+  if (typeof x !== 'object' || x === null) return null;
+  const c = x as Record<string, unknown>;
+  if (c.kind === 'yesno') {
+    if (typeof c.statement !== 'string' || c.statement === '' || typeof c.answerYes !== 'boolean') return null;
+    return { kind: 'yesno', statement: c.statement, answerYes: c.answerYes };
+  }
+  if (c.kind === 'choice') {
+    if (typeof c.question !== 'string' || c.question === '') return null;
+    if (!Array.isArray(c.options) || c.options.length !== 3) return null;
+    if (!c.options.every((o) => typeof o === 'string' && o !== '')) return null;
+    if (!isFiniteNumber(c.correctIndex) || c.correctIndex < 0 || c.correctIndex > 2) return null;
+    return { kind: 'choice', question: c.question, options: c.options as string[], correctIndex: c.correctIndex };
+  }
+  if (c.kind === 'cloze') {
+    if (typeof c.text !== 'string' || c.text === '') return null;
+    if (!isFiniteNumber(c.gapStart) || !isFiniteNumber(c.gapEnd)) return null;
+    if (c.gapStart < 0 || c.gapEnd <= c.gapStart || c.gapEnd > c.text.length) return null;
+    return { kind: 'cloze', text: c.text, gapStart: c.gapStart, gapEnd: c.gapEnd };
+  }
+  return null;
+}
+
+function parseCard(x: unknown): AnkiCard | null {
+  if (typeof x !== 'object' || x === null) return null;
+  const c = x as Record<string, unknown>;
+  if (typeof c.id !== 'string' || c.id === '') return null;
+  if (!isFiniteNumber(c.lessonId) || c.lessonId < 1 || c.lessonId > 21) return null;
+  const content = parseCardContent(c.content);
+  if (!content) return null;
+  if (!isFiniteNumber(c.stage) || c.stage < 0 || c.stage > 4) return null;
+  if (c.nextDue !== null && typeof c.nextDue !== 'string') return null;
+  if (typeof c.createdAt !== 'string' || typeof c.updatedAt !== 'string') return null;
+  return {
+    id: c.id,
+    lessonId: c.lessonId,
+    content,
+    stage: c.stage,
+    nextDue: c.nextDue,
+    createdAt: c.createdAt,
+    updatedAt: c.updatedAt,
+    deleted: c.deleted === true,
+  };
 }
 
 /**
@@ -111,12 +162,23 @@ export function parseStoreData(x: unknown): StoreData {
   }
   const theme = s.theme === 'light' || s.theme === 'dark' ? s.theme : null;
   const lastLesson = isFiniteNumber(s.lastLesson) ? s.lastLesson : null;
+  // Cards arrived later than the first release, older stores have none.
+  const cards: AnkiCard[] = [];
+  if (s.cards !== undefined) {
+    if (!Array.isArray(s.cards)) throw new Error('cards broken');
+    for (const raw of s.cards) {
+      const card = parseCard(raw);
+      if (!card) throw new Error('card broken');
+      cards.push(card);
+    }
+  }
   return {
     version: 1,
     finishedLessons: [...new Set(s.finishedLessons as number[])].sort((a, b) => a - b),
     attempts,
     theme,
     lastLesson,
+    cards,
   };
 }
 
@@ -126,8 +188,9 @@ function attemptKey(a: TestAttempt): string {
 
 /**
  * Merges an imported store into the current one. Finished lessons become
- * the union, attempts are added without duplicates and sorted by date.
- * Theme and last lesson of the current store stay untouched.
+ * the union, attempts are added without duplicates and sorted by date,
+ * study cards keep the newer copy per card. Theme and last lesson of
+ * the current store stay untouched.
  */
 export function mergeStores(current: StoreData, imported: StoreData): StoreData {
   const finished = [...new Set([...current.finishedLessons, ...imported.finishedLessons])].sort((a, b) => a - b);
@@ -145,7 +208,7 @@ export function mergeStores(current: StoreData, imported: StoreData): StoreData 
     merged.sort((a, b) => a.date.localeCompare(b.date));
     attempts[key] = merged;
   }
-  return { ...current, finishedLessons: finished, attempts };
+  return { ...current, finishedLessons: finished, attempts, cards: mergeCards(current.cards, imported.cards) };
 }
 
 export function buildSyncPayload(data: StoreData): SyncPayload {
@@ -153,6 +216,7 @@ export function buildSyncPayload(data: StoreData): SyncPayload {
     finishedLessons: data.finishedLessons,
     attempts: data.attempts,
     lastLesson: data.lastLesson,
+    cards: data.cards,
     updatedAt: new Date().toISOString(),
   };
 }
@@ -167,11 +231,13 @@ export function parseSyncPayload(x: unknown): SyncPayload {
     attempts: s.attempts,
     theme: null,
     lastLesson: s.lastLesson,
+    cards: s.cards,
   });
   return {
     finishedLessons: viaStore.finishedLessons,
     attempts: viaStore.attempts,
     lastLesson: viaStore.lastLesson,
+    cards: viaStore.cards,
     updatedAt: typeof s.updatedAt === 'string' ? s.updatedAt : '',
   };
 }
@@ -188,6 +254,7 @@ export function mergeSyncPayload(current: StoreData, remote: SyncPayload): Store
     attempts: remote.attempts,
     theme: null,
     lastLesson: null,
+    cards: remote.cards,
   });
   return { ...merged, lastLesson: current.lastLesson ?? remote.lastLesson };
 }

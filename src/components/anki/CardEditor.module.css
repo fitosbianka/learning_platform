@@ -1,0 +1,177 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(20 24 28 / 0.55);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 80;
+  overflow-y: auto;
+}
+
+.dialog {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 22px 24px;
+  max-width: 560px;
+  width: 100%;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+
+.title {
+  margin-bottom: 14px;
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+.label {
+  display: block;
+  font-weight: 650;
+  font-size: 0.92rem;
+  margin-bottom: 5px;
+}
+
+.hint {
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  margin: 4px 0 0;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 76px;
+  padding: 10px 14px;
+  font: inherit;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-small);
+  resize: vertical;
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 14px;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-small);
+}
+
+.textarea:focus-visible,
+.input:focus-visible,
+.select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+.select {
+  min-height: 44px;
+  padding: 8px 12px;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-small);
+  max-width: 100%;
+}
+
+.kindTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.optionRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.optionLetter {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.radioRow {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.radioRow label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  cursor: pointer;
+}
+
+.radioRow input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.tokens {
+  background: var(--surface-2);
+  border-radius: var(--radius-small);
+  padding: 12px 14px;
+  line-height: 2.1;
+}
+
+.tokenWord {
+  display: inline;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  padding: 3px 2px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tokenWord:hover {
+  background: var(--accent-soft);
+}
+
+.tokenGap {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 650;
+}
+
+.error {
+  color: var(--err);
+  background: var(--err-soft);
+  border-radius: var(--radius-small);
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
