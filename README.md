@@ -52,12 +52,12 @@ Die Texte der Oberflaeche, also Knoepfe und Meldungen, liegen gesammelt in src/u
 
 ## 4. Synchronisation zwischen Geraeten
 
-Der Lernstand kann automatisch zwischen MacBook, Handy und weiteren Geraeten abgeglichen werden. Dafuer braucht die Plattform eine kleine Datenablage in deinem Vercel Projekt. Sie wird einmalig eingerichtet, ist im kostenlosen Umfang von Vercel enthalten und die Zugangsdaten werden automatisch hinterlegt, es muss nichts im Code eingetragen werden.
+Der Lernstand kann automatisch zwischen MacBook, Handy und weiteren Geraeten abgeglichen werden. Dafuer braucht die Plattform eine kleine Datenablage in deinem Vercel Projekt. Sie wird einmalig eingerichtet und die Zugangsdaten werden automatisch hinterlegt, es muss nichts im Code eingetragen werden. Der kleinste Plan bei Upstash heisst Pay as you go und kostet 0.2 Dollar pro 100 000 Befehle. Ein Abgleich braucht nur ein bis zwei Befehle, darum bleiben die Kosten auch bei taeglichem Lernen auf mehreren Geraeten bei wenigen Rappen pro Jahr.
 
 Einmalige Einrichtung
 
 1. Im Vercel Dashboard das Projekt learning_platform oeffnen und oben den Reiter Storage waehlen.
-2. Create Database anklicken und Upstash for Redis auswaehlen, je nach Ansicht heisst es auch Upstash KV oder Redis. Den kostenlosen Plan nehmen, einen beliebigen Namen vergeben und die Datenbank mit dem Projekt learning_platform verbinden.
+2. Create Database anklicken und Upstash for Redis auswaehlen, je nach Ansicht heisst es auch Upstash KV oder Redis. Den Plan Pay as you go nehmen, das ist der kleinste, einen beliebigen Namen vergeben und die Datenbank mit dem Projekt learning_platform verbinden.
 3. Danach einmal neu deployen, damit die Funktion die Zugangsdaten erhaelt. Unter Deployments beim obersten Eintrag das Menue mit den drei Punkten oeffnen und Redeploy waehlen. Alternativ genuegt auch der naechste Push auf main.
 
 Geraete koppeln
@@ -69,23 +69,45 @@ Geraete koppeln
 Gut zu wissen
 
 * Der Geraetecode ist der Schluessel zu deinem Lernstand. Nur Geraete mit diesem Code sehen ihn. Wer die Webseite ohne Code oeffnet, sieht nichts von deinem Fortschritt.
-* Synchronisiert werden Lernstand und Testversuche. Der Dunkelmodus bleibt bewusst pro Geraet einstellbar.
+* Synchronisiert werden Lernstand, Testversuche und die Anki Lernkarten samt Wiederholungsplan. Der Dunkelmodus bleibt bewusst pro Geraet einstellbar.
 * Ohne eingerichtete Datenablage funktioniert die Plattform wie bisher, nur eben pro Geraet. Die Einstellungen zeigen in dem Fall einen Hinweis mit diesen Schritten.
 * Lokal mit npm run dev gibt es den Abgleichdienst nicht, er laeuft nur auf der veroeffentlichten Seite.
 
-## 5. Tests und Qualitaetslauf
+## 5. Anki Lernkarten
+
+Die Seite Anki wiederholt selbst erstellte Lernkarten nach einem festen Plan, so wie das gleichnamige Programm.
+
+Karten erstellen
+
+* In einer Lektion eine Textstelle markieren. Ueber der Markierung erscheint der Knopf Lernkarte erstellen, ein Klick darauf oeffnet den Editor mit einem fertigen Vorschlag aus der markierten Stelle.
+* Auf der Seite Anki laesst sich mit Neue Karte jederzeit eine Karte von Grund auf anlegen, inklusive Wahl der Lektion.
+* Drei Kartenarten stehen bereit. Ja oder Nein, Auswahl A B C und Lueckentext. Beim Lueckentext genuegt ein Tipp auf ein Wort, um es zur Luecke zu machen, ein Tipp auf ein weiteres Wort verlaengert die Luecke bis dorthin.
+
+Wiederholungsplan
+
+* Eine neue Karte ist noch am selben Tag faellig, danach nach 1 Tag, nach 3 Tagen und nochmals nach 7 Tagen. Nach der vierten richtigen Antwort gilt die Karte als gelernt.
+* Die Seite zeigt jeden Tag die Anzahl faelliger Karten, aufgeteilt nach Durchgang 1 bis 4. Durchgang 1 ist die erste Wiederholung am Erstelltag.
+* Beim Lernen prueft die Seite jede Antwort und zeigt bei einem Fehler die richtige Loesung. Eine falsch beantwortete Karte kommt am selben Tag so lange wieder, bis sie richtig beantwortet ist. Erst dann rueckt sie im Plan weiter.
+
+Verwaltung
+
+* Auf der Seite Anki sind alle Karten nach Woche und darunter nach Lektion gruppiert. Dort lassen sie sich bearbeiten und loeschen.
+* Die Karten laufen ueber die gleiche Synchronisation wie der Lernstand und erscheinen damit automatisch auch auf dem anderen Geraet.
+
+## 6. Tests und Qualitaetslauf
 
     npm test            alle Vitest Tests, Parser, Inhalte, Speicher, Quiz, Suche
     npm run lint        ESLint ohne Warnungen
     npm run typecheck   TypeScript im strikten Modus
     npm run build       Produktion bauen, inklusive Service Worker
 
-Der komplette Browserdurchlauf oeffnet jede Lektion in Chromium, prueft alle Visuals, macht jeden Test mit Zufallsantworten, prueft die Handyansicht mit 390 Pixel Breite und legt Screenshots in den Ordner screenshots. Der zweite Durchlauf prueft die Synchronisation mit zwei simulierten Geraeten und dem Kopplungslink.
+Der komplette Browserdurchlauf oeffnet jede Lektion in Chromium, prueft alle Visuals, macht jeden Test mit Zufallsantworten, prueft die Handyansicht mit 390 Pixel Breite und legt Screenshots in den Ordner screenshots. Der zweite Durchlauf prueft die Synchronisation mit zwei simulierten Geraeten und dem Kopplungslink. Der dritte Durchlauf prueft die Anki Karten, vom Markieren im Text ueber alle drei Kartenarten und eine Lernrunde mit Fehlversuch bis zu Bearbeiten, Loeschen und Neuladen.
 
     npm run build
     npm run preview
     node scripts/qa.mjs
     node scripts/qa-sync.mjs
+    node scripts/qa-anki.mjs
 
 Er meldet jeden Konsolenfehler und jede Warnung und bricht dann ab. Fuer die Lighthouse Messung auf dem Produktionsbuild
 

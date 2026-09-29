@@ -91,6 +91,7 @@ describe('sync payload', () => {
         '1': [attempt('2026-01-01T10:00:00.000Z', 3, 7), attempt('2026-01-02T10:00:00.000Z', 5, 8)],
       },
       lastLesson: 9,
+      cards: [],
       updatedAt: '2026-01-03T10:00:00.000Z',
     };
     const merged = mergeSyncPayload(base, remote);

@@ -1,0 +1,165 @@
+.header {
+  padding: 36px 0 18px;
+}
+
+.subtitle {
+  color: var(--text-soft);
+  max-width: 620px;
+  margin-top: 6px;
+}
+
+.dueCard {
+  margin-bottom: 18px;
+}
+
+.dueLead {
+  font-size: 1.08rem;
+  font-weight: 650;
+  margin-bottom: 4px;
+}
+
+.roundList {
+  list-style: none;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: 12px 0 16px;
+}
+
+.roundChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.roundCount {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.toolRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 26px;
+}
+
+.totals {
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+.weekSection {
+  margin-bottom: 26px;
+}
+
+.weekTitle {
+  font-size: 1.05rem;
+  margin-bottom: 12px;
+}
+
+.lessonGroup {
+  margin-bottom: 14px;
+}
+
+.lessonTitle {
+  font-size: 0.98rem;
+  margin-bottom: 10px;
+}
+
+.cardList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.cardRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+  background: var(--surface-2);
+}
+
+.cardRowMain {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.kindChip {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  font-weight: 650;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+.cardText {
+  overflow-wrap: anywhere;
+}
+
+.cardRowSide {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badgeLearned {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.badgeDue {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.badgePlanned {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+}
+
+.cardActions {
+  display: flex;
+  gap: 6px;
+}
