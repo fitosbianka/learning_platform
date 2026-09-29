@@ -5,6 +5,7 @@ import { Blocks } from '../components/Blocks';
 import { HighlightCapture } from '../components/anki/HighlightCapture';
 import { TestBlock } from '../components/quiz/TestBlock';
 import { Link } from '../router/Link';
+import { navigate } from '../router/useHashRoute';
 import { useAppState } from '../state/context';
 import { strings } from '../ui/strings';
 import type { LessonVisual } from '../visuals/types';
@@ -13,10 +14,13 @@ import styles from './LessonPage.module.css';
 
 const t = strings.lesson;
 
-// The card editor is only needed once a passage is highlighted, so it
-// stays out of the main bundle.
+// The card editor and the notes pane are only needed on demand, so
+// they stay out of the main bundle.
 const CardEditor = lazy(() =>
   import('../components/anki/CardEditor').then((m) => ({ default: m.CardEditor })),
+);
+const NotesPanel = lazy(() =>
+  import('../components/notes/NotesPanel').then((m) => ({ default: m.NotesPanel })),
 );
 
 // Code splitting per lesson. Each lesson chunk contains its content module
@@ -116,13 +120,22 @@ type LoadState =
   | { status: 'error' }
   | { status: 'ready'; lesson: Lesson; visuals: LessonVisual[] };
 
-export function LessonPage({ lessonId, goToTest }: { lessonId: number; goToTest: boolean }) {
+export function LessonPage({
+  lessonId,
+  goToTest,
+  openNotes = false,
+}: {
+  lessonId: number;
+  goToTest: boolean;
+  openNotes?: boolean;
+}) {
   const { finished, markFinished, setLastLesson, saveCard } = useAppState();
   const [state, setState] = useState<LoadState>({ status: 'loading' });
   const [forceTest, setForceTest] = useState(goToTest);
   const [justMarked, setJustMarked] = useState(false);
   const [cardDraft, setCardDraft] = useState<string | null>(null);
   const [cardSaved, setCardSaved] = useState(false);
+  const [notesOpen, setNotesOpen] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
   const testRef = useRef<HTMLDivElement>(null);
   const toastTimerRef = useRef(0);
@@ -131,6 +144,14 @@ export function LessonPage({ lessonId, goToTest }: { lessonId: number; goToTest:
   useEffect(() => {
     return () => window.clearTimeout(toastTimerRef.current);
   }, []);
+
+  // Links from the notes page open the lesson with the pane already
+  // out; the address is cleaned right after.
+  useEffect(() => {
+    if (!openNotes) return;
+    setNotesOpen(true);
+    navigate(`/lektion/${lessonId}`);
+  }, [openNotes, lessonId]);
 
   useEffect(() => {
     setForceTest(goToTest);
@@ -182,7 +203,7 @@ export function LessonPage({ lessonId, goToTest }: { lessonId: number; goToTest:
   const revealed = isFinished || forceTest;
 
   return (
-    <div className="container">
+    <div className={`container ${notesOpen ? styles.withNotes : ''}`}>
       <ReadingProgress target={articleRef} />
       <div className={styles.topRow}>
         <Link to="/" className={styles.backLink}>
@@ -191,9 +212,30 @@ export function LessonPage({ lessonId, goToTest }: { lessonId: number; goToTest:
           </svg>
           {strings.nav.backToDashboard}
         </Link>
-        <span className={styles.breadcrumb}>{t.breadcrumb(meta.week, meta.id)}</span>
+        <div className={styles.topRowSide}>
+          <span className={styles.breadcrumb}>{t.breadcrumb(meta.week, meta.id)}</span>
+          <button
+            type="button"
+            className="btn btnGhost btnSmall"
+            aria-expanded={notesOpen}
+            onClick={() => setNotesOpen((open) => !open)}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path
+                d="M4 20l1.2-4.2L16.4 4.6a2 2 0 0 1 2.8 0l.2.2a2 2 0 0 1 0 2.8L8.2 18.8z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {strings.notes.openPanel}
+          </button>
+        </div>
       </div>
 
+      <div className={notesOpen ? styles.split : undefined}>
+        <div className={styles.mainCol}>
       {state.status === 'loading' ? (
         <div className={styles.loading} role="status">
           <h1 className={styles.title}>{meta.title}</h1>
@@ -279,6 +321,22 @@ export function LessonPage({ lessonId, goToTest }: { lessonId: number; goToTest:
           <LessonNav id={lessonId} />
         </article>
       )}
+        </div>
+        {notesOpen && (
+          <aside
+            className={styles.notesCol}
+            onClick={(e) => {
+              // On the phone the pane floats over a backdrop, a tap on
+              // the backdrop closes it.
+              if (e.target === e.currentTarget) setNotesOpen(false);
+            }}
+          >
+            <Suspense fallback={null}>
+              <NotesPanel lessonId={lessonId} onClose={() => setNotesOpen(false)} />
+            </Suspense>
+          </aside>
+        )}
+      </div>
 
       <HighlightCapture containerRef={articleRef} onCapture={setCardDraft} />
 

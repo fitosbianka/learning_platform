@@ -212,3 +212,52 @@
   box-shadow: 0 8px 24px rgb(15 30 40 / 0.3);
   text-align: center;
 }
+
+.withNotes {
+  max-width: 1360px;
+}
+
+.topRowSide {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.mainCol {
+  min-width: 0;
+}
+
+@media (min-width: 1000px) {
+  .split {
+    grid-template-columns: minmax(0, 54fr) minmax(0, 46fr);
+  }
+
+  .notesCol {
+    min-width: 0;
+    position: sticky;
+    top: calc(var(--topbar-h) + 12px);
+    height: calc(100vh - var(--topbar-h) - 24px);
+  }
+}
+
+@media (max-width: 999.98px) {
+  .notesCol {
+    position: fixed;
+    inset: var(--topbar-h) 0 0 0;
+    z-index: 75;
+    padding: 10px;
+    background: rgb(20 24 28 / 0.45);
+  }
+
+  .notesCol > section {
+    height: 100%;
+  }
+}

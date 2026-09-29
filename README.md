@@ -94,20 +94,30 @@ Verwaltung
 * Auf der Seite Anki sind alle Karten nach Woche und darunter nach Lektion gruppiert. Dort lassen sie sich bearbeiten und loeschen.
 * Die Karten laufen ueber die gleiche Synchronisation wie der Lernstand und erscheinen damit automatisch auch auf dem anderen Geraet.
 
-## 6. Tests und Qualitaetslauf
+## 6. Notizen
+
+Zu jeder Lektion gibt es ein eigenes Notizblatt im Stil eines Hefts, mit Linien und rotem Rand, aber in der Schrift der Plattform.
+
+* In der Lektion den Knopf Notizen druecken. Auf grossen Bildschirmen teilt sich die Seite, links der Lernstoff, rechts das Heft. Auf dem Handy legt sich das Heft ueber die Lektion.
+* Beim Schreiben stehen Titel, Untertitel, Fett, Kursiv, Unterstrichen, Aufzaehlung, nummerierte Liste, drei Schriftarten und vier Schriftgroessen bereit.
+* Der Knopf Speichern sichert sofort, zusaetzlich sichert das Heft kurz nach dem Tippen automatisch. Die Notizen wandern ueber die Synchronisation mit auf die anderen Geraete.
+* Die Seite Notizen sammelt alle Notizblaetter nach Woche und Lektion. Dort gibt es pro Notiz Kopieren fuer die Notizen App auf MacBook oder Handy, Teilen fuers Handy, Als PDF drucken sowie Loeschen, und oben Alle als PDF drucken.
+
+## 7. Tests und Qualitaetslauf
 
     npm test            alle Vitest Tests, Parser, Inhalte, Speicher, Quiz, Suche
     npm run lint        ESLint ohne Warnungen
     npm run typecheck   TypeScript im strikten Modus
     npm run build       Produktion bauen, inklusive Service Worker
 
-Der komplette Browserdurchlauf oeffnet jede Lektion in Chromium, prueft alle Visuals, macht jeden Test mit Zufallsantworten, prueft die Handyansicht mit 390 Pixel Breite und legt Screenshots in den Ordner screenshots. Der zweite Durchlauf prueft die Synchronisation mit zwei simulierten Geraeten und dem Kopplungslink. Der dritte Durchlauf prueft die Anki Karten, vom Markieren im Text ueber alle drei Kartenarten und eine Lernrunde mit Fehlversuch bis zu Bearbeiten, Loeschen und Neuladen.
+Der komplette Browserdurchlauf oeffnet jede Lektion in Chromium, prueft alle Visuals, macht jeden Test mit Zufallsantworten, prueft die Handyansicht mit 390 Pixel Breite und legt Screenshots in den Ordner screenshots. Der zweite Durchlauf prueft die Synchronisation mit zwei simulierten Geraeten und dem Kopplungslink. Der dritte Durchlauf prueft die Anki Karten, vom Markieren im Text ueber alle drei Kartenarten und eine Lernrunde mit Fehlversuch bis zu Bearbeiten, Loeschen und Neuladen. Der vierte Durchlauf prueft die Notizen, vom Schreiben und Formatieren im Heft ueber Speichern, Kopieren und den PDF Druck bis zu Bearbeiten, Loeschen und Neuladen.
 
     npm run build
     npm run preview
     node scripts/qa.mjs
     node scripts/qa-sync.mjs
     node scripts/qa-anki.mjs
+    node scripts/qa-notes.mjs
 
 Er meldet jeden Konsolenfehler und jede Warnung und bricht dann ab. Fuer die Lighthouse Messung auf dem Produktionsbuild
 

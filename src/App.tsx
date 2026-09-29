@@ -14,6 +14,7 @@ const SettingsPage = lazy(() =>
   import('./pages/SettingsPage').then((m) => ({ default: m.SettingsPage })),
 );
 const AnkiPage = lazy(() => import('./pages/AnkiPage').then((m) => ({ default: m.AnkiPage })));
+const NotesPage = lazy(() => import('./pages/NotesPage').then((m) => ({ default: m.NotesPage })));
 
 function PageFallback() {
   return <div className="container" style={{ padding: '48px 16px' }} aria-hidden="true" />;
@@ -34,7 +35,7 @@ function RouteView({ path, segments, query }: { path: string; segments: string[]
     const id = Number(second);
     const goToTest = third === 'test';
     if (Number.isInteger(id) && (third === undefined || goToTest)) {
-      return <LessonPage lessonId={id} goToTest={goToTest} />;
+      return <LessonPage lessonId={id} goToTest={goToTest} openNotes={query.get('notizen') !== null} />;
     }
     return <NotFoundPage />;
   }
@@ -65,6 +66,14 @@ function RouteView({ path, segments, query }: { path: string; segments: string[]
     return (
       <Suspense fallback={<PageFallback />}>
         <AnkiPage />
+      </Suspense>
+    );
+  }
+
+  if (first === 'notizen' && segments.length === 1) {
+    return (
+      <Suspense fallback={<PageFallback />}>
+        <NotesPage />
       </Suspense>
     );
   }

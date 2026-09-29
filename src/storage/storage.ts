@@ -7,6 +7,7 @@
  */
 
 import { mergeCards, type AnkiCard, type CardContent } from '../anki/cards';
+import { mergeNotes, sanitizeNoteHtml, NOTE_MAX_CHARS, type LessonNote } from '../notes/notes';
 
 export interface TestAttemptAnswer {
   questionId: string;
@@ -34,6 +35,8 @@ export interface StoreData {
   lastLesson: number | null;
   /** Anki study cards, including tombstones of deleted ones */
   cards: AnkiCard[];
+  /** One note per lesson, empty html works as a tombstone */
+  notes: LessonNote[];
 }
 
 export const STORAGE_KEY = 'zahnkurs.store.v1';
@@ -55,6 +58,7 @@ export interface SyncPayload {
   attempts: Record<string, TestAttempt[]>;
   lastLesson: number | null;
   cards: AnkiCard[];
+  notes: LessonNote[];
   updatedAt: string;
 }
 
@@ -66,6 +70,7 @@ export function defaultStore(): StoreData {
     theme: null,
     lastLesson: null,
     cards: [],
+    notes: [],
   };
 }
 
@@ -172,6 +177,23 @@ export function parseStoreData(x: unknown): StoreData {
       cards.push(card);
     }
   }
+  // Notes arrived later as well. Their html gets sanitized on the way
+  // in, so the store never holds markup the editor could not produce.
+  const notes: LessonNote[] = [];
+  if (s.notes !== undefined) {
+    if (!Array.isArray(s.notes)) throw new Error('notes broken');
+    for (const raw of s.notes) {
+      if (typeof raw !== 'object' || raw === null) throw new Error('note broken');
+      const n = raw as Record<string, unknown>;
+      if (!isFiniteNumber(n.lessonId) || n.lessonId < 1 || n.lessonId > 21) throw new Error('note broken');
+      if (typeof n.html !== 'string' || typeof n.updatedAt !== 'string') throw new Error('note broken');
+      notes.push({
+        lessonId: n.lessonId,
+        html: sanitizeNoteHtml(n.html.slice(0, NOTE_MAX_CHARS)),
+        updatedAt: n.updatedAt,
+      });
+    }
+  }
   return {
     version: 1,
     finishedLessons: [...new Set(s.finishedLessons as number[])].sort((a, b) => a - b),
@@ -179,6 +201,7 @@ export function parseStoreData(x: unknown): StoreData {
     theme,
     lastLesson,
     cards,
+    notes,
   };
 }
 
@@ -208,7 +231,13 @@ export function mergeStores(current: StoreData, imported: StoreData): StoreData 
     merged.sort((a, b) => a.date.localeCompare(b.date));
     attempts[key] = merged;
   }
-  return { ...current, finishedLessons: finished, attempts, cards: mergeCards(current.cards, imported.cards) };
+  return {
+    ...current,
+    finishedLessons: finished,
+    attempts,
+    cards: mergeCards(current.cards, imported.cards),
+    notes: mergeNotes(current.notes, imported.notes),
+  };
 }
 
 export function buildSyncPayload(data: StoreData): SyncPayload {
@@ -217,6 +246,7 @@ export function buildSyncPayload(data: StoreData): SyncPayload {
     attempts: data.attempts,
     lastLesson: data.lastLesson,
     cards: data.cards,
+    notes: data.notes,
     updatedAt: new Date().toISOString(),
   };
 }
@@ -232,12 +262,14 @@ export function parseSyncPayload(x: unknown): SyncPayload {
     theme: null,
     lastLesson: s.lastLesson,
     cards: s.cards,
+    notes: s.notes,
   });
   return {
     finishedLessons: viaStore.finishedLessons,
     attempts: viaStore.attempts,
     lastLesson: viaStore.lastLesson,
     cards: viaStore.cards,
+    notes: viaStore.notes,
     updatedAt: typeof s.updatedAt === 'string' ? s.updatedAt : '',
   };
 }
@@ -255,6 +287,7 @@ export function mergeSyncPayload(current: StoreData, remote: SyncPayload): Store
     theme: null,
     lastLesson: null,
     cards: remote.cards,
+    notes: remote.notes,
   });
   return { ...merged, lastLesson: current.lastLesson ?? remote.lastLesson };
 }

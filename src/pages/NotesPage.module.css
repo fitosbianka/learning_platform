@@ -1,0 +1,106 @@
+.header {
+  padding: 36px 0 18px;
+}
+
+.subtitle {
+  color: var(--text-soft);
+  max-width: 620px;
+  margin-top: 6px;
+}
+
+.emptyCard {
+  margin-bottom: 40px;
+}
+
+.emptyText {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.toolRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.toolInfo {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+}
+
+.status {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: var(--radius-small);
+  font-size: 0.92rem;
+}
+
+.statusOk {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.statusErr {
+  background: var(--err-soft);
+  color: var(--err);
+}
+
+.weekSection {
+  margin-bottom: 26px;
+}
+
+.weekTitle {
+  font-size: 1.05rem;
+  margin-bottom: 12px;
+}
+
+.noteCard {
+  margin-bottom: 14px;
+}
+
+.noteHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.noteTitle {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.noteMeta {
+  margin: 2px 0 0;
+  color: var(--text-soft);
+  font-size: 0.85rem;
+}
+
+.noteView {
+  background: var(--note-paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+  padding: 0 18px 18px 52px;
+  max-height: 420px;
+  overflow-y: auto;
+  background-image:
+    linear-gradient(to right, transparent 0 36px, var(--note-margin) 36px 38px, transparent 38px),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 calc(var(--note-rule-h) - 1px),
+      var(--note-rule) calc(var(--note-rule-h) - 1px) var(--note-rule-h)
+    );
+  background-attachment: local;
+}
+
+.noteActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
