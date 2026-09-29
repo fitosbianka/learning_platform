@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { suggestChoice } from '../anki/suggest';
+import { suggestChoice, suggestQa } from '../anki/suggest';
 
 /** Deterministic stand in for Math.random. */
 function seeded(values: number[]): () => number {
@@ -29,5 +29,23 @@ describe('choice suggestion from a highlight', () => {
 
   it('returns null without a usable word', () => {
     expect(suggestChoice('   ')).toBeNull();
+  });
+});
+
+describe('question suggestion from a highlight', () => {
+  it('turns a definition into a Was ist question with the passage as answer', () => {
+    const text = 'Der Zahnschmelz ist die härteste Substanz im Körper';
+    expect(suggestQa(text)).toEqual({ question: 'Was ist der Zahnschmelz?', answer: text });
+
+    const plural = 'Milchzähne sind kleiner und weisser als bleibende Zähne';
+    expect(suggestQa(plural)?.question).toBe('Was sind Milchzähne?');
+  });
+
+  it('asks about the key word when no definition pattern fits', () => {
+    const text = 'Beim Recall alle sechs Monate zur Dentalhygiene kommen';
+    const suggestion = suggestQa(text);
+    expect(suggestion?.question).toBe('Was bedeutet Dentalhygiene?');
+    expect(suggestion?.answer).toBe(text);
+    expect(suggestQa('   ')).toBeNull();
   });
 });

@@ -7,7 +7,7 @@
  */
 
 export type CardContent =
-  | { kind: 'yesno'; statement: string; answerYes: boolean }
+  | { kind: 'qa'; question: string; answer: string }
   | { kind: 'choice'; question: string; options: string[]; correctIndex: number }
   | { kind: 'cloze'; text: string; gapStart: number; gapEnd: number };
 
@@ -92,6 +92,19 @@ export function passReview(card: AnkiCard, now: Date = new Date()): AnkiCard {
   };
 }
 
+/**
+ * A missed answer throws the card back to the first round. It stays
+ * due today and walks the whole ladder again.
+ */
+export function failReview(card: AnkiCard, now: Date = new Date()): AnkiCard {
+  return {
+    ...card,
+    stage: 0,
+    nextDue: todayKey(now),
+    updatedAt: now.toISOString(),
+  };
+}
+
 export function dueCards(cards: readonly AnkiCard[], today: string): AnkiCard[] {
   return cards.filter((c) => isDue(c, today));
 }
@@ -162,7 +175,8 @@ export function normalizeAnswer(s: string): string {
 }
 
 export function checkAnswer(content: CardContent, input: string | number | boolean): boolean {
-  if (content.kind === 'yesno') return input === content.answerYes;
+  // A question card is graded by the learner, true means known.
+  if (content.kind === 'qa') return input === true;
   if (content.kind === 'choice') return input === content.correctIndex;
   if (typeof input !== 'string') return false;
   return normalizeAnswer(input) === normalizeAnswer(clozeParts(content).gap);
@@ -172,12 +186,12 @@ export function checkAnswer(content: CardContent, input: string | number | boole
 export function cardTitle(card: AnkiCard): string {
   const content = card.content;
   const text =
-    content.kind === 'yesno' ? content.statement : content.kind === 'choice' ? content.question : content.text;
+    content.kind === 'qa' ? content.question : content.kind === 'choice' ? content.question : content.text;
   return text.length > 90 ? `${text.slice(0, 87)}…` : text;
 }
 
 export function cardKindLabel(kind: CardContent['kind']): string {
-  return kind === 'yesno' ? 'Ja oder Nein' : kind === 'choice' ? 'Auswahl' : 'Lückentext';
+  return kind === 'qa' ? 'Frage und Antwort' : kind === 'choice' ? 'Auswahl' : 'Lückentext';
 }
 
 /**

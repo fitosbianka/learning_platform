@@ -79,15 +79,15 @@ Die Seite Anki wiederholt selbst erstellte Lernkarten nach einem festen Plan, so
 
 Karten erstellen
 
-* In einer Lektion eine Textstelle markieren und auf Lernkarte tippen. Der Editor oeffnet sich mit einem fertigen Vorschlag fuer jede Kartenart. Beim Lueckentext ist die Luecke schon gesetzt, bei Ja oder Nein steht die Aussage bereit und bei Auswahl A B C sind Frage und alle drei Antworten ausgefuellt, mit zwei plausiblen falschen Antworten aus dem Glossar. Alles laesst sich anpassen oder direkt speichern.
+* In einer Lektion eine Textstelle markieren und auf Lernkarte tippen. Der Editor oeffnet sich mit einem fertigen Vorschlag fuer jede Kartenart. Beim Lueckentext ist die Luecke schon gesetzt, bei Frage und Antwort schreibt die Plattform eine Frage zur markierten Stelle und legt die Stelle als Antwort auf die Rueckseite, und bei Auswahl A B C sind Frage und alle drei Antworten ausgefuellt, mit zwei plausiblen falschen Antworten aus dem Glossar. Alles laesst sich anpassen oder direkt speichern.
 * Auf der Seite Anki laesst sich mit Neue Karte jederzeit eine Karte von Grund auf anlegen, inklusive Wahl der Lektion.
-* Drei Kartenarten stehen bereit. Ja oder Nein, Auswahl A B C und Lueckentext. Beim Lueckentext genuegt ein Tipp auf ein Wort, um es zur Luecke zu machen, ein Tipp auf ein weiteres Wort verlaengert die Luecke bis dorthin.
+* Drei Kartenarten stehen bereit. Frage und Antwort, Auswahl A B C und Lueckentext. Bei Frage und Antwort beantwortest du die Frage zuerst fuer dich, deckst die Antwort auf und stufst mit Gewusst oder Nicht gewusst ehrlich ein. Beim Lueckentext genuegt ein Tipp auf ein Wort, um es zur Luecke zu machen, ein Tipp auf ein weiteres Wort verlaengert die Luecke bis dorthin.
 
 Wiederholungsplan
 
 * Eine neue Karte ist noch am selben Tag faellig, danach nach 1 Tag, nach 3 Tagen und nochmals nach 7 Tagen. Nach der vierten richtigen Antwort gilt die Karte als gelernt.
 * Die Seite zeigt jeden Tag die Anzahl faelliger Karten, aufgeteilt nach Durchgang 1 bis 4. Durchgang 1 ist die erste Wiederholung am Erstelltag.
-* Beim Lernen prueft die Seite jede Antwort und zeigt bei einem Fehler die richtige Loesung. Eine falsch beantwortete Karte kommt am selben Tag so lange wieder, bis sie richtig beantwortet ist. Erst dann rueckt sie im Plan weiter.
+* Beim Lernen prueft die Seite jede Antwort und zeigt bei einem Fehler die richtige Loesung. Eine falsche oder nicht gewusste Antwort wirft die Karte zurueck auf Durchgang 1, der Plan beginnt fuer sie von vorne. Am selben Tag kommt sie so lange wieder, bis sie sitzt, erst dann rueckt sie weiter.
 
 Verwaltung
 

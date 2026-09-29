@@ -102,6 +102,16 @@ Auf Wunsch nachgeruestet.
 * Die geteilte Ansicht nutzt seit dem letzten Nachtrag die volle Bildschirmbreite, die Notizen tragen durchgehend den klaren Look der Plattform und die Auswahlfelder der Werkzeugleiste den Chip Stil der Seite
 * Abgesichert mit 12 neuen Tests fuer Verankerung im Text, Zusammenfuehrung, Speicherung und Vorschlaege sowie erweiterten Browserdurchlaeufen fuer Leuchtstift und Vorschlaege, alles ohne Konsolenfehler
 
+## Nachtrag. Fragekarten mit ehrlicher Selbsteinstufung
+
+Auf Wunsch nachgeruestet. Die Kartenart Ja oder Nein ist durch Frage und Antwort ersetzt, dazu kommt eine strengere Regel im Plan.
+
+* Aus einer markierten Stelle schreibt die Plattform automatisch eine Frage. Saetze wie X ist Y werden zu Was ist X, sonst fragt die Karte nach dem Schluesselwort, die markierte Stelle liegt als Antwort auf der Rueckseite
+* Beim Lernen beantwortet man die Frage zuerst fuer sich, deckt mit Antwort zeigen auf und stuft mit Gewusst oder Nicht gewusst ehrlich ein
+* Jede falsche oder nicht gewusste Antwort wirft die Karte zurueck auf Durchgang 1, egal bei welcher Kartenart. Sie bleibt am selben Tag in der Runde, bis sie sitzt, und laeuft den Plan mit 1, 3 und 7 Tagen von vorne
+* Bereits gespeicherte Ja oder Nein Karten werden beim Laden automatisch in Fragekarten umgewandelt, es geht nichts verloren
+* Abgesichert mit 6 neuen Tests fuer Rueckstufung, Umwandlung, Fragevorschlag und die Selbsteinstufung im Lauf sowie dem angepassten Browserdurchlauf, alles ohne Konsolenfehler
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.
