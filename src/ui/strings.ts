@@ -159,7 +159,8 @@ export const strings = {
     save: 'Speichern',
     cancel: 'Abbrechen',
 
-    highlightButton: 'Lernkarte erstellen',
+    highlightButton: 'Lernkarte',
+    suggestHint: 'Der Vorschlag kommt aus deiner markierten Stelle. Passe ihn an oder speichere direkt.',
     savedToast: 'Lernkarte gespeichert. Du findest sie auf der Anki Seite.',
 
     remaining: (n: number) => (n === 1 ? 'Noch 1 Karte heute' : `Noch ${n} Karten heute`),
@@ -177,6 +178,11 @@ export const strings = {
       n === 1 ? 'Eine Karte wiederholt. Die nächste Wiederholung steht im Plan.' : `${n} Karten wiederholt. Die nächsten Wiederholungen stehen im Plan.`,
     backToOverview: 'Zur Übersicht',
     quit: 'Beenden',
+  },
+
+  marks: {
+    markButton: 'Markieren',
+    removeButton: 'Markierung entfernen',
   },
 
   notes: {

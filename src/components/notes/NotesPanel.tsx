@@ -193,37 +193,43 @@ export function NotesPanel({ lessonId, onClose }: { lessonId: number; onClose: (
       </div>
 
       <div className={styles.toolbar} role="toolbar" aria-label={t.toolbarLabel}>
-        <select
-          className={styles.toolSelect}
-          aria-label={t.blockLabel}
-          value={tools.block}
-          onChange={(e) => apply('formatBlock', e.target.value)}
-        >
-          <option value="p">{t.blockText}</option>
-          <option value="h1">{t.blockTitle}</option>
-          <option value="h2">{t.blockSubtitle}</option>
-        </select>
-        <select
-          className={styles.toolSelect}
-          aria-label={t.fontLabel}
-          value={tools.font}
-          onChange={(e) => apply('fontName', FONT_VALUES[e.target.value] ?? 'system-ui')}
-        >
-          <option value="standard">{t.fontStandard}</option>
-          <option value="serif">{t.fontSerif}</option>
-          <option value="mono">{t.fontMono}</option>
-        </select>
-        <select
-          className={styles.toolSelect}
-          aria-label={t.sizeLabel}
-          value={tools.size}
-          onChange={(e) => apply('fontSize', e.target.value)}
-        >
-          <option value="2">{t.sizeSmall}</option>
-          <option value="3">{t.sizeNormal}</option>
-          <option value="5">{t.sizeLarge}</option>
-          <option value="6">{t.sizeHuge}</option>
-        </select>
+        <span className={styles.selectWrap}>
+          <select
+            className={styles.toolSelect}
+            aria-label={t.blockLabel}
+            value={tools.block}
+            onChange={(e) => apply('formatBlock', e.target.value)}
+          >
+            <option value="p">{t.blockText}</option>
+            <option value="h1">{t.blockTitle}</option>
+            <option value="h2">{t.blockSubtitle}</option>
+          </select>
+        </span>
+        <span className={styles.selectWrap}>
+          <select
+            className={styles.toolSelect}
+            aria-label={t.fontLabel}
+            value={tools.font}
+            onChange={(e) => apply('fontName', FONT_VALUES[e.target.value] ?? 'system-ui')}
+          >
+            <option value="standard">{t.fontStandard}</option>
+            <option value="serif">{t.fontSerif}</option>
+            <option value="mono">{t.fontMono}</option>
+          </select>
+        </span>
+        <span className={styles.selectWrap}>
+          <select
+            className={styles.toolSelect}
+            aria-label={t.sizeLabel}
+            value={tools.size}
+            onChange={(e) => apply('fontSize', e.target.value)}
+          >
+            <option value="2">{t.sizeSmall}</option>
+            <option value="3">{t.sizeNormal}</option>
+            <option value="5">{t.sizeLarge}</option>
+            <option value="6">{t.sizeHuge}</option>
+          </select>
+        </span>
         <div className={styles.toolGroup}>
           {format.map((f) => (
             <button

@@ -564,18 +564,36 @@ svg .visLabelStrong {
   border: 0;
 }
 
-/* Notebook paper for the lesson notes */
+/* Notebook paper for the lesson notes and the marker pen */
 :root {
   --note-paper: #fffdf5;
   --note-rule: #dfe7ee;
   --note-margin: #ecc6c1;
   --note-rule-h: 30px;
+  --marker: #ffe89e;
+  --marker-strong: #e8c95d;
 }
 
 html[data-theme='dark'] {
   --note-paper: #20262d;
   --note-rule: #333c46;
   --note-margin: #5c4341;
+  --marker: #5c4f22;
+  --marker-strong: #8a7433;
+}
+
+/* A passage painted with the marker pen */
+mark.userMark {
+  background: var(--marker);
+  color: inherit;
+  border-radius: 3px;
+  padding: 1px 0;
+  box-shadow: 0 0 0 1px var(--marker);
+  cursor: pointer;
+}
+
+mark.userMark:hover {
+  background: var(--marker-strong);
 }
 
 /*

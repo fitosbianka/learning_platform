@@ -84,6 +84,37 @@ describe('card editor', () => {
     expect(card.content).toEqual({ kind: 'yesno', statement: 'Milchzähne gibt es zwanzig.', answerYes: true });
   });
 
+  it('prefills the Auswahl kind with a full suggestion from the highlight', async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn();
+    render(
+      <CardEditor
+        initial={null}
+        prefillText="Der Zahnschmelz ist die härteste Substanz im Körper"
+        lessonId={4}
+        onSave={onSave}
+        onCancel={() => {}}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Auswahl A B C' }));
+    const question = screen.getByLabelText('Frage') as HTMLTextAreaElement;
+    expect(question.value).toContain('Welches Wort fehlt?');
+    expect(question.value).toContain('…');
+    const optionValues = ['A', 'B', 'C'].map(
+      (letter) => (screen.getByLabelText(`Antwort ${letter}`) as HTMLInputElement).value,
+    );
+    expect(optionValues.every((v) => v.length > 0)).toBe(true);
+    expect(optionValues).toContain('Zahnschmelz');
+
+    await user.click(screen.getByRole('button', { name: 'Speichern' }));
+    const card = onSave.mock.calls[0]?.[0] as AnkiCard;
+    expect(card.content.kind).toBe('choice');
+    if (card.content.kind === 'choice') {
+      expect(card.content.options[card.content.correctIndex]).toBe('Zahnschmelz');
+    }
+  });
+
   it('saves an Auswahl card with the picked correct letter', async () => {
     const user = userEvent.setup();
     const onSave = vi.fn();

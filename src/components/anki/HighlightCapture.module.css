@@ -1,29 +1,54 @@
-.button {
+.menu {
   position: absolute;
   transform: translateX(-50%);
   z-index: 70;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  min-height: 44px;
-  padding: 9px 16px;
-  border: none;
+  gap: 2px;
+  padding: 4px;
   border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-contrast);
-  font: inherit;
-  font-size: 0.92rem;
-  font-weight: 650;
-  cursor: pointer;
-  box-shadow: 0 6px 18px rgb(15 30 40 / 0.28);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 6px 20px rgb(15 30 40 / 0.25);
   white-space: nowrap;
 }
 
-.button:hover {
-  background: var(--accent-strong);
+.menuButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.button:focus-visible {
-  outline: 2px solid var(--accent-strong);
-  outline-offset: 2px;
+.menuButton:hover {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.menuButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+}
+
+.markSwatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: var(--marker);
+  border: 1px solid var(--marker-strong);
 }

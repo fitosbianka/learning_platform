@@ -1,9 +1,11 @@
-import { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { Lesson } from '../content/types';
 import { lessonIndex } from '../content/generated/lessonsIndex';
 import { Blocks } from '../components/Blocks';
-import { HighlightCapture } from '../components/anki/HighlightCapture';
+import { HighlightCapture, MarkRemoveButton } from '../components/anki/HighlightCapture';
 import { TestBlock } from '../components/quiz/TestBlock';
+import { applyMarkings } from '../marks/dom';
+import { newMarking } from '../marks/marks';
 import { Link } from '../router/Link';
 import { navigate } from '../router/useHashRoute';
 import { useAppState } from '../state/context';
@@ -129,17 +131,20 @@ export function LessonPage({
   goToTest: boolean;
   openNotes?: boolean;
 }) {
-  const { finished, markFinished, setLastLesson, saveCard } = useAppState();
+  const { finished, markFinished, setLastLesson, saveCard, markings, addMarking, deleteMarking } = useAppState();
   const [state, setState] = useState<LoadState>({ status: 'loading' });
   const [forceTest, setForceTest] = useState(goToTest);
   const [justMarked, setJustMarked] = useState(false);
   const [cardDraft, setCardDraft] = useState<string | null>(null);
   const [cardSaved, setCardSaved] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
+  const [removeSpot, setRemoveSpot] = useState<{ id: string; top: number; left: number } | null>(null);
   const articleRef = useRef<HTMLElement>(null);
   const testRef = useRef<HTMLDivElement>(null);
   const toastTimerRef = useRef(0);
   const meta = lessonIndex[lessonId - 1];
+
+  const lessonMarks = useMemo(() => markings.filter((m) => m.lessonId === lessonId), [markings, lessonId]);
 
   useEffect(() => {
     return () => window.clearTimeout(toastTimerRef.current);
@@ -152,6 +157,46 @@ export function LessonPage({
     setNotesOpen(true);
     navigate(`/lektion/${lessonId}`);
   }, [openNotes, lessonId]);
+
+  // Paint the stored markings onto the lesson text. Runs again when
+  // the markings change or more of the lesson appears on screen.
+  const marksRevealed = finished.has(lessonId) || forceTest;
+  useLayoutEffect(() => {
+    const root = articleRef.current;
+    if (!root || state.status !== 'ready') return;
+    applyMarkings(root, lessonMarks);
+  }, [state, lessonMarks, marksRevealed]);
+
+  // The removal bubble over a tapped marking goes away on any tap
+  // somewhere else.
+  useEffect(() => {
+    if (!removeSpot) return;
+    const dismiss = (e: MouseEvent | TouchEvent) => {
+      const el = e.target instanceof Element ? e.target : null;
+      if (el?.closest('[data-mark-remove]') || el?.closest('mark[data-mark]')) return;
+      setRemoveSpot(null);
+    };
+    document.addEventListener('mousedown', dismiss);
+    document.addEventListener('touchstart', dismiss);
+    return () => {
+      document.removeEventListener('mousedown', dismiss);
+      document.removeEventListener('touchstart', dismiss);
+    };
+  }, [removeSpot]);
+
+  const onArticleClick = (e: React.MouseEvent) => {
+    const el = e.target instanceof Element ? e.target.closest('mark[data-mark]') : null;
+    if (el instanceof HTMLElement && el.dataset.mark) {
+      const rect = el.getBoundingClientRect();
+      setRemoveSpot({
+        id: el.dataset.mark,
+        top: Math.max(rect.top + window.scrollY - 52, 8),
+        left: Math.max(rect.left + window.scrollX + rect.width / 2, 130),
+      });
+    } else if (removeSpot) {
+      setRemoveSpot(null);
+    }
+  };
 
   useEffect(() => {
     setForceTest(goToTest);
@@ -242,7 +287,7 @@ export function LessonPage({
           <p>{meta.metaLine}</p>
         </div>
       ) : (
-        <article ref={articleRef}>
+        <article ref={articleRef} onClick={onArticleClick}>
           <h1 className={styles.title}>{state.lesson.title}</h1>
           <p className={styles.metaLine}>{state.lesson.metaLine}</p>
 
@@ -312,7 +357,7 @@ export function LessonPage({
                 <p>{state.lesson.summary}</p>
               </section>
 
-              <div ref={testRef} id="test">
+              <div ref={testRef} id="test" data-nomark="true">
                 <TestBlock lesson={state.lesson} />
               </div>
             </div>
@@ -338,7 +383,22 @@ export function LessonPage({
         )}
       </div>
 
-      <HighlightCapture containerRef={articleRef} onCapture={setCardDraft} />
+      <HighlightCapture
+        containerRef={articleRef}
+        onCapture={setCardDraft}
+        onMark={(anchor) => addMarking(newMarking(lessonId, anchor))}
+      />
+
+      {removeSpot && (
+        <MarkRemoveButton
+          top={removeSpot.top}
+          left={removeSpot.left}
+          onRemove={() => {
+            deleteMarking(removeSpot.id);
+            setRemoveSpot(null);
+          }}
+        />
+      )}
 
       {cardDraft !== null && (
         <Suspense fallback={null}>
