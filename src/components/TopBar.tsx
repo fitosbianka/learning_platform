@@ -7,6 +7,7 @@ const links = [
   { to: '/', label: strings.nav.dashboard, match: (p: string) => p === '/' || p.startsWith('/lektion') },
   { to: '/nachschlagen', label: strings.nav.reference, match: (p: string) => p.startsWith('/nachschlagen') },
   { to: '/anki', label: strings.anki.navLabel, match: (p: string) => p.startsWith('/anki') },
+  { to: '/notizen', label: strings.notes.navLabel, match: (p: string) => p.startsWith('/notizen') },
   { to: '/einstellungen', label: strings.nav.settings, match: (p: string) => p.startsWith('/einstellungen') },
 ];
 

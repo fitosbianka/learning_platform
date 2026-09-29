@@ -144,6 +144,10 @@ async function main() {
   await page.getByText('Noch keine Lernkarten').waitFor();
   await page.getByRole('button', { name: 'Neue Karte' }).waitFor();
 
+  // Notes page in its empty state. The full flow runs in qa-notes.mjs.
+  await page.goto(`${base}/#/notizen`, { waitUntil: 'networkidle' });
+  await page.getByText('Noch keine Notizen').waitFor();
+
   // Settings with dark mode.
   await page.goto(`${base}/#/einstellungen`, { waitUntil: 'networkidle' });
   await page.getByRole('switch').click();

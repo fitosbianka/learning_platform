@@ -82,6 +82,17 @@ Auf Wunsch nachgeruestet. Eine eigene Seite Anki mit selbst erstellten Lernkarte
 * Die Karten wandern ueber die bestehende Synchronisation mit auf alle gekoppelten Geraete, geloeschte Karten bleiben geloescht, auch wenn ein anderes Geraet noch eine alte Kopie hat
 * Abgesichert mit 19 neuen Tests fuer Plan, Luecken, Antwortpruefung, Zusammenfuehrung, Editor, Lernrunde und Seite sowie einem eigenen Browserdurchlauf, der das Markieren, alle drei Kartenarten, eine Lernrunde mit Fehlversuch, Speicherung, Bearbeiten, Loeschen und Neuladen prueft, alles ohne Konsolenfehler. Lighthouse bleibt auf der Startseite bei 100 in allen Kategorien, die Seite Anki erreicht 99 bei der Performance und sonst 100
 
+## Nachtrag. Notizen
+
+Auf Wunsch nachgeruestet. Ein Heft fuer eigene Notizen direkt neben dem Lernstoff.
+
+* In jeder Lektion oeffnet der Knopf Notizen ein Notizblatt im Heftlook mit Linien und rotem Rand, auf grossen Bildschirmen als geteilte Ansicht neben dem Text, auf dem Handy als Blatt ueber der Lektion. Die Schrift bleibt die der Plattform
+* Formatierung mit Titel, Untertitel, Fett, Kursiv, Unterstrichen, Aufzaehlung, nummerierter Liste, drei Schriftarten und vier Schriftgroessen
+* Speichern per Knopf und zusaetzlich automatisch kurz nach dem Tippen, auch beim Verlassen der Ansicht geht nichts verloren. Die Notizen synchronisieren auf alle gekoppelten Geraete, Loeschungen setzen sich durch
+* Die Seite Notizen gruppiert alle Blaetter nach Woche und Lektion, mit Kopieren fuer die Notizen App auf MacBook und Handy, Teilen ueber das Teilen Menue des Handys, PDF Druck pro Notiz oder fuer alles zusammen und Loeschen mit Rueckfrage
+* Gespeicherte Notizen werden beim Laden bereinigt, sodass nur die Elemente des Editors im Speicher landen
+* Abgesichert mit 23 neuen Tests und einem eigenen Browserdurchlauf fuer Schreiben, Formatieren, Speichern, Kopieren, Drucken, Bearbeiten, Loeschen und Neuladen, alles ohne Konsolenfehler. Lighthouse bleibt auf der Startseite bei 100 in allen Kategorien, die Seite Notizen erreicht 99 bei der Performance und sonst 100
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.

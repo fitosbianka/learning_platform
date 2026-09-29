@@ -554,3 +554,140 @@ svg .visLabelStrong {
   white-space: nowrap;
   border: 0;
 }
+
+/* Notebook paper for the lesson notes */
+:root {
+  --note-paper: #fffdf5;
+  --note-rule: #dfe7ee;
+  --note-margin: #ecc6c1;
+  --note-rule-h: 30px;
+}
+
+html[data-theme='dark'] {
+  --note-paper: #20262d;
+  --note-rule: #333c46;
+  --note-margin: #5c4341;
+}
+
+/*
+ * Typography of a note, shared by the editor, the notes page and the
+ * print view. The line height matches the ruling of the paper.
+ */
+.noteContent {
+  font-size: 1rem;
+  line-height: var(--note-rule-h);
+  overflow-wrap: anywhere;
+}
+
+.noteContent p,
+.noteContent div {
+  margin: 0;
+  min-height: var(--note-rule-h);
+}
+
+.noteContent h1 {
+  font-size: 1.28rem;
+  line-height: var(--note-rule-h);
+  margin: 0;
+  font-weight: 750;
+}
+
+.noteContent h2,
+.noteContent h3 {
+  font-size: 1.1rem;
+  line-height: var(--note-rule-h);
+  margin: 0;
+  font-weight: 700;
+}
+
+.noteContent ul,
+.noteContent ol {
+  margin: 0;
+  padding-left: 28px;
+}
+
+.noteContent li {
+  line-height: var(--note-rule-h);
+}
+
+.noteContent u {
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+}
+
+.noteContent font[size='2'] {
+  font-size: 0.85rem;
+}
+
+.noteContent font[size='3'] {
+  font-size: 1rem;
+}
+
+.noteContent font[size='5'] {
+  font-size: 1.25rem;
+}
+
+.noteContent font[size='6'] {
+  font-size: 1.55rem;
+}
+
+/* Print view for the notes, the rest of the app stays out of the paper */
+.notePrintArea {
+  display: none;
+}
+
+@media print {
+  #root {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff;
+    color: #17202a;
+  }
+
+  .notePrintArea {
+    display: block;
+    font-family: var(--font);
+  }
+
+  .notePrintArea .printNote {
+    break-after: page;
+  }
+
+  .notePrintArea .printNote:last-child {
+    break-after: auto;
+  }
+
+  .notePrintArea .printNoteHead {
+    font-size: 0.85rem;
+    color: #5a6675;
+    margin: 0 0 2px;
+  }
+
+  .notePrintArea .printNoteTitle {
+    font-size: 1.5rem;
+    margin: 0 0 4px;
+    border-bottom: 2px solid #d5dbe2;
+    padding-bottom: 8px;
+  }
+
+  .notePrintArea .noteContent,
+  .notePrintArea .noteContent p,
+  .notePrintArea .noteContent div,
+  .notePrintArea .noteContent li {
+    line-height: 1.55;
+    min-height: 0;
+  }
+
+  .notePrintArea .noteContent h1 {
+    line-height: 1.3;
+    margin: 14px 0 4px;
+  }
+
+  .notePrintArea .noteContent h2,
+  .notePrintArea .noteContent h3 {
+    line-height: 1.35;
+    margin: 10px 0 2px;
+  }
+}

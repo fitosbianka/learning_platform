@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react';
 import type { TestAttempt } from '../storage/storage';
 import type { AnkiCard } from '../anki/cards';
+import type { LessonNote } from '../notes/notes';
 
 export type Theme = 'light' | 'dark';
 
@@ -20,6 +21,10 @@ export interface AppState {
   saveCard: (card: AnkiCard) => void;
   deleteCard: (id: string) => void;
   passCardReview: (id: string) => void;
+  /** Lesson notes that hold content, tombstones filtered out */
+  notes: readonly LessonNote[];
+  saveNote: (lessonId: number, html: string) => void;
+  deleteNote: (lessonId: number) => void;
   sync: SyncState;
   enableSync: () => Promise<void>;
   joinSync: (raw: string) => Promise<JoinResult>;

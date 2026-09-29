@@ -20,6 +20,7 @@ import {
 } from '../storage/storage';
 import { generateSyncCode, normalizeSyncCode, pullRemote, pushRemote } from '../sync/sync';
 import { passReview, type AnkiCard } from '../anki/cards';
+import { isEmptyNote, sanitizeNoteHtml, type LessonNote } from '../notes/notes';
 import { AppStateContext, type AppState, type JoinResult, type SyncStatus, type Theme } from './context';
 
 function systemTheme(): Theme {
@@ -32,7 +33,13 @@ function systemTheme(): Theme {
 
 /** The part of the store that travels between devices, for comparisons. */
 function comparable(data: StoreData): string {
-  return JSON.stringify({ f: data.finishedLessons, a: data.attempts, l: data.lastLesson, c: data.cards });
+  return JSON.stringify({
+    f: data.finishedLessons,
+    a: data.attempts,
+    l: data.lastLesson,
+    c: data.cards,
+    n: data.notes,
+  });
 }
 
 /** Learning data only. Decides whether the cloud needs an update. */
@@ -40,8 +47,9 @@ function comparableCore(data: {
   finishedLessons: number[];
   attempts: StoreData['attempts'];
   cards: AnkiCard[];
+  notes: LessonNote[];
 }): string {
-  return JSON.stringify({ f: data.finishedLessons, a: data.attempts, c: data.cards });
+  return JSON.stringify({ f: data.finishedLessons, a: data.attempts, c: data.cards, n: data.notes });
 }
 
 const PUSH_DEBOUNCE_MS = 2500;
@@ -274,6 +282,28 @@ export function AppStateProvider({
         update((prev) => ({
           ...prev,
           cards: prev.cards.map((c) => (c.id === id ? passReview(c) : c)),
+        })),
+      notes: store.notes.filter((n) => !isEmptyNote(n.html)),
+      saveNote: (lessonId, html) =>
+        update((prev) => {
+          const clean = sanitizeNoteHtml(html);
+          const existing = prev.notes.find((n) => n.lessonId === lessonId);
+          if (existing && existing.html === clean) return prev;
+          if (!existing && clean === '') return prev;
+          const entry: LessonNote = { lessonId, html: clean, updatedAt: new Date().toISOString() };
+          return {
+            ...prev,
+            notes: existing
+              ? prev.notes.map((n) => (n.lessonId === lessonId ? entry : n))
+              : [...prev.notes, entry],
+          };
+        }),
+      deleteNote: (lessonId) =>
+        update((prev) => ({
+          ...prev,
+          notes: prev.notes.map((n) =>
+            n.lessonId === lessonId ? { ...n, html: '', updatedAt: new Date().toISOString() } : n,
+          ),
         })),
       theme,
       themeSetting: store.theme,
