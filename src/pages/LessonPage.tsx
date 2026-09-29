@@ -2,10 +2,16 @@ import { Suspense, lazy, useEffect, useLayoutEffect, useMemo, useRef, useState }
 import type { Lesson } from '../content/types';
 import { lessonIndex } from '../content/generated/lessonsIndex';
 import { Blocks } from '../components/Blocks';
-import { HighlightCapture, MarkRemoveButton } from '../components/anki/HighlightCapture';
+import {
+  AddImageButton,
+  HighlightCapture,
+  MarkRemoveButton,
+  type HighlightDraft,
+} from '../components/anki/HighlightCapture';
 import { TestBlock } from '../components/quiz/TestBlock';
 import { applyMarkings } from '../marks/dom';
 import { newMarking } from '../marks/marks';
+import { svgToDataUri } from '../notes/snapshot';
 import { Link } from '../router/Link';
 import { navigate } from '../router/useHashRoute';
 import { useAppState } from '../state/context';
@@ -131,18 +137,28 @@ export function LessonPage({
   goToTest: boolean;
   openNotes?: boolean;
 }) {
-  const { finished, markFinished, setLastLesson, saveCard, markings, addMarking, deleteMarking } = useAppState();
+  const { finished, markFinished, setLastLesson, saveCard, markings, addMarking, deleteMarking, notes, saveNote } =
+    useAppState();
   const [state, setState] = useState<LoadState>({ status: 'loading' });
   const [forceTest, setForceTest] = useState(goToTest);
   const [justMarked, setJustMarked] = useState(false);
-  const [cardDraft, setCardDraft] = useState<string | null>(null);
-  const [cardSaved, setCardSaved] = useState(false);
+  const [cardDraft, setCardDraft] = useState<HighlightDraft | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
   const [notesOpen, setNotesOpen] = useState(false);
   const [removeSpot, setRemoveSpot] = useState<{ id: string; top: number; left: number } | null>(null);
+  const [imageSpot, setImageSpot] = useState<{ top: number; left: number } | null>(null);
   const articleRef = useRef<HTMLElement>(null);
   const testRef = useRef<HTMLDivElement>(null);
   const toastTimerRef = useRef(0);
+  const imageSvgRef = useRef<SVGSVGElement | null>(null);
+  const notesApiRef = useRef<{ insert: (html: string) => void } | null>(null);
   const meta = lessonIndex[lessonId - 1];
+
+  const showToast = (text: string) => {
+    setToast(text);
+    window.clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = window.setTimeout(() => setToast(null), 4200);
+  };
 
   const lessonMarks = useMemo(() => markings.filter((m) => m.lessonId === lessonId), [markings, lessonId]);
 
@@ -167,14 +183,16 @@ export function LessonPage({
     applyMarkings(root, lessonMarks);
   }, [state, lessonMarks, marksRevealed]);
 
-  // The removal bubble over a tapped marking goes away on any tap
-  // somewhere else.
+  // The floating bubbles over a tapped marking or drawing go away on
+  // any tap somewhere else.
   useEffect(() => {
-    if (!removeSpot) return;
+    if (!removeSpot && !imageSpot) return;
     const dismiss = (e: MouseEvent | TouchEvent) => {
       const el = e.target instanceof Element ? e.target : null;
-      if (el?.closest('[data-mark-remove]') || el?.closest('mark[data-mark]')) return;
+      if (el?.closest('[data-mark-remove]') || el?.closest('[data-img-add]')) return;
+      if (el?.closest('mark[data-mark]') || el?.closest('svg')) return;
       setRemoveSpot(null);
+      setImageSpot(null);
     };
     document.addEventListener('mousedown', dismiss);
     document.addEventListener('touchstart', dismiss);
@@ -182,20 +200,57 @@ export function LessonPage({
       document.removeEventListener('mousedown', dismiss);
       document.removeEventListener('touchstart', dismiss);
     };
-  }, [removeSpot]);
+  }, [removeSpot, imageSpot]);
 
   const onArticleClick = (e: React.MouseEvent) => {
-    const el = e.target instanceof Element ? e.target.closest('mark[data-mark]') : null;
-    if (el instanceof HTMLElement && el.dataset.mark) {
-      const rect = el.getBoundingClientRect();
+    const target = e.target instanceof Element ? e.target : null;
+    const markEl = target?.closest('mark[data-mark]');
+    if (markEl instanceof HTMLElement && markEl.dataset.mark) {
+      const rect = markEl.getBoundingClientRect();
+      setImageSpot(null);
       setRemoveSpot({
-        id: el.dataset.mark,
+        id: markEl.dataset.mark,
         top: Math.max(rect.top + window.scrollY - 52, 8),
         left: Math.max(rect.left + window.scrollX + rect.width / 2, 130),
       });
-    } else if (removeSpot) {
-      setRemoveSpot(null);
+      return;
     }
+    // A tap on a drawing offers to put it into the notes, taps on the
+    // little controls inside a drawing stay what they are.
+    const svgEl = target?.closest('svg');
+    if (svgEl instanceof SVGSVGElement && svgEl.closest('.visualBody') && !target?.closest('button, a')) {
+      imageSvgRef.current = svgEl;
+      setRemoveSpot(null);
+      setImageSpot({
+        top: Math.max(e.pageY - 56, 8),
+        left: Math.min(Math.max(e.pageX, 150), window.scrollX + window.innerWidth - 150),
+      });
+      return;
+    }
+    setRemoveSpot(null);
+    setImageSpot(null);
+  };
+
+  const escapeAttr = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+
+  const insertVisual = () => {
+    const svg = imageSvgRef.current;
+    setImageSpot(null);
+    if (!svg) return;
+    const uri = svgToDataUri(svg);
+    if (!uri) return;
+    const caption = svg.closest('.visualFrame')?.querySelector('.visualCaption')?.textContent?.trim() ?? '';
+    const alt = caption || `${strings.notes.imageAlt} ${lessonId}`;
+    const block = `<p><img src="${uri}" alt="${escapeAttr(alt)}"></p>${
+      caption ? `<p><i>${escapeAttr(caption)}</i></p>` : ''
+    }`;
+    if (notesOpen && notesApiRef.current) {
+      notesApiRef.current.insert(block);
+    } else {
+      const existing = notes.find((n) => n.lessonId === lessonId)?.html ?? '';
+      saveNote(lessonId, existing + block);
+    }
+    showToast(strings.notes.imageAdded);
   };
 
   useEffect(() => {
@@ -377,7 +432,7 @@ export function LessonPage({
             }}
           >
             <Suspense fallback={null}>
-              <NotesPanel lessonId={lessonId} onClose={() => setNotesOpen(false)} />
+              <NotesPanel lessonId={lessonId} onClose={() => setNotesOpen(false)} apiRef={notesApiRef} />
             </Suspense>
           </aside>
         )}
@@ -404,23 +459,24 @@ export function LessonPage({
         <Suspense fallback={null}>
           <CardEditor
             initial={null}
-            prefillText={cardDraft}
+            prefillText={cardDraft.text}
+            prefillContext={{ sentence: cardDraft.sentence, heading: cardDraft.heading }}
             lessonId={lessonId}
             onSave={(card) => {
               saveCard(card);
               setCardDraft(null);
-              setCardSaved(true);
-              window.clearTimeout(toastTimerRef.current);
-              toastTimerRef.current = window.setTimeout(() => setCardSaved(false), 4200);
+              showToast(strings.anki.savedToast);
             }}
             onCancel={() => setCardDraft(null)}
           />
         </Suspense>
       )}
 
-      {cardSaved && (
+      {imageSpot && <AddImageButton top={imageSpot.top} left={imageSpot.left} onAdd={insertVisual} />}
+
+      {toast && (
         <p className={styles.cardToast} role="status">
-          {strings.anki.savedToast}
+          {toast}
         </p>
       )}
     </div>

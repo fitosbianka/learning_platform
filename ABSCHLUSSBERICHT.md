@@ -112,6 +112,16 @@ Auf Wunsch nachgeruestet. Die Kartenart Ja oder Nein ist durch Frage und Antwort
 * Bereits gespeicherte Ja oder Nein Karten werden beim Laden automatisch in Fragekarten umgewandelt, es geht nichts verloren
 * Abgesichert mit 6 neuen Tests fuer Rueckstufung, Umwandlung, Fragevorschlag und die Selbsteinstufung im Lauf sowie dem angepassten Browserdurchlauf, alles ohne Konsolenfehler
 
+## Nachtrag. Klügere Vorschlaege, Bilder in den Notizen, sauberer Druck
+
+Auf Wunsch nachgeruestet.
+
+* Die Fragevorschlaege lesen jetzt den Zusammenhang mit. Sie erkennen gaengige Satzmuster wie X ist Y, X besteht aus Y, X liegt in Y, X entsteht durch Y oder X hat 20 Y und formen daraus praezise Fragen wie Was ist X, Woraus besteht X, Wo liegt X, Wie entsteht X oder Wie viele Y hat X. Ein kurz markierter Fachbegriff wird ueber seinen ganzen Satz erklaert. Auf der Rueckseite steht nur noch die kurze Antwort statt des ganzen Texts, das lernt sich schneller
+* Die falschen Antworten der Auswahlkarten kommen bevorzugt aus dem Glossar derselben Lektion und sind damit deutlich plausibler
+* Ein Tipp auf eine Zeichnung in der Lektion bietet Bild in die Notizen einfügen an. Die Zeichnung wird mit den echten Farben als Vektorbild in die Notiz gelegt, samt Bildunterschrift, synchronisiert mit und bleibt beim PDF Druck gestochen scharf. Ist die Notizansicht offen, landet das Bild direkt im Editor, ohne dass Getipptes verloren geht
+* Der PDF Druck traegt jetzt ein sauberes Lernblatt Layout. Kopfzeile, unterstrichener Lektionstitel, Datumszeile, farbige Zwischentitel, kompakte Listen, Seitenraender von 18 Millimetern, Bilder mit Rahmen und Seitenumbrueche, die Titel nicht von ihrem Text trennen
+* Abgesichert mit 7 neuen Tests fuer die Satzmuster, den Kontext, die Glossarauswahl, das Bild im Speicher und den Schnappschuss der Zeichnungen sowie dem erweiterten Browserdurchlauf samt echtem PDF, alles ohne Konsolenfehler
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.

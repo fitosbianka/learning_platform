@@ -14,6 +14,15 @@ import styles from './HighlightCapture.module.css';
 const t = strings.anki;
 const tm = strings.marks;
 
+/** A captured highlight with what the page knows about its place. */
+export interface HighlightDraft {
+  text: string;
+  /** The whole sentence around the highlight, when it sits in one block */
+  sentence: string;
+  /** The heading of the section the highlight belongs to */
+  heading: string;
+}
+
 interface Spot {
   top: number;
   left: number;
@@ -30,7 +39,7 @@ export function HighlightCapture({
   onMark,
 }: {
   containerRef: React.RefObject<HTMLElement | null>;
-  onCapture: (text: string) => void;
+  onCapture: (draft: HighlightDraft) => void;
   onMark: (anchor: TextAnchor) => void;
 }) {
   const [spot, setSpot] = useState<Spot | null>(null);
@@ -75,9 +84,27 @@ export function HighlightCapture({
 
   const capture = () => {
     const text = spot.text;
+    // The sentence and the section heading around the selection give
+    // the card suggestions their context.
+    let sentence = '';
+    let heading = '';
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const startEl =
+        range.startContainer instanceof Element ? range.startContainer : range.startContainer.parentElement;
+      const block = startEl?.closest('p, li, h2, h3, figcaption');
+      if (block && block.contains(range.endContainer)) {
+        const blockText = (block.textContent ?? '').replace(/\s+/g, ' ').trim();
+        const probe = text.slice(0, 24).toLowerCase();
+        const pieces = blockText.split(/(?<=[.!?])\s+/);
+        sentence = pieces.find((piece) => piece.toLowerCase().includes(probe)) ?? blockText;
+      }
+      heading = startEl?.closest('section')?.querySelector('h2')?.textContent?.trim() ?? '';
+    }
     setSpot(null);
     window.getSelection()?.removeAllRanges();
-    onCapture(text);
+    onCapture({ text, sentence, heading });
   };
 
   const mark = () => {
@@ -124,6 +151,39 @@ export function HighlightCapture({
           <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
         </svg>
         {t.highlightButton}
+      </button>
+    </div>,
+    document.body,
+  );
+}
+
+/** Floating offer over a tapped drawing to put it into the notes. */
+export function AddImageButton({
+  top,
+  left,
+  onAdd,
+}: {
+  top: number;
+  left: number;
+  onAdd: () => void;
+}) {
+  return createPortal(
+    <div className={styles.menu} style={{ top, left }} data-img-add onMouseDown={(e) => e.preventDefault()}>
+      <button
+        type="button"
+        className={styles.menuButton}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          onAdd();
+        }}
+        onClick={onAdd}
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" strokeWidth="2" />
+          <circle cx="9" cy="10" r="1.8" fill="currentColor" />
+          <path d="M5 17l4.5-4 3.5 3 3-2.5 3 3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+        </svg>
+        {strings.notes.addImage}
       </button>
     </div>,
     document.body,

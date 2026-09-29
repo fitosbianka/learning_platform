@@ -15,7 +15,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const CODE_RE = /^[a-z0-9]{10,24}$/;
-const MAX_BYTES = 512 * 1024;
+const MAX_BYTES = 900 * 1024;
 const KEY_PREFIX = 'zahnkurs:';
 /** Records disappear after two years without any sync. */
 const TTL_SECONDS = 60 * 60 * 24 * 730;

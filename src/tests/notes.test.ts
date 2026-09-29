@@ -41,6 +41,15 @@ describe('note sanitizing', () => {
     const clean = sanitizeNoteHtml('<font face="x&quot;onload=&quot;y">Text</font>');
     expect(clean).toBe('<font>Text</font>');
   });
+
+  it('keeps self contained images and drops everything else', () => {
+    const data = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iYSIvPg==';
+    const clean = sanitizeNoteHtml(`<p><img src="${data}" alt="Zeichnung" onerror="x()"></p>`);
+    expect(clean).toBe(`<p><img src="${data}" alt="Zeichnung"></p>`);
+
+    expect(sanitizeNoteHtml('<p><img src="https://boese.example/x.png"></p>')).toBe('<p></p>');
+    expect(sanitizeNoteHtml('<p><img src="javascript:alert(1)"></p>')).toBe('<p></p>');
+  });
 });
 
 describe('note text and preview', () => {

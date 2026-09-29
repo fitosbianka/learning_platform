@@ -6,7 +6,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { autoGap, newCard, tokenize, type AnkiCard, type CardContent } from '../../anki/cards';
-import { suggestChoice, suggestQa } from '../../anki/suggest';
+import { suggestChoice, suggestQa, type HighlightContext } from '../../anki/suggest';
 import { lessonIndex } from '../../content/generated/lessonsIndex';
 import { strings } from '../../ui/strings';
 import styles from './CardEditor.module.css';
@@ -20,6 +20,8 @@ export interface CardEditorProps {
   initial: AnkiCard | null;
   /** Highlighted text that prefills a new card */
   prefillText?: string;
+  /** Sentence and heading around the highlight, steers the suggestions */
+  prefillContext?: HighlightContext;
   /** The lesson a new card belongs to */
   lessonId: number;
   /** Allow changing the lesson, used on the Anki page */
@@ -32,20 +34,28 @@ function cleanHighlight(raw: string): string {
   return raw.replace(/\s+/g, ' ').trim().slice(0, 400);
 }
 
-export function CardEditor({ initial, prefillText, lessonId, allowLessonPick = false, onSave, onCancel }: CardEditorProps) {
+export function CardEditor({
+  initial,
+  prefillText,
+  prefillContext,
+  lessonId,
+  allowLessonPick = false,
+  onSave,
+  onCancel,
+}: CardEditorProps) {
   const prefill = cleanHighlight(prefillText ?? '');
   const initialContent = initial?.content ?? null;
 
   // A highlighted passage fills every kind with a ready suggestion, so
   // the card can be saved as it is or adjusted first.
   const choiceSuggestion = useMemo(
-    () => (initialContent === null && prefill ? suggestChoice(prefill) : null),
+    () => (initialContent === null && prefill ? suggestChoice(prefill, initial?.lessonId ?? lessonId) : null),
     // The prefill never changes while the editor is open.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
   const qaSuggestion = useMemo(
-    () => (initialContent === null && prefill ? suggestQa(prefill) : null),
+    () => (initialContent === null && prefill ? suggestQa(prefill, prefillContext ?? {}) : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
