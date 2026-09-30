@@ -4,8 +4,9 @@
  * share sheet or to print as a PDF.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { HighlightCapture, type HighlightDraft } from '../components/anki/HighlightCapture';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { lessonIndex, weeks } from '../content/generated/lessonsIndex';
 import { noteText, type LessonNote } from '../notes/notes';
@@ -15,6 +16,10 @@ import { formatDate, strings } from '../ui/strings';
 import styles from './NotesPage.module.css';
 
 const t = strings.notes;
+
+const CardEditor = lazy(() =>
+  import('../components/anki/CardEditor').then((m) => ({ default: m.CardEditor })),
+);
 
 function lessonTitle(lessonId: number): string {
   const meta = lessonIndex[lessonId - 1];
@@ -72,10 +77,12 @@ function NotePrint({ jobs, onDone }: { jobs: LessonNote[]; onDone: () => void })
 }
 
 export function NotesPage() {
-  const { notes, deleteNote } = useAppState();
+  const { notes, deleteNote, saveCard } = useAppState();
   const [printJobs, setPrintJobs] = useState<LessonNote[] | null>(null);
   const [deleting, setDeleting] = useState<number | null>(null);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [cardDraft, setCardDraft] = useState<HighlightDraft | null>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
   const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 
   const copyNote = async (note: LessonNote) => {
@@ -114,7 +121,7 @@ export function NotesPage() {
   };
 
   return (
-    <div className="container">
+    <div className="container" ref={pageRef}>
       <header className={styles.header}>
         <h1>{t.title}</h1>
         <p className={styles.subtitle}>{t.subtitle}</p>
@@ -159,7 +166,7 @@ export function NotesPage() {
                         <p className={styles.noteMeta}>{t.updated(formatDate(note.updatedAt))}</p>
                       </div>
                     </div>
-                    <div className={styles.noteView}>
+                    <div className={styles.noteView} data-lesson={note.lessonId}>
                       <div className="noteContent" dangerouslySetInnerHTML={{ __html: note.html }} />
                     </div>
                     <div className={styles.noteActions}>
@@ -191,6 +198,27 @@ export function NotesPage() {
             );
           })}
         </>
+      )}
+
+      {/* Selecting text in a note offers a learn card, like in the lessons. */}
+      <HighlightCapture containerRef={pageRef} onCapture={setCardDraft} showMark={false} />
+
+      {cardDraft !== null && (
+        <Suspense fallback={null}>
+          <CardEditor
+            initial={null}
+            prefillText={cardDraft.text}
+            prefillContext={{ sentence: cardDraft.sentence, heading: cardDraft.heading }}
+            lessonId={cardDraft.lessonId ?? 1}
+            allowLessonPick
+            onSave={(card) => {
+              saveCard(card);
+              setCardDraft(null);
+              setMessage({ ok: true, text: strings.anki.savedToast });
+            }}
+            onCancel={() => setCardDraft(null)}
+          />
+        </Suspense>
       )}
 
       {printJobs !== null && <NotePrint jobs={printJobs} onDone={() => setPrintJobs(null)} />}

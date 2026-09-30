@@ -111,6 +111,7 @@ Zu jeder Lektion gibt es eigene Notizen, im gleichen klaren Look wie der Rest de
 * Beim Schreiben stehen Titel, Untertitel, Fett, Kursiv, Unterstrichen, Aufzaehlung, nummerierte Liste, drei Schriftarten und vier Schriftgroessen bereit. Dazu die Ausrichtung links, zentriert oder rechts, Unterpunkte und Unterunterpunkte per Tab oder ueber die Einrueckknoepfe, und ein gelber Leuchtstift fuer markierte Stellen. Alles davon bleibt gespeichert, synchronisiert mit und erscheint im PDF Druck.
 * Der Knopf Speichern sichert sofort, zusaetzlich wird kurz nach dem Tippen automatisch gesichert. Die Notizen wandern ueber die Synchronisation mit auf die anderen Geraete.
 * Ein Tipp auf eine Zeichnung in der Lektion bietet Bild in die Notizen einfügen an. Die Zeichnung landet gestochen scharf in den Notizen der Lektion, samt Bildunterschrift, und erscheint auch im PDF Druck.
+* Markierter Text in den Notizen bietet Lernkarte an, im Schreibbereich neben der Lektion genauso wie auf der Seite Notizen. Die Karte wird der Lektion der Notiz zugeordnet und kommt mit denselben fertigen Vorschlaegen wie beim Markieren im Lernstoff.
 * Die Seite Notizen sammelt alle Notizblaetter nach Woche und Lektion. Dort gibt es pro Notiz Kopieren fuer die Notizen App auf MacBook oder Handy, Teilen fuers Handy, Als PDF drucken sowie Loeschen, und oben Alle als PDF drucken.
 
 ## 8. Tests und Qualitaetslauf

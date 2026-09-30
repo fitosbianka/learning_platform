@@ -29,7 +29,7 @@ describe('the Leuchtstift in the notes', () => {
     const marks = root.querySelectorAll('mark');
     expect(marks.length).toBeGreaterThanOrEqual(2);
     expect([...marks].map((m) => m.textContent).join('')).toBe('hat Schmelz');
-    expect(root.textContent?.replace(/​/g, '')).toBe(before);
+    expect(root.textContent?.replace(/\u200b/g, '')).toBe(before);
     root.remove();
   });
 

@@ -1,5 +1,5 @@
 /// <reference lib="dom" />
-/* global window, document */
+/* global window, document, NodeFilter */
 /**
  * Browser check for the notes feature on the production build. Covers
  * the split view in a lesson, writing on the notebook paper, the
@@ -162,6 +162,44 @@ async function main() {
     return data.notes?.find((n) => n.lessonId === 2)?.html ?? '';
   });
   check(withImage.includes('data:image/svg+xml'), 'image. the drawing was not stored inside the note');
+
+  // Selecting note text offers a learn card, right inside the pane.
+  await page.evaluate(() => {
+    const editorEl = document.querySelector('[contenteditable]');
+    if (!editorEl) throw new Error('editor missing');
+    const walker = document.createTreeWalker(editorEl, NodeFilter.SHOW_TEXT);
+    let node = null;
+    while (walker.nextNode()) {
+      const current = walker.currentNode;
+      if ((current.textContent ?? '').trim().length >= 20) {
+        node = current;
+        break;
+      }
+    }
+    if (!node) throw new Error('no note text found');
+    const range = document.createRange();
+    range.setStart(node, 0);
+    range.setEnd(node, Math.min(30, (node.textContent ?? '').length));
+    const sel = window.getSelection();
+    if (!sel) throw new Error('no selection api');
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+  const noteMenuCard = page.getByRole('button', { name: 'Lernkarte', exact: true });
+  await noteMenuCard.waitFor();
+  const markInNotes = await page.getByRole('button', { name: 'Markieren', exact: true }).count();
+  check(markInNotes === 0, 'note card. the notes menu must not offer the lesson marker');
+  await noteMenuCard.click();
+  await page.getByRole('heading', { name: 'Neue Lernkarte' }).waitFor();
+  await page.getByRole('dialog').getByRole('button', { name: 'Speichern' }).click();
+  await page.getByText('Lernkarte gespeichert').waitFor();
+  const noteCardCount = await page.evaluate(() => {
+    const raw = localStorage.getItem('zahnkurs.store.v1');
+    /** @type {{cards?: {lessonId: number}[]}} */
+    const data = JSON.parse(raw ?? '{}');
+    return (data.cards ?? []).filter((c) => c.lessonId === 2).length;
+  });
+  check(noteCardCount === 1, `note card. expected 1 card for lesson 2, found ${noteCardCount}`);
   await page.setViewportSize({ width: 1728, height: 1050 });
   await page.waitForTimeout(300);
   await page.screenshot({ path: join(shotsDir, 'lektion-notizen.jpg'), fullPage: false, quality: 60, type: 'jpeg' });
@@ -191,6 +229,43 @@ async function main() {
   await page.getByRole('heading', { name: /Lektion 9\. Füllungen/ }).waitFor();
   await page.getByText('Notizen zu 2 Lektionen', { exact: false }).waitFor();
   await page.screenshot({ path: join(shotsDir, 'notizen.jpg'), fullPage: true, quality: 60, type: 'jpeg' });
+
+  // A learn card also grows straight out of a note on this page, filed
+  // under the note's lesson.
+  await page.evaluate(() => {
+    const view = document.querySelector('[data-lesson="9"]');
+    if (!view) throw new Error('note view missing');
+    const walker = document.createTreeWalker(view, NodeFilter.SHOW_TEXT);
+    let node = null;
+    while (walker.nextNode()) {
+      const current = walker.currentNode;
+      if ((current.textContent ?? '').trim().length >= 15) {
+        node = current;
+        break;
+      }
+    }
+    if (!node) throw new Error('no note text found');
+    const range = document.createRange();
+    range.setStart(node, 0);
+    range.setEnd(node, Math.min(25, (node.textContent ?? '').length));
+    const sel = window.getSelection();
+    if (!sel) throw new Error('no selection api');
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+  await page.getByRole('button', { name: 'Lernkarte', exact: true }).click();
+  await page.getByRole('heading', { name: 'Neue Lernkarte' }).waitFor();
+  const pickedLesson = await page.getByLabel('Gehört zu Lektion').inputValue();
+  check(pickedLesson === '9', `note card. expected lesson 9 preselected, got ${pickedLesson}`);
+  await page.getByRole('dialog').getByRole('button', { name: 'Speichern' }).click();
+  await page.getByText('Lernkarte gespeichert').waitFor();
+  const pageCardCount = await page.evaluate(() => {
+    const raw = localStorage.getItem('zahnkurs.store.v1');
+    /** @type {{cards?: {lessonId: number}[]}} */
+    const data = JSON.parse(raw ?? '{}');
+    return (data.cards ?? []).filter((c) => c.lessonId === 9).length;
+  });
+  check(pageCardCount === 1, `note card. expected 1 card for lesson 9, found ${pageCardCount}`);
 
   // 5. Copy for the notes apps.
   const card2 = page.locator('article', { hasText: 'Merksatz zum Gebiss' }).first();
