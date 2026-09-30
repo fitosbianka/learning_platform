@@ -75,6 +75,7 @@ Gut zu wissen
 * Synchronisiert werden Lernstand, Testversuche, die Anki Lernkarten samt Wiederholungsplan, die Markierungen im Text und die Notizen. Der Dunkelmodus bleibt bewusst pro Geraet einstellbar.
 * Das Verbinden und der laufende Abgleich fuehren immer zusammen und ueberschreiben nichts. Alles zuruecksetzen betrifft nur das eigene Geraet, die Synchronisation wird dabei vorher getrennt, die Cloudablage und die anderen Geraete behalten ihren Stand.
 * Die Plattform legt auf jedem Geraet automatisch taeglich eine Sicherungskopie des Lernstands an, zusaetzlich vor jedem Import und vor dem Zuruecksetzen. In den Einstellungen unter Sicherungskopien laesst sich jede Kopie mit einem Klick wieder mit dem aktuellen Stand zusammenfuehren.
+* Beim Start bittet die Plattform den Browser um dauerhaften Speicher. Das senkt das Risiko, dass das Betriebssystem den lokalen Lernstand bei Platzmangel automatisch wegraeumt.
 * Ohne eingerichtete Datenablage funktioniert die Plattform wie bisher, nur eben pro Geraet. Die Einstellungen zeigen in dem Fall einen Hinweis mit diesen Schritten.
 * Lokal mit npm run dev gibt es den Abgleichdienst nicht, er laeuft nur auf der veroeffentlichten Seite.
 
