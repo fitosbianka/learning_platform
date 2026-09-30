@@ -135,6 +135,17 @@ export function AppStateProvider({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Ask the browser to keep this storage out of automatic cleanups,
+  // so the system does not quietly discard the learning progress
+  // when disk space runs low. Browsers without the call skip it.
+  useEffect(() => {
+    try {
+      void navigator.storage?.persist?.();
+    } catch {
+      // The browser decides, nothing more to do.
+    }
+  }, []);
+
   const markSynced = useCallback(() => {
     const now = new Date().toISOString();
     const current = settingsRef.current;
