@@ -181,3 +181,11 @@
   color: var(--text-soft);
   font-size: 0.85rem;
 }
+
+.penSwatch {
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  background: var(--marker);
+  border: 1px solid var(--marker-strong);
+}

@@ -222,6 +222,12 @@ export const strings = {
     underline: 'Unterstrichen',
     bulletList: 'Aufzählung',
     numberList: 'Nummerierte Liste',
+    indent: 'Einrücken',
+    outdent: 'Ausrücken',
+    alignLeft: 'Linksbündig',
+    alignCenter: 'Zentriert',
+    alignRight: 'Rechtsbündig',
+    highlightPen: 'Leuchtstift',
     empty:
       'Noch keine Notizen. Öffne eine Lektion und drücke dort auf Notizen, dann schreibst du direkt neben dem Lernstoff.',
     countLine: (n: number) => (n === 1 ? 'Notizen zu 1 Lektion' : `Notizen zu ${n} Lektionen`),

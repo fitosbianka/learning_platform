@@ -131,6 +131,16 @@ Auf Wunsch nachgeruestet. Der Lueckentext kann jetzt mehrere getrennte Luecken h
 * Bestehende Karten mit einer Luecke werden beim Laden automatisch ins neue Format uebernommen
 * Abgesichert mit 4 neuen Tests fuer Zusammenlegen, Segmente, Mehrfachantworten und die Umwandlung sowie neuen Editor und Lernlauf Tests, alles ohne Konsolenfehler
 
+## Nachtrag. Ausrichtung, Unterpunkte und Leuchtstift in den Notizen
+
+Auf Wunsch nachgeruestet.
+
+* Jeder Absatz laesst sich links, zentriert oder rechts ausrichten, ueber drei neue Knoepfe in der Werkzeugleiste
+* Die Tab Taste macht aus einem Listenpunkt einen Unterpunkt und aus dem einen Unterunterpunkt, Shift und Tab hebt ihn wieder an. Fuers Handy gibt es dieselben zwei Einrueckknoepfe in der Leiste, die Ebenen tragen eigene Aufzaehlungszeichen
+* Der gelbe Leuchtstift markiert die ausgewaehlte Stelle in der Notiz, ein Tipp in eine markierte Stelle plus Leuchtstift entfernt sie wieder. Nach dem Markieren schreibt es sich normal weiter, der Stift klebt nicht am Text
+* Ausrichtung, verschachtelte Listen und Markierungen ueberleben Speichern, Synchronisation, die Seite Notizen und den PDF Druck, die Markerfarbe wird beim Drucken ausdruecklich mitgedruckt
+* Abgesichert mit 6 neuen Tests fuer die Bereinigung von Ausrichtung, Marker und verschachtelten Listen sowie den Leuchtstift selbst, dazu der erweiterte Browserdurchlauf mit Tab, Marker und Zentrierung bis ins Druckblatt, alles ohne Konsolenfehler
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.

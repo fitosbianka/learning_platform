@@ -42,6 +42,26 @@ describe('note sanitizing', () => {
     expect(clean).toBe('<font>Text</font>');
   });
 
+  it('keeps only the clean text alignment of a block', () => {
+    expect(sanitizeNoteHtml('<p style="text-align: center; color: red" onclick="x()">Mitte</p>')).toBe(
+      '<p style="text-align: center">Mitte</p>',
+    );
+    expect(sanitizeNoteHtml('<h2 align="right">Rechts</h2>')).toBe('<h2 style="text-align: right">Rechts</h2>');
+    expect(sanitizeNoteHtml('<p style="text-align: left">Links</p>')).toBe('<p>Links</p>');
+    expect(sanitizeNoteHtml('<p style="position: fixed">Text</p>')).toBe('<p>Text</p>');
+  });
+
+  it('keeps the marker as a bare mark element', () => {
+    expect(sanitizeNoteHtml('<p>Der <mark class="x" style="background: red" onmouseover="y()">Sechser</mark></p>')).toBe(
+      '<p>Der <mark>Sechser</mark></p>',
+    );
+  });
+
+  it('keeps nested lists for sub bullet points', () => {
+    const html = '<ul><li>oben<ul><li>tiefer<ul><li>am tiefsten</li></ul></li></ul></li></ul>';
+    expect(sanitizeNoteHtml(html)).toBe(html);
+  });
+
   it('keeps self contained images and drops everything else', () => {
     const data = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iYSIvPg==';
     const clean = sanitizeNoteHtml(`<p><img src="${data}" alt="Zeichnung" onerror="x()"></p>`);

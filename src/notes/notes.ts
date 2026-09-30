@@ -33,7 +33,22 @@ const ALLOWED_TAGS = new Set([
   'SPAN',
   'FONT',
   'IMG',
+  'MARK',
 ]);
+
+/** Block elements that may keep their text alignment. */
+const ALIGNABLE = new Set(['P', 'DIV', 'H1', 'H2', 'H3', 'LI', 'UL', 'OL']);
+
+const TEXT_ALIGN_RE = /text-align:\s*(left|center|right)/i;
+
+/** The one style a note may keep, rebuilt from scratch. */
+function alignmentOf(el: Element): string | null {
+  const style = el.getAttribute('style') ?? '';
+  const fromStyle = TEXT_ALIGN_RE.exec(style)?.[1]?.toLowerCase();
+  if (fromStyle) return fromStyle;
+  const attr = el.getAttribute('align')?.toLowerCase();
+  return attr === 'left' || attr === 'center' || attr === 'right' ? attr : null;
+}
 
 /** Whole subtree disappears for these. */
 const DROPPED_TAGS = new Set(['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED', 'LINK', 'META', 'TITLE', 'HEAD']);
@@ -76,6 +91,10 @@ function cleanNode(node: Node, doc: Document, target: Node): void {
       if (face && FACE_RE.test(face)) copy.setAttribute('face', face);
       if (size && SIZE_RE.test(size)) copy.setAttribute('size', size);
     }
+    if (ALIGNABLE.has(tag)) {
+      const align = alignmentOf(el);
+      if (align && align !== 'left') copy.setAttribute('style', `text-align: ${align}`);
+    }
     cleanNode(el, doc, copy);
     target.appendChild(copy);
   }
@@ -87,7 +106,8 @@ function cleanNode(node: Node, doc: Document, target: Node): void {
  * Without a DOM (never the case in the app) it falls back to plain text.
  */
 export function sanitizeNoteHtml(html: string): string {
-  const capped = html.length > NOTE_MAX_CHARS ? html.slice(0, NOTE_MAX_CHARS) : html;
+  const plain = html.replace(/​/g, '');
+  const capped = plain.length > NOTE_MAX_CHARS ? plain.slice(0, NOTE_MAX_CHARS) : plain;
   try {
     const doc = new DOMParser().parseFromString(`<body>${capped}</body>`, 'text/html');
     const out = doc.createElement('div');

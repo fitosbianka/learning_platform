@@ -6,6 +6,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { selectionHighlighted, toggleHighlight } from '../../notes/highlight';
 import { isEmptyNote } from '../../notes/notes';
 import { useAppState } from '../../state/context';
 import { formatTime, strings } from '../../ui/strings';
@@ -54,9 +55,11 @@ interface ToolbarState {
   block: 'p' | 'h1' | 'h2';
   font: 'standard' | 'serif' | 'mono';
   size: '2' | '3' | '5' | '6';
+  align: 'left' | 'center' | 'right';
+  marked: boolean;
 }
 
-function readToolbarState(): ToolbarState {
+function readToolbarState(root: HTMLElement | null): ToolbarState {
   const rawBlock = queryValue('formatBlock').toLowerCase();
   const rawFont = queryValue('fontName').toLowerCase();
   const rawSize = queryValue('fontSize');
@@ -69,6 +72,8 @@ function readToolbarState(): ToolbarState {
     block: rawBlock === 'h1' ? 'h1' : rawBlock === 'h2' ? 'h2' : 'p',
     font: rawFont.includes('georgia') ? 'serif' : rawFont.includes('courier') ? 'mono' : 'standard',
     size: rawSize === '2' || rawSize === '5' || rawSize === '6' ? rawSize : '3',
+    align: queryState('justifyCenter') ? 'center' : queryState('justifyRight') ? 'right' : 'left',
+    marked: root !== null && selectionHighlighted(root),
   };
 }
 
@@ -99,6 +104,8 @@ export function NotesPanel({
     block: 'p',
     font: 'standard',
     size: '3',
+    align: 'left',
+    marked: false,
   });
 
   // The cleanup below must always reach the latest save function.
@@ -144,7 +151,7 @@ export function NotesPanel({
       const range = selection.getRangeAt(0);
       if (editor.contains(range.commonAncestorContainer)) {
         savedRangeRef.current = range.cloneRange();
-        setTools(readToolbarState());
+        setTools(readToolbarState(editor));
       }
     };
     document.addEventListener('selectionchange', onSelectionChange);
@@ -198,8 +205,31 @@ export function NotesPanel({
   const apply = (command: string, value?: string) => {
     restoreSelection();
     exec(command, value);
-    setTools(readToolbarState());
+    setTools(readToolbarState(editorRef.current));
     markChanged();
+  };
+
+  /** Nesting only makes sense inside a list, elsewhere it is ignored. */
+  const applyIndent = (direction: 'indent' | 'outdent') => {
+    restoreSelection();
+    const editor = editorRef.current;
+    const selection = window.getSelection();
+    const anchor =
+      selection?.anchorNode instanceof Element ? selection.anchorNode : (selection?.anchorNode?.parentElement ?? null);
+    if (!editor || !anchor || !editor.contains(anchor) || !anchor.closest('li')) return;
+    exec(direction);
+    setTools(readToolbarState(editor));
+    markChanged();
+  };
+
+  const applyHighlight = () => {
+    restoreSelection();
+    const editor = editorRef.current;
+    if (!editor) return;
+    if (toggleHighlight(editor)) {
+      setTools(readToolbarState(editor));
+      markChanged();
+    }
   };
 
   const format = [
@@ -305,6 +335,67 @@ export function NotesPanel({
               <path d="M10 6h10M10 12h10M10 18h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </button>
+          <button
+            type="button"
+            className={styles.toolButton}
+            aria-label={t.outdent}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => applyIndent('outdent')}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4 5h16M12 12h8M4 19h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <path d="M8 9.5L4.5 12 8 14.5z" fill="currentColor" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            className={styles.toolButton}
+            aria-label={t.indent}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => applyIndent('indent')}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4 5h16M12 12h8M4 19h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <path d="M4.5 9.5L8 12l-3.5 2.5z" fill="currentColor" />
+            </svg>
+          </button>
+        </div>
+        <div className={styles.toolGroup}>
+          {(
+            [
+              ['left', t.alignLeft, 'M4 6h16M4 12h10M4 18h14'],
+              ['center', t.alignCenter, 'M4 6h16M7 12h10M5 18h14'],
+              ['right', t.alignRight, 'M4 6h16M10 12h10M6 18h14'],
+            ] as ['left' | 'center' | 'right', string, string][]
+          ).map(([align, label, d]) => (
+            <button
+              key={align}
+              type="button"
+              className={`${styles.toolButton} ${tools.align === align ? styles.toolActive : ''}`}
+              aria-label={label}
+              aria-pressed={tools.align === align}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() =>
+                apply(align === 'center' ? 'justifyCenter' : align === 'right' ? 'justifyRight' : 'justifyLeft')
+              }
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d={d} stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </button>
+          ))}
+        </div>
+        <div className={styles.toolGroup}>
+          <button
+            type="button"
+            className={`${styles.toolButton} ${tools.marked ? styles.toolActive : ''}`}
+            aria-label={t.highlightPen}
+            aria-pressed={tools.marked}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={applyHighlight}
+          >
+            <span className={styles.penSwatch} aria-hidden="true" />
+          </button>
         </div>
       </div>
 
@@ -318,6 +409,22 @@ export function NotesPanel({
           aria-label={t.panelTitle(lessonId)}
           spellCheck={false}
           onInput={markChanged}
+          onKeyDown={(e) => {
+            // Tab deepens a list entry, Shift and Tab lifts it back.
+            if (e.key !== 'Tab') return;
+            e.preventDefault();
+            const editor = editorRef.current;
+            const selection = window.getSelection();
+            const anchor =
+              selection?.anchorNode instanceof Element
+                ? selection.anchorNode
+                : (selection?.anchorNode?.parentElement ?? null);
+            if (!editor || !anchor || !editor.contains(anchor)) return;
+            if (anchor.closest('li')) exec(e.shiftKey ? 'outdent' : 'indent');
+            else if (!e.shiftKey) exec('insertText', '    ');
+            setTools(readToolbarState(editor));
+            markChanged();
+          }}
           onBlur={() => {
             if (dirtyRef.current) {
               window.clearTimeout(timerRef.current);
