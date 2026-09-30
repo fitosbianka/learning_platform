@@ -107,10 +107,31 @@ async function main() {
   await page.keyboard.press('Shift+Home');
   await page.getByRole('button', { name: 'Fett' }).click();
 
+  // A third entry one level deeper through the Tab key, painted with
+  // the Leuchtstift.
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Tab');
+  await page.keyboard.type('davon vier Weisheitszähne');
+  await page.keyboard.press('Shift+Home');
+  await page.getByRole('button', { name: 'Leuchtstift' }).click();
+
+  // A centered closing line below the list.
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
+  await page.getByLabel('Absatz').selectOption('p');
+  await page.keyboard.type('Ende von Woche eins');
+  await page.getByRole('button', { name: 'Zentriert' }).click();
+
   const html = await editor.innerHTML();
   check(html.includes('<h1>'), 'editor. the title block is missing in the html');
   check(html.includes('<ul>') && html.includes('<li>'), 'editor. the list is missing in the html');
   check(html.includes('<b>') || html.includes('<strong>'), 'editor. bold is missing in the html');
+  check((html.match(/<ul/g) ?? []).length >= 2, 'editor. the Tab key did not nest the list');
+  check(html.includes('<mark'), 'editor. the Leuchtstift left no mark');
+  check(html.includes('text-align: center'), 'editor. the centered line is missing');
 
   // 3. Save through the button, then check the stored note.
   await page.getByRole('button', { name: 'Speichern' }).click();
@@ -124,6 +145,9 @@ async function main() {
   });
   check(storedHtml.includes('Merksatz zum Gebiss'), 'storage. the saved note misses the title text');
   check(storedHtml.includes('<h1>'), 'storage. the saved note misses the title markup');
+  check((storedHtml.match(/<ul/g) ?? []).length >= 2, 'storage. the nested list was not saved');
+  check(storedHtml.includes('<mark>'), 'storage. the Leuchtstift mark was not saved');
+  check(storedHtml.includes('text-align: center'), 'storage. the centered line was not saved');
 
   // A tap on a drawing drops it into the open notes as a vector image.
   await page.locator('.visualBody svg').first().click();
@@ -186,6 +210,7 @@ async function main() {
   await page.waitForFunction(() => /** @type {Window & { __printCount?: number }} */ (window).__printCount === 1);
   await page.locator('.notePrintArea .printNoteMeta').first().waitFor({ state: 'attached' });
   await page.locator('.notePrintArea .noteContent img').first().waitFor({ state: 'attached' });
+  await page.locator('.notePrintArea .noteContent mark').first().waitFor({ state: 'attached' });
   await finishPrint(page);
   await stubPrint(page);
   await page.getByRole('button', { name: 'Alle als PDF drucken' }).click();

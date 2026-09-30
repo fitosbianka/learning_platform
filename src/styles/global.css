@@ -663,6 +663,28 @@ mark.userMark:hover {
   background: var(--surface);
 }
 
+.noteContent mark {
+  background: var(--marker);
+  color: inherit;
+  border-radius: 3px;
+  padding: 1px 1px;
+}
+
+.noteContent ul ul {
+  list-style-type: circle;
+}
+
+.noteContent ul ul ul {
+  list-style-type: square;
+}
+
+.noteContent ul ul,
+.noteContent ol ol,
+.noteContent ul ol,
+.noteContent ol ul {
+  margin: 2px 0;
+}
+
 /* Print view for the notes, the rest of the app stays out of the paper */
 .notePrintArea {
   display: none;
@@ -752,5 +774,11 @@ mark.userMark:hover {
     border-radius: 8px;
     background: #ffffff;
     margin: 10px 0;
+  }
+
+  .notePrintArea .noteContent mark {
+    background: #ffe89e;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }

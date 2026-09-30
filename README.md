@@ -108,7 +108,7 @@ Beim Markieren einer Textstelle in einer Lektion erscheinen zwei Knoepfe. Markie
 Zu jeder Lektion gibt es eigene Notizen, im gleichen klaren Look wie der Rest der Plattform.
 
 * In der Lektion den Knopf Notizen druecken. Auf grossen Bildschirmen teilt sich die Seite, links der Lernstoff, rechts die Notizen. Auf dem Handy legen sich die Notizen ueber die Lektion.
-* Beim Schreiben stehen Titel, Untertitel, Fett, Kursiv, Unterstrichen, Aufzaehlung, nummerierte Liste, drei Schriftarten und vier Schriftgroessen bereit.
+* Beim Schreiben stehen Titel, Untertitel, Fett, Kursiv, Unterstrichen, Aufzaehlung, nummerierte Liste, drei Schriftarten und vier Schriftgroessen bereit. Dazu die Ausrichtung links, zentriert oder rechts, Unterpunkte und Unterunterpunkte per Tab oder ueber die Einrueckknoepfe, und ein gelber Leuchtstift fuer markierte Stellen. Alles davon bleibt gespeichert, synchronisiert mit und erscheint im PDF Druck.
 * Der Knopf Speichern sichert sofort, zusaetzlich wird kurz nach dem Tippen automatisch gesichert. Die Notizen wandern ueber die Synchronisation mit auf die anderen Geraete.
 * Ein Tipp auf eine Zeichnung in der Lektion bietet Bild in die Notizen einfügen an. Die Zeichnung landet gestochen scharf in den Notizen der Lektion, samt Bildunterschrift, und erscheint auch im PDF Druck.
 * Die Seite Notizen sammelt alle Notizblaetter nach Woche und Lektion. Dort gibt es pro Notiz Kopieren fuer die Notizen App auf MacBook oder Handy, Teilen fuers Handy, Als PDF drucken sowie Loeschen, und oben Alle als PDF drucken.
