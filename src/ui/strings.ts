@@ -172,6 +172,8 @@ export const strings = {
     correctFeedback: 'Richtig!',
     wrongFeedback: 'Leider nicht richtig. Die Karte fällt zurück auf Durchgang 1 und kommt heute gleich nochmals.',
     correctAnswerIs: 'Richtig ist',
+    overrideRight: 'Meine Antwort war richtig',
+    overrideNote: 'Falls die Prüfung deine Antwort zu streng bewertet hat, zählt sie damit doch als gewusst.',
     gapInputLabel: (n: number) => `Deine Antwort für Lücke ${n}`,
     reveal: 'Antwort zeigen',
     revealHint: 'Beantworte die Frage zuerst für dich. Leertaste oder ein Tipp auf die Karte zeigt die Antwort.',

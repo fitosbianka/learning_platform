@@ -89,6 +89,7 @@ Wiederholungsplan
 * Eine neue Karte ist noch am selben Tag faellig, danach nach 1 Tag, nach 3 Tagen und nochmals nach 7 Tagen. Nach der vierten richtigen Antwort gilt die Karte als gelernt.
 * Die Seite zeigt jeden Tag die Anzahl faelliger Karten, aufgeteilt nach Durchgang 1 bis 4. Durchgang 1 ist die erste Wiederholung am Erstelltag.
 * Beim Lernen prueft die Seite jede Antwort und zeigt bei einem Fehler die richtige Loesung. Eine falsche oder nicht gewusste Antwort wirft die Karte zurueck auf Durchgang 1, der Plan beginnt fuer sie von vorne. Am selben Tag kommt sie so lange wieder, bis sie sitzt, erst dann rueckt sie weiter.
+* Beim Lueckentext zeigt jede Luecke ihre Bewertung sofort. Ein passendes Wort faerbt das Feld schon beim Tippen gruen, ein falsches wird rot, sobald du die Luecke verlaesst. Die Pruefung bewertet grosszuegig, kleine Tippfehler, Umlaute als ae oe ue, eine andere Wortreihenfolge innerhalb der Antwort und richtige Woerter in vertauschten Luecken zaehlen als richtig. Haelt die Pruefung eine richtige Antwort trotzdem fuer falsch, nimmt der Knopf Meine Antwort war richtig die Rueckstufung zurueck und die Karte zaehlt als gewusst.
 * Die Lernkarte steht gross in der Bildschirmmitte. Die Leertaste oder ein Tipp auf die Karte geht voran, Frage, Antwort, naechste Karte. Bei Fragekarten zaehlt das als Gewusst, fuer Nicht gewusst gibt es den eigenen Knopf. Die faelligen Karten kommen in jeder Runde in zufaelliger Reihenfolge.
 
 Verwaltung

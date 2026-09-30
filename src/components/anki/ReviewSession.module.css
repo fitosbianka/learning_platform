@@ -282,3 +282,18 @@
   border-bottom-color: var(--err);
   background: var(--err-soft);
 }
+
+/* Live verdict while she types, also while the field keeps the focus. */
+.gapInputRight,
+.gapInputRight:focus-visible {
+  color: var(--ok);
+  border-bottom-color: var(--ok);
+  background: var(--ok-soft);
+}
+
+.gapInputWrong,
+.gapInputWrong:focus-visible {
+  color: var(--err);
+  border-bottom-color: var(--err);
+  background: var(--err-soft);
+}

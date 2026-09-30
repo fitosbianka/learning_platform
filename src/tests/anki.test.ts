@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   addDaysToKey,
+  answerMatches,
   autoGap,
   checkAnswer,
   clozeAnswers,
@@ -142,6 +143,32 @@ describe('cloze helpers', () => {
     expect(checkAnswer(qa, false)).toBe(false);
     expect(checkAnswer(choice, 0)).toBe(true);
     expect(checkAnswer(choice, 2)).toBe(false);
+  });
+
+  it('forgives typos, umlaut spellings and a changed word order', () => {
+    // One dropped letter in a long word still counts.
+    expect(answerMatches('Milimeter', 'Millimeter')).toBe(true);
+    expect(answerMatches('Zahnschmeltz', 'Zahnschmelz')).toBe(true);
+    // A different word is not a typo.
+    expect(answerMatches('Zentimeter', 'Millimeter')).toBe(false);
+    // Short words stay strict, one letter changes the meaning.
+    expect(answerMatches('Geld', 'Gold')).toBe(false);
+    // Umlauts may be written as two letters.
+    expect(answerMatches('Zaehne', 'Zähne')).toBe(true);
+    expect(answerMatches('weisheitszaehne', 'Weisheitszähne')).toBe(true);
+    // The words of one answer may come in any order.
+    expect(answerMatches('Dentin und Schmelz', 'Schmelz und Dentin')).toBe(true);
+    expect(answerMatches('Dentin Schmelz', 'Schmelz und Dentin')).toBe(false);
+    // Written apart or together also counts.
+    expect(answerMatches('Zahn Schmelz', 'Zahnschmelz')).toBe(true);
+    expect(answerMatches('', 'Millimeter')).toBe(false);
+  });
+
+  it('accepts cloze answers with typos and in swapped gaps', () => {
+    expect(checkAnswer(cloze, 'Milimeter')).toBe(true);
+    expect(checkAnswer(twoGaps, ['Millimeter', 'Sulkus'])).toBe(true);
+    expect(checkAnswer(twoGaps, ['Sulkus', 'Milimeter'])).toBe(true);
+    expect(checkAnswer(twoGaps, ['Sulkus', 'Sulkus'])).toBe(false);
   });
 });
 

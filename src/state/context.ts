@@ -23,6 +23,8 @@ export interface AppState {
   deleteCard: (id: string) => void;
   passCardReview: (id: string) => void;
   failCardReview: (id: string) => void;
+  /** Counts a wrongly judged answer as passed after all, from the card state before the answer */
+  overrideCardPass: (before: AnkiCard) => void;
   /** Lesson notes that hold content, tombstones filtered out */
   notes: readonly LessonNote[];
   saveNote: (lessonId: number, html: string) => void;

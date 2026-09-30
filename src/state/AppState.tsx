@@ -297,6 +297,11 @@ export function AppStateProvider({
           ...prev,
           cards: prev.cards.map((c) => (c.id === id ? failReview(c) : c)),
         })),
+      overrideCardPass: (before) =>
+        update((prev) => ({
+          ...prev,
+          cards: prev.cards.map((c) => (c.id === before.id && !c.deleted ? passReview(before) : c)),
+        })),
       notes: store.notes.filter((n) => !isEmptyNote(n.html)),
       saveNote: (lessonId, html) =>
         update((prev) => {
