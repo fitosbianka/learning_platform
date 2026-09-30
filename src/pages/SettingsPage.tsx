@@ -80,6 +80,7 @@ function SyncSection({ joinCode }: { joinCode: string | null }) {
               <p className={styles.hint}>
                 <strong>{ts.enableFirstHint}</strong>
               </p>
+              <p className={styles.hint}>{ts.webAppHint}</p>
             </div>
             <button type="button" className="btn btnPrimary" onClick={() => void enableSync()}>
               {ts.enable}
@@ -116,6 +117,7 @@ function SyncSection({ joinCode }: { joinCode: string | null }) {
             {formatSyncCode(sync.code)}
           </p>
           <p className={styles.hint}>{ts.codeHint}</p>
+          <p className={styles.hint}>{ts.webAppHint}</p>
           {linkFallback && (
             <p className={styles.syncLink}>{pairingLink(sync.code, window.location.origin)}</p>
           )}

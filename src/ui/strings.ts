@@ -262,6 +262,8 @@ export const strings = {
     enable: 'Synchronisation einschalten',
     enableFirstHint:
       'Wichtig. Nur das erste Gerät schaltet die Synchronisation ein. Jedes weitere Gerät verbindest du unten mit dem Kopplungslink oder dem Code des ersten Geräts, sonst entstehen getrennte Ablagen, die sich nicht sehen.',
+    webAppHint:
+      'Gut zu wissen. Ein Symbol im Dock des MacBook oder auf dem Home Bildschirm von iPhone und iPad ist eine eigene kleine App mit eigenem Speicher, getrennt vom normalen Browser. Beim Hinzufügen wird kein Fortschritt kopiert. Jedes solche Symbol zählt hier als eigenes Gerät und wird einmal mit demselben Code verbunden.',
     yourCode: 'Dein Gerätecode',
     codeHint: 'Öffne den Kopplungslink auf dem anderen Gerät oder gib dort diesen Code ein.',
     copyLink: 'Kopplungslink kopieren',
