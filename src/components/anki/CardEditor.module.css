@@ -184,3 +184,9 @@
   color: var(--accent-strong);
   font-size: 0.85rem;
 }
+
+.tokenAnchor {
+  outline: 2px dashed var(--accent);
+  outline-offset: 1px;
+  background: var(--accent-soft);
+}

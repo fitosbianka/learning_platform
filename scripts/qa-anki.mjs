@@ -118,6 +118,17 @@ async function main() {
     check(value.trim().length > 0, `suggestion. option ${letter} is empty`);
   }
   await page.getByRole('button', { name: 'Lückentext' }).click();
+  // Single word mode. A tap adds a separate gap, a tap on a gapped
+  // word removes that gap again.
+  const gapButtons = page.locator('[class*="tokenGap"]');
+  const freeWords = page.locator('[class*="tokens"] button:not([class*="tokenGap"])');
+  const startCount = await gapButtons.count();
+  await freeWords.first().click();
+  const grown = await gapButtons.count();
+  check(grown === startCount + 1, `cloze editor. expected ${startCount + 1} gapped words, found ${grown}`);
+  await gapButtons.first().click();
+  const shrunk = await gapButtons.count();
+  check(shrunk === grown - 1, `cloze editor. expected ${grown - 1} gapped words after removal, found ${shrunk}`);
   await page.getByRole('button', { name: 'Speichern' }).click();
   await page.getByText('Lernkarte gespeichert').waitFor();
 
@@ -162,7 +173,7 @@ async function main() {
   // wrongly on purpose, it must return at the end of the queue.
   await page.getByRole('button', { name: 'Jetzt lernen' }).click();
   await page.getByText('Noch 3 Karten heute').waitFor();
-  await page.getByLabel('Deine Antwort für die Lücke').fill('absichtlich falsch');
+  await page.getByLabel('Deine Antwort für Lücke 1').fill('absichtlich falsch');
   await page.getByRole('button', { name: 'Prüfen' }).click();
   await page.getByText('Leider nicht richtig').waitFor();
   await page.getByText('fällt zurück auf Durchgang 1').waitFor();
@@ -184,7 +195,7 @@ async function main() {
 
   // The cloze card returns, now with the captured correct answer.
   await page.getByText('Noch 1 Karte heute').waitFor();
-  await page.getByLabel('Deine Antwort für die Lücke').fill(clozeAnswer.trim());
+  await page.getByLabel('Deine Antwort für Lücke 1').fill(clozeAnswer.trim());
   await page.getByRole('button', { name: 'Prüfen' }).click();
   await page.getByText('Richtig!').waitFor();
   await page.screenshot({ path: join(shotsDir, 'anki-lernen.jpg'), fullPage: false, quality: 60, type: 'jpeg' });

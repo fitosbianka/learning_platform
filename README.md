@@ -81,7 +81,8 @@ Karten erstellen
 
 * In einer Lektion eine Textstelle markieren und auf Lernkarte tippen. Der Editor oeffnet sich mit einem fertigen Vorschlag fuer jede Kartenart. Beim Lueckentext ist die Luecke schon gesetzt. Bei Frage und Antwort liest die Plattform den Satz rund um die Markierung mit und erkennt gaengige Muster, aus X ist Y wird Was ist X, aus X hat 20 Y wird Wie viele Y hat X, ein markierter Fachbegriff wird durch seinen ganzen Satz erklaert, und auf der Rueckseite steht nur die kurze Antwort statt des ganzen Texts. Bei Auswahl A B C sind Frage und alle drei Antworten ausgefuellt, die falschen Antworten kommen bevorzugt aus dem Glossar derselben Lektion. Alles laesst sich anpassen oder direkt speichern.
 * Auf der Seite Anki laesst sich mit Neue Karte jederzeit eine Karte von Grund auf anlegen, inklusive Wahl der Lektion.
-* Drei Kartenarten stehen bereit. Frage und Antwort, Auswahl A B C und Lueckentext. Bei Frage und Antwort beantwortest du die Frage zuerst fuer dich, deckst die Antwort auf und stufst mit Gewusst oder Nicht gewusst ehrlich ein. Beim Lueckentext genuegt ein Tipp auf ein Wort, um es zur Luecke zu machen, ein Tipp auf ein weiteres Wort verlaengert die Luecke bis dorthin.
+* Drei Kartenarten stehen bereit. Frage und Antwort, Auswahl A B C und Lueckentext. Bei Frage und Antwort beantwortest du die Frage zuerst fuer dich, deckst die Antwort auf und stufst mit Gewusst oder Nicht gewusst ehrlich ein.
+* Beim Lueckentext gibt es zwei Wege, waehlbar ueber zwei Knoepfe im Editor. Einzelne Woerter, jedes angetippte Wort wird eine eigene Luecke und ein zweiter Tipp entfernt sie wieder. Oder Von Wort zu Wort, erstes und letztes Wort antippen und alles dazwischen wird eine einzige Luecke. Eine Karte kann mehrere Luecken halten, beim Lernen hat jede Luecke ihr eigenes Feld mitten im Satz und alle zusammen zaehlen als eine Antwort.
 
 Wiederholungsplan
 

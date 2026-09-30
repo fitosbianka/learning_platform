@@ -9,8 +9,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   checkAnswer,
-  clozeParts,
+  clozeAnswers,
+  clozeSegments,
   dueCards,
+  normalizeAnswer,
   reviewNumber,
   type AnkiCard,
   type CardContent,
@@ -29,50 +31,60 @@ function correctAnswerText(content: CardContent): string {
     const letter = ['A', 'B', 'C'][content.correctIndex] ?? '';
     return `${letter}. ${content.options[content.correctIndex] ?? ''}`;
   }
-  return clozeParts(content).gap;
+  return clozeAnswers(content).join(', ');
 }
 
 function ClozePrompt({ content, typed, disabled, onType, onCheck }: {
   content: Extract<CardContent, { kind: 'cloze' }>;
-  typed: string;
+  typed: string[];
   disabled: boolean;
-  onType: (value: string) => void;
+  onType: (index: number, value: string) => void;
   onCheck: () => void;
 }) {
-  const parts = clozeParts(content);
+  const segments = clozeSegments(content);
+  const gapSegments = segments.filter((segment) => segment.kind === 'gap');
+  const allFilled = gapSegments.every((segment) => (typed[segment.index] ?? '').trim() !== '');
   return (
     <>
       <p className={styles.prompt}>
-        {parts.before}
-        <span className={styles.gapBlank} aria-hidden={disabled ? undefined : true}>
-          {disabled ? parts.gap : ' '.repeat(Math.max(4, Math.min(parts.gap.length, 16)))}
-        </span>
-        {parts.after}
+        {segments.map((segment, i) => {
+          if (segment.kind === 'text') return <span key={i}>{segment.text}</span>;
+          if (disabled) {
+            const right = normalizeAnswer(typed[segment.index] ?? '') === normalizeAnswer(segment.text);
+            return (
+              <span key={i} className={`${styles.gapBlank} ${right ? styles.gapRight : styles.gapWrong}`}>
+                {segment.text}
+              </span>
+            );
+          }
+          return (
+            <input
+              key={i}
+              type="text"
+              className={styles.gapInput}
+              style={{ width: `${Math.min(Math.max(segment.text.length, 4), 18) + 2}ch` }}
+              value={typed[segment.index] ?? ''}
+              onChange={(e) => onType(segment.index, e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && allFilled) {
+                  e.preventDefault();
+                  onCheck();
+                }
+              }}
+              aria-label={t.gapInputLabel(segment.index + 1)}
+              autoComplete="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              autoFocus={segment.index === 0}
+            />
+          );
+        })}
       </p>
-      <form
-        className={styles.clozeForm}
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (!disabled && typed.trim() !== '') onCheck();
-        }}
-      >
-        <input
-          type="text"
-          className={styles.clozeInput}
-          value={typed}
-          onChange={(e) => onType(e.target.value)}
-          placeholder={t.answerPlaceholder}
-          aria-label={t.answerInputLabel}
-          disabled={disabled}
-          autoComplete="off"
-          autoCapitalize="off"
-          spellCheck={false}
-          autoFocus
-        />
-        <button type="submit" className="btn btnPrimary" disabled={disabled || typed.trim() === ''}>
+      <div className={styles.clozeForm}>
+        <button type="button" className="btn btnPrimary" disabled={disabled || !allFilled} onClick={onCheck}>
           {t.check}
         </button>
-      </form>
+      </div>
     </>
   );
 }
@@ -82,7 +94,7 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
   const [queue, setQueue] = useState<string[]>(() => dueCards(cards, today).map((c) => c.id));
   const [doneCount, setDoneCount] = useState(0);
   const [phase, setPhase] = useState<Phase>({ name: 'answering' });
-  const [typed, setTyped] = useState('');
+  const [typed, setTyped] = useState<string[]>([]);
   const [picked, setPicked] = useState<number | boolean | null>(null);
   // Passing a review advances the stage right away, the badge keeps
   // showing the round that was just answered until Weiter.
@@ -100,12 +112,12 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
     if (currentId !== undefined && card === undefined) {
       setQueue((q) => q.slice(1));
       setPhase({ name: 'answering' });
-      setTyped('');
+      setTyped([]);
       setPicked(null);
     }
   }, [currentId, card]);
 
-  const answer = (value: string | number | boolean) => {
+  const answer = (value: string | number | boolean | string[]) => {
     if (!card || phase.name !== 'answering') return;
     const correct = checkAnswer(card.content, value);
     if (typeof value === 'number' || typeof value === 'boolean') setPicked(value);
@@ -120,7 +132,7 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
     setQueue((q) => (phase.correct ? q.slice(1) : [...q.slice(1), ...q.slice(0, 1)]));
     if (phase.correct) setDoneCount((n) => n + 1);
     setPhase({ name: 'answering' });
-    setTyped('');
+    setTyped([]);
     setPicked(null);
     setShownRound(null);
   };
@@ -142,7 +154,7 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
       setQueue((q) => [...q.slice(1), ...q.slice(0, 1)]);
     }
     setPhase({ name: 'answering' });
-    setTyped('');
+    setTyped([]);
     setPicked(null);
     setShownRound(null);
   };
@@ -271,7 +283,13 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
           content={content}
           typed={typed}
           disabled={showFeedback}
-          onType={setTyped}
+          onType={(index, value) =>
+            setTyped((prev) => {
+              const next = [...prev];
+              next[index] = value;
+              return next;
+            })
+          }
           onCheck={() => answer(typed)}
         />
       )}

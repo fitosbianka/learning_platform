@@ -3,7 +3,8 @@ import {
   addDaysToKey,
   autoGap,
   checkAnswer,
-  clozeParts,
+  clozeAnswers,
+  clozeSegments,
   dueByReview,
   dueCards,
   failReview,
@@ -12,6 +13,7 @@ import {
   mergeCards,
   newCard,
   normalizeAnswer,
+  normalizeGaps,
   passReview,
   reviewNumber,
   todayKey,
@@ -32,7 +34,20 @@ const choice: CardContent = {
 };
 const clozeText = 'Der Sulkus ist gesund 1 bis 3 Millimeter tief.';
 const gapStart = clozeText.indexOf('Millimeter');
-const cloze: CardContent = { kind: 'cloze', text: clozeText, gapStart, gapEnd: gapStart + 'Millimeter'.length };
+const cloze: CardContent = {
+  kind: 'cloze',
+  text: clozeText,
+  gaps: [{ start: gapStart, end: gapStart + 'Millimeter'.length }],
+};
+const sulkusStart = clozeText.indexOf('Sulkus');
+const twoGaps: CardContent = {
+  kind: 'cloze',
+  text: clozeText,
+  gaps: [
+    { start: gapStart, end: gapStart + 'Millimeter'.length },
+    { start: sulkusStart, end: sulkusStart + 'Sulkus'.length },
+  ],
+};
 
 describe('schedule', () => {
   it('walks through the reviews with gaps of 1, 3 and 7 days', () => {
@@ -97,12 +112,22 @@ describe('cloze helpers', () => {
     expect(autoGap('...')).toBeNull();
   });
 
-  it('splits the cloze text around the gap', () => {
-    expect(clozeParts(cloze)).toEqual({
-      before: 'Der Sulkus ist gesund 1 bis 3 ',
-      gap: 'Millimeter',
-      after: ' tief.',
-    });
+  it('cuts the cloze text into segments around every gap', () => {
+    expect(clozeSegments(cloze)).toEqual([
+      { kind: 'text', text: 'Der Sulkus ist gesund 1 bis 3 ' },
+      { kind: 'gap', text: 'Millimeter', index: 0 },
+      { kind: 'text', text: ' tief.' },
+    ]);
+    // Gaps come back in text order, however they were picked.
+    expect(clozeAnswers(twoGaps)).toEqual(['Sulkus', 'Millimeter']);
+    expect(clozeSegments(twoGaps).filter((s) => s.kind === 'gap')).toHaveLength(2);
+  });
+
+  it('folds overlapping and touching gaps into one', () => {
+    expect(normalizeGaps([{ start: 4, end: 10 }, { start: 8, end: 14 }, { start: 20, end: 24 }])).toEqual([
+      { start: 4, end: 14 },
+      { start: 20, end: 24 },
+    ]);
   });
 
   it('checks answers forgivingly', () => {
@@ -110,6 +135,9 @@ describe('cloze helpers', () => {
     expect(checkAnswer(cloze, 'millimeter')).toBe(true);
     expect(checkAnswer(cloze, ' Millimeter ')).toBe(true);
     expect(checkAnswer(cloze, 'Zentimeter')).toBe(false);
+    expect(checkAnswer(twoGaps, ['sulkus', 'MILLIMETER '])).toBe(true);
+    expect(checkAnswer(twoGaps, ['Sulkus', 'Zentimeter'])).toBe(false);
+    expect(checkAnswer(twoGaps, ['Sulkus'])).toBe(false);
     expect(checkAnswer(qa, true)).toBe(true);
     expect(checkAnswer(qa, false)).toBe(false);
     expect(checkAnswer(choice, 0)).toBe(true);
@@ -152,7 +180,7 @@ describe('cards in the store', () => {
     expect(() => parseStoreData(JSON.parse(JSON.stringify(broken)))).toThrow();
     const badGap = {
       ...defaultStore(),
-      cards: [{ ...newCard(1, { kind: 'cloze', text: 'ab', gapStart: 1, gapEnd: 9 } as CardContent, NOW) }],
+      cards: [{ ...newCard(1, { kind: 'cloze', text: 'ab', gaps: [{ start: 1, end: 9 }] } as CardContent, NOW) }],
     };
     expect(() => parseStoreData(JSON.parse(JSON.stringify(badGap)))).toThrow();
   });
@@ -181,6 +209,20 @@ describe('missed answers and legacy cards', () => {
     const again = passReview(failed, new Date(2026, 9, 3, 9, 5));
     expect(again.stage).toBe(1);
     expect(again.nextDue).toBe('2026-10-04');
+  });
+
+  it('migrates stored single gap cloze cards to the gap list', () => {
+    const legacy = {
+      ...newCard(4, cloze, NOW),
+      content: { kind: 'cloze', text: clozeText, gapStart, gapEnd: gapStart + 'Millimeter'.length },
+    };
+    const store = { ...defaultStore(), cards: [legacy] };
+    const parsed = parseStoreData(JSON.parse(JSON.stringify(store)));
+    const content = parsed.cards[0]?.content;
+    expect(content?.kind).toBe('cloze');
+    if (content?.kind === 'cloze') {
+      expect(content.gaps).toEqual([{ start: gapStart, end: gapStart + 'Millimeter'.length }]);
+    }
   });
 
   it('migrates stored yes or no cards to question cards', () => {

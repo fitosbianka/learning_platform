@@ -122,6 +122,15 @@ Auf Wunsch nachgeruestet.
 * Der PDF Druck traegt jetzt ein sauberes Lernblatt Layout. Kopfzeile, unterstrichener Lektionstitel, Datumszeile, farbige Zwischentitel, kompakte Listen, Seitenraender von 18 Millimetern, Bilder mit Rahmen und Seitenumbrueche, die Titel nicht von ihrem Text trennen
 * Abgesichert mit 7 neuen Tests fuer die Satzmuster, den Kontext, die Glossarauswahl, das Bild im Speicher und den Schnappschuss der Zeichnungen sowie dem erweiterten Browserdurchlauf samt echtem PDF, alles ohne Konsolenfehler
 
+## Nachtrag. Mehrere Luecken pro Karte
+
+Auf Wunsch nachgeruestet. Der Lueckentext kann jetzt mehrere getrennte Luecken halten, die Woerter dazwischen bleiben sichtbar.
+
+* Im Editor gibt es zwei Wege, ueber zwei Knoepfe waehlbar. Einzelne Woerter, jedes angetippte Wort wird eine eigene Luecke und ein zweiter Tipp entfernt sie. Von Wort zu Wort, erstes und letztes Wort antippen und alles dazwischen wird eine Luecke, das erste Wort traegt bis dahin eine gestrichelte Markierung
+* Beim Lernen steht fuer jede Luecke ein eigenes Feld mitten im Satz, geprueft wird alles zusammen, nach dem Pruefen faerben sich die Luecken einzeln gruen oder rot
+* Bestehende Karten mit einer Luecke werden beim Laden automatisch ins neue Format uebernommen
+* Abgesichert mit 4 neuen Tests fuer Zusammenlegen, Segmente, Mehrfachantworten und die Umwandlung sowie neuen Editor und Lernlauf Tests, alles ohne Konsolenfehler
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.

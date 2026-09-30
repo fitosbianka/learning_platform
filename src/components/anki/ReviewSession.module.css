@@ -230,3 +230,35 @@
   font-size: 0.85rem;
   margin-top: 12px;
 }
+
+.gapInput {
+  display: inline-block;
+  margin: 0 3px;
+  padding: 2px 8px;
+  font: inherit;
+  color: var(--accent-strong);
+  font-weight: 650;
+  text-align: center;
+  background: var(--surface);
+  border: none;
+  border-bottom: 2px solid var(--accent);
+  border-radius: 6px 6px 0 0;
+  vertical-align: baseline;
+}
+
+.gapInput:focus-visible {
+  outline: none;
+  background: var(--accent-soft);
+}
+
+.gapRight {
+  color: var(--ok);
+  border-bottom-color: var(--ok);
+  background: var(--ok-soft);
+}
+
+.gapWrong {
+  color: var(--err);
+  border-bottom-color: var(--err);
+  background: var(--err-soft);
+}

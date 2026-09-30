@@ -19,9 +19,15 @@ function renderWith(storage: AppStorage, ui: ReactNode) {
   return render(<AppStateProvider storage={storage}>{ui}</AppStateProvider>);
 }
 
-function clozeCard(lessonId: number, text: string, gapWord: string): AnkiCard {
-  const gapStart = text.indexOf(gapWord);
-  const content: CardContent = { kind: 'cloze', text, gapStart, gapEnd: gapStart + gapWord.length };
+function clozeCard(lessonId: number, text: string, gapWords: string[]): AnkiCard {
+  const content: CardContent = {
+    kind: 'cloze',
+    text,
+    gaps: gapWords.map((word) => {
+      const start = text.indexOf(word);
+      return { start, end: start + word.length };
+    }),
+  };
   return newCard(lessonId, content);
 }
 
@@ -43,6 +49,11 @@ describe('card editor', () => {
       />,
     );
 
+    const gapWords = (card: AnkiCard): string[] =>
+      card.content.kind === 'cloze'
+        ? card.content.gaps.map((g) => (card.content as { text: string }).text.slice(g.start, g.end))
+        : [];
+
     // The longest word is suggested as the gap.
     await user.click(screen.getByRole('button', { name: 'Speichern' }));
     expect(onSave).toHaveBeenCalledTimes(1);
@@ -50,20 +61,48 @@ describe('card editor', () => {
     expect(first.lessonId).toBe(5);
     expect(first.stage).toBe(0);
     expect(first.nextDue).toBe(todayKey());
-    expect(first.content.kind).toBe('cloze');
-    if (first.content.kind === 'cloze') {
-      expect(first.content.text.slice(first.content.gapStart, first.content.gapEnd)).toBe('Zahnschmelz');
-    }
+    expect(gapWords(first)).toEqual(['Zahnschmelz']);
 
-    // Tapping a word outside the gap stretches the gap up to it.
-    const preview = screen.getByText('Lücke wählen').parentElement as HTMLElement;
+    // In single word mode another tap adds a separate gap, a tap on a
+    // gapped word removes that gap again.
+    const preview = screen.getByText('Lücken wählen').parentElement as HTMLElement;
     await user.click(within(preview).getByRole('button', { name: 'härteste' }));
     await user.click(screen.getByRole('button', { name: 'Speichern' }));
-    const second = onSave.mock.calls[1]?.[0] as AnkiCard;
-    if (second.content.kind === 'cloze') {
-      expect(second.content.text.slice(second.content.gapStart, second.content.gapEnd)).toBe(
-        'Zahnschmelz ist die härteste',
-      );
+    expect(gapWords(onSave.mock.calls[1]?.[0] as AnkiCard)).toEqual(['Zahnschmelz', 'härteste']);
+
+    await user.click(within(preview).getByRole('button', { name: 'Zahnschmelz' }));
+    await user.click(screen.getByRole('button', { name: 'Speichern' }));
+    expect(gapWords(onSave.mock.calls[2]?.[0] as AnkiCard)).toEqual(['härteste']);
+  });
+
+  it('builds one gap from first to last word in range mode', async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn();
+    render(
+      <CardEditor
+        initial={null}
+        prefillText="Der Zahnschmelz ist die härteste Substanz im Körper"
+        lessonId={5}
+        onSave={onSave}
+        onCancel={() => {}}
+      />,
+    );
+
+    const preview = screen.getByText('Lücken wählen').parentElement as HTMLElement;
+    // Drop the suggested gap first, then span from ist to Substanz.
+    await user.click(within(preview).getByRole('button', { name: 'Zahnschmelz' }));
+    await user.click(screen.getByRole('button', { name: 'Von Wort zu Wort' }));
+    await user.click(within(preview).getByRole('button', { name: 'ist' }));
+    expect(screen.getByText(/Erstes Wort gewählt/)).toBeInTheDocument();
+    await user.click(within(preview).getByRole('button', { name: 'Substanz' }));
+    await user.click(screen.getByRole('button', { name: 'Speichern' }));
+
+    const card = onSave.mock.calls[0]?.[0] as AnkiCard;
+    expect(card.content.kind).toBe('cloze');
+    if (card.content.kind === 'cloze') {
+      expect(card.content.gaps).toHaveLength(1);
+      const g = card.content.gaps[0];
+      expect(card.content.text.slice(g?.start, g?.end)).toBe('ist die härteste Substanz');
     }
   });
 
@@ -194,13 +233,29 @@ describe('review session', () => {
     expect(onQuit).toHaveBeenCalled();
   });
 
-  it('resets the schedule when a typed cloze answer is wrong', async () => {
+  it('asks one inline input per gap and checks them all', async () => {
     const user = userEvent.setup();
-    const card = { ...clozeCard(4, 'Fluorid härtet den Zahnschmelz', 'Zahnschmelz'), stage: 3, nextDue: todayKey() };
+    const card = clozeCard(4, 'Fluorid härtet den Zahnschmelz im Mund', ['Fluorid', 'Zahnschmelz']);
     const storage = makeStorage({ cards: [card] });
     renderWith(storage, <ReviewSession today={todayKey()} onQuit={() => {}} />);
 
-    await user.type(screen.getByLabelText('Deine Antwort für die Lücke'), 'Dentin');
+    await user.type(screen.getByLabelText('Deine Antwort für Lücke 1'), 'Fluorid');
+    expect(screen.getByRole('button', { name: 'Prüfen' })).toBeDisabled();
+    await user.type(screen.getByLabelText('Deine Antwort für Lücke 2'), 'zahnschmelz');
+    await user.click(screen.getByRole('button', { name: 'Prüfen' }));
+    expect(screen.getByText('Richtig!')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Weiter' }));
+    expect(screen.getByText('Alles erledigt für heute!')).toBeInTheDocument();
+    expect(storage.load().cards[0]?.stage).toBe(1);
+  });
+
+  it('resets the schedule when a typed cloze answer is wrong', async () => {
+    const user = userEvent.setup();
+    const card = { ...clozeCard(4, 'Fluorid härtet den Zahnschmelz', ['Zahnschmelz']), stage: 3, nextDue: todayKey() };
+    const storage = makeStorage({ cards: [card] });
+    renderWith(storage, <ReviewSession today={todayKey()} onQuit={() => {}} />);
+
+    await user.type(screen.getByLabelText('Deine Antwort für Lücke 1'), 'Dentin');
     await user.click(screen.getByRole('button', { name: 'Prüfen' }));
     expect(screen.getByText(/fällt zurück auf Durchgang 1/)).toBeInTheDocument();
     expect(storage.load().cards[0]?.stage).toBe(0);
@@ -208,11 +263,11 @@ describe('review session', () => {
 
   it('checks a typed cloze answer ignoring case and punctuation', async () => {
     const user = userEvent.setup();
-    const card = clozeCard(4, 'Fluorid härtet den Zahnschmelz', 'Zahnschmelz');
+    const card = clozeCard(4, 'Fluorid härtet den Zahnschmelz', ['Zahnschmelz']);
     const storage = makeStorage({ cards: [card] });
     renderWith(storage, <ReviewSession today={todayKey()} onQuit={() => {}} />);
 
-    await user.type(screen.getByLabelText('Deine Antwort für die Lücke'), 'zahnschmelz.');
+    await user.type(screen.getByLabelText('Deine Antwort für Lücke 1'), 'zahnschmelz.');
     await user.click(screen.getByRole('button', { name: 'Prüfen' }));
     expect(screen.getByText('Richtig!')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Weiter' }));
@@ -230,7 +285,7 @@ describe('anki page', () => {
       stage: 1,
       nextDue: addDaysToKey(todayKey(), 1),
     };
-    const learned = { ...clozeCard(2, 'Der Durchbruch endet mit den Weisheitszähnen', 'Weisheitszähnen'), stage: 4, nextDue: null };
+    const learned = { ...clozeCard(2, 'Der Durchbruch endet mit den Weisheitszähnen', ['Weisheitszähnen']), stage: 4, nextDue: null };
     const storage = makeStorage({ cards: [dueNow, later, learned] });
     renderWith(storage, <AnkiPage />);
 
