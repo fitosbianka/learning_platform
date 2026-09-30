@@ -112,18 +112,6 @@
   min-width: 0;
 }
 
-.kindChip {
-  flex: 0 0 auto;
-  font-size: 0.75rem;
-  font-weight: 650;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  color: var(--text-soft);
-  white-space: nowrap;
-}
-
 .cardText {
   overflow-wrap: anywhere;
 }
