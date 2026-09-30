@@ -5,7 +5,15 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { autoGap, newCard, tokenize, type AnkiCard, type CardContent } from '../../anki/cards';
+import {
+  autoGap,
+  newCard,
+  normalizeGaps,
+  tokenize,
+  type AnkiCard,
+  type CardContent,
+  type ClozeGap,
+} from '../../anki/cards';
 import { suggestChoice, suggestQa, type HighlightContext } from '../../anki/suggest';
 import { lessonIndex } from '../../content/generated/lessonsIndex';
 import { strings } from '../../ui/strings';
@@ -82,11 +90,13 @@ export function CardEditor({
     initialContent?.kind === 'choice' ? initialContent.correctIndex : (choiceSuggestion?.correctIndex ?? 0),
   );
   const [clozeText, setClozeText] = useState(initialContent?.kind === 'cloze' ? initialContent.text : prefill);
-  const [gap, setGap] = useState<{ start: number; end: number } | null>(() => {
-    if (initialContent?.kind === 'cloze') return { start: initialContent.gapStart, end: initialContent.gapEnd };
+  const [gaps, setGaps] = useState<ClozeGap[]>(() => {
+    if (initialContent?.kind === 'cloze') return normalizeGaps(initialContent.gaps);
     const auto = prefill ? autoGap(prefill) : null;
-    return auto ? { start: auto.gapStart, end: auto.gapEnd } : null;
+    return auto ? [{ start: auto.gapStart, end: auto.gapEnd }] : [];
   });
+  const [gapMode, setGapMode] = useState<'single' | 'range'>('single');
+  const [anchor, setAnchor] = useState<ClozeGap | null>(null);
   const [error, setError] = useState<string | null>(null);
   const firstFieldRef = useRef<HTMLTextAreaElement>(null);
 
@@ -107,29 +117,43 @@ export function CardEditor({
 
   const tokens = useMemo(() => tokenize(clozeText), [clozeText]);
 
-  // Keep the gap valid when the text is edited.
+  // Keep the gaps valid when the text is edited.
   useEffect(() => {
     if (kind !== 'cloze') return;
-    const usable =
-      gap !== null &&
-      gap.start >= 0 &&
-      gap.end <= clozeText.length &&
-      gap.end > gap.start &&
-      /[\p{L}\p{N}]/u.test(clozeText.slice(gap.start, gap.end));
-    if (usable) return;
+    const usable = gaps.filter(
+      (g) => g.start >= 0 && g.end <= clozeText.length && g.end > g.start && /[\p{L}\p{N}]/u.test(clozeText.slice(g.start, g.end)),
+    );
+    setAnchor(null);
+    if (usable.length === gaps.length && gaps.length > 0) return;
+    if (usable.length > 0) {
+      setGaps(usable);
+      return;
+    }
     const auto = autoGap(clozeText);
-    setGap(auto ? { start: auto.gapStart, end: auto.gapEnd } : null);
-    // Only react to text changes, the gap itself is set by the user.
+    setGaps(auto ? [{ start: auto.gapStart, end: auto.gapEnd }] : []);
+    // Only react to text changes, the gaps themselves are set by the user.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clozeText, kind]);
 
   const pickToken = (start: number, end: number) => {
-    setGap((prev) => {
-      if (!prev) return { start, end };
-      const inside = start >= prev.start && end <= prev.end;
-      if (inside) return { start, end };
-      return { start: Math.min(prev.start, start), end: Math.max(prev.end, end) };
-    });
+    // A tap on a word that is already part of a gap removes that gap.
+    const hit = gaps.find((g) => start >= g.start && end <= g.end);
+    if (hit) {
+      setGaps(gaps.filter((g) => g !== hit));
+      setAnchor(null);
+      return;
+    }
+    if (gapMode === 'single') {
+      setGaps(normalizeGaps([...gaps, { start, end }]));
+      return;
+    }
+    if (!anchor) {
+      setAnchor({ start, end });
+      return;
+    }
+    const span = { start: Math.min(anchor.start, start), end: Math.max(anchor.end, end) };
+    setGaps(normalizeGaps([...gaps, span]));
+    setAnchor(null);
   };
 
   const buildContent = (): CardContent | null => {
@@ -148,17 +172,14 @@ export function CardEditor({
     // The gap positions refer to the raw text, so it is saved unchanged.
     const text = clozeText;
     if (!text.trim()) return null;
-    if (
-      !gap ||
-      gap.start < 0 ||
-      gap.end > text.length ||
-      gap.end <= gap.start ||
-      !/[\p{L}\p{N}]/u.test(text.slice(gap.start, gap.end))
-    ) {
+    const valid = normalizeGaps(gaps).filter(
+      (g) => g.start >= 0 && g.end <= text.length && /[\p{L}\p{N}]/u.test(text.slice(g.start, g.end)),
+    );
+    if (valid.length === 0) {
       setError(t.validationGap);
       return null;
     }
-    return { kind: 'cloze', text, gapStart: gap.start, gapEnd: gap.end };
+    return { kind: 'cloze', text, gaps: valid };
   };
 
   const save = () => {
@@ -321,6 +342,30 @@ export function CardEditor({
               />
             </div>
             <div className={styles.field}>
+              <span className={styles.label}>{t.clozeModeLabel}</span>
+              <div className={styles.kindTabs} role="group" aria-label={t.clozeModeLabel}>
+                {(
+                  [
+                    ['single', t.clozeModeSingle],
+                    ['range', t.clozeModeRange],
+                  ] as ['single' | 'range', string][]
+                ).map(([mode, label]) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    className={`visChip ${gapMode === mode ? 'visChipActive' : ''}`}
+                    aria-pressed={gapMode === mode}
+                    onClick={() => {
+                      setGapMode(mode);
+                      setAnchor(null);
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className={styles.field}>
               <span className={styles.label}>{t.clozePreviewLabel}</span>
               <div className={styles.tokens}>
                 {tokens.map((token, i) =>
@@ -328,7 +373,13 @@ export function CardEditor({
                     <button
                       key={i}
                       type="button"
-                      className={`${styles.tokenWord} ${gap && token.start >= gap.start && token.end <= gap.end ? styles.tokenGap : ''}`}
+                      className={`${styles.tokenWord} ${
+                        gaps.some((g) => token.start >= g.start && token.end <= g.end)
+                          ? styles.tokenGap
+                          : anchor && token.start === anchor.start && token.end === anchor.end
+                            ? styles.tokenAnchor
+                            : ''
+                      }`}
                       onClick={() => pickToken(token.start, token.end)}
                     >
                       {token.text}
@@ -338,7 +389,13 @@ export function CardEditor({
                   ),
                 )}
               </div>
-              <p className={styles.hint}>{t.clozeHint}</p>
+              <p className={styles.hint}>
+                {gapMode === 'range' && anchor
+                  ? t.clozeAnchorHint
+                  : gapMode === 'range'
+                    ? t.clozeHintRange
+                    : t.clozeHintSingle}
+              </p>
             </div>
           </>
         )}

@@ -6,10 +6,16 @@
  * correct review the card counts as learned.
  */
 
+/** One gap of a cloze card, character offsets into the text. */
+export interface ClozeGap {
+  start: number;
+  end: number;
+}
+
 export type CardContent =
   | { kind: 'qa'; question: string; answer: string }
   | { kind: 'choice'; question: string; options: string[]; correctIndex: number }
-  | { kind: 'cloze'; text: string; gapStart: number; gapEnd: number };
+  | { kind: 'cloze'; text: string; gaps: ClozeGap[] };
 
 export interface AnkiCard {
   id: string;
@@ -153,16 +159,36 @@ export function autoGap(text: string): { gapStart: number; gapEnd: number } | nu
   return { gapStart: best.start, gapEnd: best.end };
 }
 
-export function clozeParts(content: Extract<CardContent, { kind: 'cloze' }>): {
-  before: string;
-  gap: string;
-  after: string;
-} {
-  return {
-    before: content.text.slice(0, content.gapStart),
-    gap: content.text.slice(content.gapStart, content.gapEnd),
-    after: content.text.slice(content.gapEnd),
-  };
+/** Sorts gaps and folds overlapping or touching ones into one. */
+export function normalizeGaps(gaps: readonly ClozeGap[]): ClozeGap[] {
+  const sorted = [...gaps].filter((g) => g.end > g.start).sort((a, b) => a.start - b.start);
+  const merged: ClozeGap[] = [];
+  for (const gap of sorted) {
+    const last = merged[merged.length - 1];
+    if (last && gap.start <= last.end) last.end = Math.max(last.end, gap.end);
+    else merged.push({ ...gap });
+  }
+  return merged;
+}
+
+export type ClozeSegment = { kind: 'text'; text: string } | { kind: 'gap'; text: string; index: number };
+
+/** The text of a cloze card cut into plain parts and its gaps. */
+export function clozeSegments(content: Extract<CardContent, { kind: 'cloze' }>): ClozeSegment[] {
+  const segments: ClozeSegment[] = [];
+  let cursor = 0;
+  normalizeGaps(content.gaps).forEach((gap, index) => {
+    if (gap.start > cursor) segments.push({ kind: 'text', text: content.text.slice(cursor, gap.start) });
+    segments.push({ kind: 'gap', text: content.text.slice(gap.start, gap.end), index });
+    cursor = gap.end;
+  });
+  if (cursor < content.text.length) segments.push({ kind: 'text', text: content.text.slice(cursor) });
+  return segments;
+}
+
+/** The words hidden by a cloze card, in text order. */
+export function clozeAnswers(content: Extract<CardContent, { kind: 'cloze' }>): string[] {
+  return normalizeGaps(content.gaps).map((gap) => content.text.slice(gap.start, gap.end));
 }
 
 /** Case, surrounding punctuation and extra spaces do not matter. */
@@ -174,12 +200,14 @@ export function normalizeAnswer(s: string): string {
     .trim();
 }
 
-export function checkAnswer(content: CardContent, input: string | number | boolean): boolean {
+export function checkAnswer(content: CardContent, input: string | number | boolean | string[]): boolean {
   // A question card is graded by the learner, true means known.
   if (content.kind === 'qa') return input === true;
   if (content.kind === 'choice') return input === content.correctIndex;
-  if (typeof input !== 'string') return false;
-  return normalizeAnswer(input) === normalizeAnswer(clozeParts(content).gap);
+  const answers = clozeAnswers(content);
+  const typed = typeof input === 'string' ? [input] : Array.isArray(input) ? input : null;
+  if (!typed || typed.length !== answers.length) return false;
+  return answers.every((answer, i) => normalizeAnswer(typed[i] ?? '') === normalizeAnswer(answer));
 }
 
 /** The visible side of a card for lists, shortened. */

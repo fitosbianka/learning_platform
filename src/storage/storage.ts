@@ -6,7 +6,7 @@
  * keeps working without persistence.
  */
 
-import { mergeCards, type AnkiCard, type CardContent } from '../anki/cards';
+import { mergeCards, normalizeGaps, type AnkiCard, type CardContent, type ClozeGap } from '../anki/cards';
 import { mergeNotes, sanitizeNoteHtml, NOTE_MAX_CHARS, type LessonNote } from '../notes/notes';
 import { mergeMarkings, MARK_TEXT_MAX, type Marking } from '../marks/marks';
 
@@ -128,9 +128,26 @@ function parseCardContent(x: unknown): CardContent | null {
   }
   if (c.kind === 'cloze') {
     if (typeof c.text !== 'string' || c.text === '') return null;
-    if (!isFiniteNumber(c.gapStart) || !isFiniteNumber(c.gapEnd)) return null;
-    if (c.gapStart < 0 || c.gapEnd <= c.gapStart || c.gapEnd > c.text.length) return null;
-    return { kind: 'cloze', text: c.text, gapStart: c.gapStart, gapEnd: c.gapEnd };
+    const text = c.text;
+    // Cards from before a cloze could hold several gaps carry a single
+    // start and end pair, they become a one gap list.
+    const rawGaps: unknown = Array.isArray(c.gaps)
+      ? c.gaps
+      : isFiniteNumber(c.gapStart) && isFiniteNumber(c.gapEnd)
+        ? [{ start: c.gapStart, end: c.gapEnd }]
+        : null;
+    if (!Array.isArray(rawGaps) || rawGaps.length === 0 || rawGaps.length > 20) return null;
+    const gaps: ClozeGap[] = [];
+    for (const raw of rawGaps) {
+      if (typeof raw !== 'object' || raw === null) return null;
+      const g = raw as Record<string, unknown>;
+      if (!isFiniteNumber(g.start) || !isFiniteNumber(g.end)) return null;
+      if (g.start < 0 || g.end <= g.start || g.end > text.length) return null;
+      gaps.push({ start: g.start, end: g.end });
+    }
+    const normalized = normalizeGaps(gaps);
+    if (normalized.length === 0) return null;
+    return { kind: 'cloze', text, gaps: normalized };
   }
   return null;
 }
