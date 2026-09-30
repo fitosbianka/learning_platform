@@ -187,6 +187,7 @@ Nach einem Vorfall mit getrennten Synchronisationsablagen nachgeruestet, damit L
 * Alles zuruecksetzen trennt jetzt zuerst die Synchronisation und wirkt nur noch auf das eigene Geraet. Vorher konnte ein Zuruecksetzen den leeren Stand in die Cloudablage schieben und so auch dort den Lernstand ueberschreiben, das ist damit ausgeschlossen
 * Ein unlesbar gewordener Speicher wird nicht mehr stillschweigend durch einen frischen ersetzt, sondern unter einem Rettungsschluessel geparkt, damit nichts verloren geht
 * Die Einstellungen sagen beim Einschalten der Synchronisation jetzt deutlich, dass nur das erste Geraet einschaltet und jedes weitere sich mit dem Kopplungslink oder dem Code verbindet, sonst entstehen getrennte Ablagen
+* Einstellungen und README erklaeren zusaetzlich die Falle mit Dock und Home Bildschirm. Ein dorthin gelegtes Symbol ist eine eigene kleine App mit eigenem Speicher, beim Hinzufuegen wird kein Fortschritt kopiert, darum wird jedes solche Symbol einmal mit demselben Code verbunden
 * Abgesichert mit 6 neuen Tests fuer die Sicherungskopien, das Zusammenfuehren, das getrennte Zuruecksetzen und den Rettungsschluessel, insgesamt 168 Tests, dazu alle vier Browserdurchlaeufe, alles ohne Konsolenfehler
 
 ## Notizen zum Inhalt
