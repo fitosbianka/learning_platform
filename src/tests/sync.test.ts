@@ -131,6 +131,7 @@ describe('sync transport', () => {
     expect(await pushRemote('abcdefgh2345', payload, fakeFetch(200, { ok: true }))).toBe('ok');
     expect(await pushRemote('abcdefgh2345', payload, fakeFetch(200, { configured: false }))).toBe('unconfigured');
     expect(await pushRemote('abcdefgh2345', payload, fakeFetch(503, {}))).toBe('unconfigured');
+    expect(await pushRemote('abcdefgh2345', payload, fakeFetch(413, { error: 'too_large' }))).toBe('too_large');
     expect(await pushRemote('abcdefgh2345', payload, fakeFetch(500, {}))).toBe('error');
   });
 });

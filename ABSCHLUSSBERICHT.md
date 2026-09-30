@@ -189,6 +189,10 @@ Nach einem Vorfall mit getrennten Synchronisationsablagen nachgeruestet, damit L
 * Die Einstellungen sagen beim Einschalten der Synchronisation jetzt deutlich, dass nur das erste Geraet einschaltet und jedes weitere sich mit dem Kopplungslink oder dem Code verbindet, sonst entstehen getrennte Ablagen
 * Einstellungen und README erklaeren zusaetzlich die Falle mit Dock und Home Bildschirm. Ein dorthin gelegtes Symbol ist eine eigene kleine App mit eigenem Speicher, beim Hinzufuegen wird kein Fortschritt kopiert, darum wird jedes solche Symbol einmal mit demselben Code verbunden
 * Beim Start bittet die Plattform den Browser um dauerhaften Speicher, damit das Betriebssystem den lokalen Lernstand bei Platzmangel nicht automatisch wegraeumen kann
+* Aenderungen werden sofort hochgeladen, sobald die App in den Hintergrund geht, und beim Schliessen des Fensters geht ein letzter Sendeversuch raus. Vorher wartete jede Aenderung zweieinhalb Sekunden, ein schneller Wechsel aufs andere Geraet konnte die letzte Aenderung zuruecklassen
+* Der Kopplungslink zieht jetzt auch ein Geraet um, das schon einen anderen Code traegt, zuerst zusammenfuehren, dann wechseln. Vorher tat der Link auf so einem Geraet still gar nichts
+* Wird der Lernstand einmal zu gross fuer die Cloudablage, pausiert der Abgleich mit einer klaren Meldung samt Tipp statt einer irrefuehrenden Verbindungsfehlermeldung
+* Der Browserdurchlauf der Synchronisation probt jetzt das komplette Zusammenspiel von mehreren Geraeten. Lektionen, Karten und Notizen wandern in beide Richtungen, Loeschungen ziehen nach, der Sofortversand beim Verlassen der App wird gemessen, und ein Geraet mit eigener getrennter Ablage wird ueber den Kopplungslink geheilt, ohne dass etwas verloren geht
 * Abgesichert mit 6 neuen Tests fuer die Sicherungskopien, das Zusammenfuehren, das getrennte Zuruecksetzen und den Rettungsschluessel, insgesamt 168 Tests, dazu alle vier Browserdurchlaeufe, alles ohne Konsolenfehler
 
 ## Notizen zum Inhalt

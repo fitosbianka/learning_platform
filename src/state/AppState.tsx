@@ -158,7 +158,9 @@ export function AppStateProvider({
     async (code: string, data?: StoreData) => {
       const result = await pushRemote(code, buildSyncPayload(data ?? storeRef.current));
       if (result === 'ok') markSynced();
-      else setSyncStatus(result === 'unconfigured' ? 'unconfigured' : 'error');
+      else if (result === 'unconfigured') setSyncStatus('unconfigured');
+      else if (result === 'too_large') setSyncStatus('full');
+      else setSyncStatus('error');
       return result;
     },
     [markSynced],
@@ -257,6 +259,43 @@ export function AppStateProvider({
     }, PUSH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [store, doPush]);
+
+  // The moment the app goes into the background, changes are pushed
+  // right away instead of waiting for the debounce, and a beacon
+  // covers the final moment before a window closes for good. So a
+  // quick switch to the phone never leaves the last change behind.
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState !== 'hidden') return;
+      const code = settingsRef.current.code;
+      if (!code) return;
+      void doPush(code);
+    };
+    const onPageHide = () => {
+      const code = settingsRef.current.code;
+      if (!code) return;
+      try {
+        const payload = JSON.stringify({ code, data: buildSyncPayload(storeRef.current) });
+        const sent = navigator.sendBeacon?.('/api/sync', new Blob([payload], { type: 'application/json' }));
+        if (!sent) {
+          void fetch('/api/sync', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload,
+            keepalive: true,
+          }).catch(() => undefined);
+        }
+      } catch {
+        // The next start pulls and pushes the union anyway.
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pagehide', onPageHide);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pagehide', onPageHide);
+    };
+  }, [doPush]);
 
   // Pull on start, when the tab comes back, when the network returns
   // and in a gentle interval while the page is visible.

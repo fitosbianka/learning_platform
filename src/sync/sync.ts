@@ -40,7 +40,7 @@ export type PullResult =
   | { status: 'unconfigured' }
   | { status: 'error' };
 
-export type PushResult = 'ok' | 'unconfigured' | 'error';
+export type PushResult = 'ok' | 'unconfigured' | 'too_large' | 'error';
 
 type FetchLike = typeof fetch;
 
@@ -77,6 +77,7 @@ export async function pushRemote(
       body: JSON.stringify({ code, data: payload }),
     });
     if (response.status === 503) return 'unconfigured';
+    if (response.status === 413) return 'too_large';
     if (!response.ok) return 'error';
     const body = (await response.json()) as { configured?: boolean };
     return body.configured === false ? 'unconfigured' : 'ok';

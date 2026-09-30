@@ -283,6 +283,8 @@ export const strings = {
     neverSynced: 'Noch nie abgeglichen.',
     statusWorking: 'Wird gerade abgeglichen.',
     statusError: 'Gerade keine Verbindung zur Cloudablage. Es wird automatisch weiter versucht.',
+    statusFull:
+      'Der Lernstand ist zu gross für die Cloudablage geworden, der Abgleich pausiert. Entferne zum Beispiel ein grosses Bild aus den Notizen, danach läuft er von selbst weiter.',
     notConfigured:
       'Die Cloudablage ist noch nicht eingerichtet. Lege im Vercel Dashboard unter Storage eine Upstash Redis Datenbank an und verbinde sie mit dem Projekt learning_platform. Die genauen Schritte stehen im README unter Synchronisation.',
   },
