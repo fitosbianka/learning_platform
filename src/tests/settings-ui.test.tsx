@@ -66,6 +66,40 @@ describe('safety copies', () => {
     expect(storage.load().cards).toHaveLength(1);
   });
 
+  it('a pairing link moves a device with an old code and merges first', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        if (init?.method === 'PUT') return new Response('{"ok":true}', { status: 200 });
+        if (String(input).includes('code=bbbbmmmm2345')) {
+          return new Response(
+            JSON.stringify({
+              exists: true,
+              data: {
+                finishedLessons: [7],
+                attempts: {},
+                lastLesson: null,
+                cards: [],
+                notes: [],
+                markings: [],
+                updatedAt: '2026-09-30T10:00:00.000Z',
+              },
+            }),
+            { status: 200 },
+          );
+        }
+        return new Response('{"exists":false}', { status: 200 });
+      }),
+    );
+    const storage = makeStorage({ finishedLessons: [1] });
+    storage.saveSync({ code: 'aaaakkkk2345', lastSyncAt: null });
+    renderWith(storage, <SettingsPage joinCode="bbbbmmmm2345" />);
+
+    await screen.findByText('Verbunden. Der Lernstand beider Geräte wurde zusammengeführt.');
+    expect(storage.loadSync().code).toBe('bbbbmmmm2345');
+    expect(storage.load().finishedLessons).toEqual([1, 7]);
+  });
+
   it('resets only this device, cuts the sync link and keeps a copy', async () => {
     const user = userEvent.setup();
     const storage = makeStorage({ finishedLessons: [1, 2] });

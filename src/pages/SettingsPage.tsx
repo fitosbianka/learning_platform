@@ -3,7 +3,7 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 import { isEmptyNote } from '../notes/notes';
 import { useAppState } from '../state/context';
 import { navigate } from '../router/useHashRoute';
-import { formatSyncCode, pairingLink } from '../sync/sync';
+import { formatSyncCode, normalizeSyncCode, pairingLink } from '../sync/sync';
 import { formatDate, formatTime, strings } from '../ui/strings';
 import styles from './SettingsPage.module.css';
 
@@ -35,11 +35,13 @@ function SyncSection({ joinCode }: { joinCode: string | null }) {
   };
 
   // A pairing link opens the settings with the code in the address.
+  // It also moves a device that still carries another code, joining
+  // merges first, so nothing is lost by the switch.
   useEffect(() => {
     if (!joinCode || autoJoinRef.current) return;
     autoJoinRef.current = true;
     navigate('/einstellungen');
-    if (sync.code === null) void join(joinCode);
+    if (normalizeSyncCode(joinCode) !== sync.code) void join(joinCode);
     // join is recreated every render, run once per link on purpose.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [joinCode]);
@@ -62,11 +64,13 @@ function SyncSection({ joinCode }: { joinCode: string | null }) {
       ? ts.statusWorking
       : sync.status === 'error'
         ? ts.statusError
-        : sync.status === 'unconfigured'
-          ? ts.notConfigured
-          : sync.lastSyncAt
-            ? `${ts.statusOk} ${ts.lastSync(formatTime(sync.lastSyncAt))}`
-            : ts.neverSynced;
+        : sync.status === 'full'
+          ? ts.statusFull
+          : sync.status === 'unconfigured'
+            ? ts.notConfigured
+            : sync.lastSyncAt
+              ? `${ts.statusOk} ${ts.lastSync(formatTime(sync.lastSyncAt))}`
+              : ts.neverSynced;
 
   return (
     <section className={`card ${styles.section}`} aria-label={ts.title}>

@@ -6,7 +6,7 @@ import type { Marking } from '../marks/marks';
 
 export type Theme = 'light' | 'dark';
 
-export type SyncStatus = 'off' | 'ok' | 'working' | 'error' | 'unconfigured';
+export type SyncStatus = 'off' | 'ok' | 'working' | 'error' | 'unconfigured' | 'full';
 
 export interface SyncState {
   code: string | null;
