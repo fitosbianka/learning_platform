@@ -25,6 +25,18 @@ const t = strings.anki;
 
 type Phase = { name: 'answering' } | { name: 'revealed' } | { name: 'feedback'; correct: boolean };
 
+/** Every session shuffles its cards, never the order they were written. */
+function shuffled<T>(items: T[]): T[] {
+  const arr = [...items];
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const swap = arr[i] as T;
+    arr[i] = arr[j] as T;
+    arr[j] = swap;
+  }
+  return arr;
+}
+
 function correctAnswerText(content: CardContent): string {
   if (content.kind === 'qa') return content.answer;
   if (content.kind === 'choice') {
@@ -91,7 +103,7 @@ function ClozePrompt({ content, typed, disabled, onType, onCheck }: {
 
 export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => void }) {
   const { cards, passCardReview, failCardReview } = useAppState();
-  const [queue, setQueue] = useState<string[]>(() => dueCards(cards, today).map((c) => c.id));
+  const [queue, setQueue] = useState<string[]>(() => shuffled(dueCards(cards, today).map((c) => c.id)));
   const [doneCount, setDoneCount] = useState(0);
   const [phase, setPhase] = useState<Phase>({ name: 'answering' });
   const [typed, setTyped] = useState<string[]>([]);
@@ -139,7 +151,7 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
 
   /** Question cards uncover their answer first. */
   const reveal = () => {
-    if (phase.name === 'answering') setPhase({ name: 'revealed' });
+    if (phase.name === 'answering' && card?.content.kind === 'qa') setPhase({ name: 'revealed' });
   };
 
   /** The honest self check on a question card. */
@@ -159,22 +171,35 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
     setShownRound(null);
   };
 
-  // Keyboard support. Enter continues or reveals, the digits pick an
-  // answer or grade the self check. The cloze input handles Enter itself.
+  /** Space and Enter walk the session, question, answer, next card. */
+  const stepAhead = (): boolean => {
+    if (phase.name === 'feedback') {
+      next();
+      return true;
+    }
+    if (card?.content.kind === 'qa') {
+      if (phase.name === 'answering') {
+        reveal();
+        return true;
+      }
+      if (phase.name === 'revealed') {
+        grade(true);
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Keyboard support. Space or Enter steps ahead, the digits pick an
+  // answer or grade the self check. The cloze input handles its own keys.
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
-      if (e.key === 'Enter') {
-        if (phase.name === 'feedback') {
-          e.preventDefault();
-          next();
-          return;
-        }
-        if (phase.name === 'answering' && card?.content.kind === 'qa') {
-          e.preventDefault();
-          reveal();
-          return;
-        }
+      const target = e.target instanceof HTMLElement ? e.target : null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      if (e.key === ' ' || e.key === 'Enter') {
+        if (stepAhead()) e.preventDefault();
+        return;
       }
       if (phase.name === 'revealed') {
         if (e.key === '1') grade(true);
@@ -209,7 +234,15 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
   const showFeedback = phase.name === 'feedback';
 
   return (
-    <section className={`card ${styles.sessionCard}`} aria-label={t.title}>
+    <section
+      className={`card ${styles.sessionCard}`}
+      aria-label={t.title}
+      // A tap on the free card area steps ahead, for iPad and iPhone.
+      onClick={(e) => {
+        if (e.target instanceof Element && e.target.closest('button, input, a, select, textarea')) return;
+        stepAhead();
+      }}
+    >
       <div className={styles.sessionHead}>
         <span className={styles.roundBadge}>{t.roundBadge(shownRound ?? reviewNumber(card))}</span>
         <span className={styles.remaining}>{t.remaining(queue.length)}</span>
@@ -223,10 +256,10 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
           <p className={styles.prompt}>{content.question}</p>
           {phase.name === 'answering' && (
             <>
-              <p className={styles.selfHint}>{t.selfAnswerHint}</p>
               <button type="button" className="btn btnPrimary" onClick={reveal}>
                 {t.reveal}
               </button>
+              <p className={styles.gradeNote}>{t.revealHint}</p>
             </>
           )}
           {phase.name === 'revealed' && (
@@ -244,7 +277,9 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
                   {t.notKnew}
                 </button>
               </div>
-              <p className={styles.gradeNote}>{t.notKnewNote}</p>
+              <p className={styles.gradeNote}>
+                {t.gradeSpaceHint} {t.notKnewNote}
+              </p>
             </>
           )}
         </>
@@ -308,6 +343,7 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
           <button type="button" className="btn btnPrimary" onClick={next}>
             {t.next}
           </button>
+          <p className={styles.gradeNote}>{t.continueHint}</p>
         </div>
       )}
     </section>

@@ -86,16 +86,17 @@ export function AnkiPage() {
   const learnedCount = cards.filter(isLearned).length;
 
   return (
-    <div className="container">
-      <header className={styles.header}>
-        <h1>{t.title}</h1>
-        <p className={styles.subtitle}>{t.subtitle}</p>
-      </header>
-
+    <div className={`container ${reviewing ? 'containerWide' : ''}`}>
       {reviewing ? (
-        <ReviewSession today={today} onQuit={() => setReviewing(false)} />
+        <div className={styles.sessionStage}>
+          <ReviewSession today={today} onQuit={() => setReviewing(false)} />
+        </div>
       ) : (
         <>
+          <header className={styles.header}>
+            <h1>{t.title}</h1>
+            <p className={styles.subtitle}>{t.subtitle}</p>
+          </header>
           <section className={`card ${styles.dueCard}`} aria-label={t.title}>
             {due.length > 0 ? (
               <>

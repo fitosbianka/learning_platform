@@ -173,33 +173,56 @@ async function main() {
   // wrongly on purpose, it must return at the end of the queue.
   await page.getByRole('button', { name: 'Jetzt lernen' }).click();
   await page.getByText('Noch 3 Karten heute').waitFor();
-  await page.getByLabel('Deine Antwort für Lücke 1').fill('absichtlich falsch');
-  await page.getByRole('button', { name: 'Prüfen' }).click();
-  await page.getByText('Leider nicht richtig').waitFor();
-  await page.getByText('fällt zurück auf Durchgang 1').waitFor();
-  const clozeAnswer = (await page.locator('[class*="feedbackAnswer"] strong').textContent()) ?? '';
-  check(clozeAnswer.trim().length > 0, 'session. missing correct answer text after a wrong cloze answer');
-  await page.getByRole('button', { name: 'Weiter', exact: true }).click();
 
-  // The question card, revealed and graded as known.
-  await page.getByText('Wie viele Milchzähne hat der Mensch?').waitFor();
-  await page.getByRole('button', { name: 'Antwort zeigen' }).click();
-  await page.getByText('Zwanzig, pro Kieferhälfte fünf.').waitFor();
-  await page.getByRole('button', { name: 'Gewusst', exact: true }).click();
-
-  // Auswahl card, correct right away.
-  await page.getByText('Welches Material ist zahnfarben?').waitFor();
-  await page.getByRole('button', { name: /Komposit/ }).click();
-  await page.getByText('Richtig!').waitFor();
-  await page.getByRole('button', { name: 'Weiter', exact: true }).click();
-
-  // The cloze card returns, now with the captured correct answer.
-  await page.getByText('Noch 1 Karte heute').waitFor();
-  await page.getByLabel('Deine Antwort für Lücke 1').fill(clozeAnswer.trim());
-  await page.getByRole('button', { name: 'Prüfen' }).click();
-  await page.getByText('Richtig!').waitFor();
-  await page.screenshot({ path: join(shotsDir, 'anki-lernen.jpg'), fullPage: false, quality: 60, type: 'jpeg' });
-  await page.getByRole('button', { name: 'Weiter', exact: true }).click();
+  // The queue is shuffled every session, so handle whatever card comes
+  // until the day is done. The cloze card is missed once on purpose.
+  let clozeAnswer = '';
+  let clozeWrongDone = false;
+  let sessionShot = false;
+  for (let step = 0; step < 12; step += 1) {
+    if (await page.getByText('Alles erledigt für heute!').isVisible().catch(() => false)) break;
+    if (await page.getByRole('button', { name: 'Antwort zeigen' }).isVisible().catch(() => false)) {
+      // Question up, space shows the answer, space counts as known.
+      await page.getByText('Wie viele Milchzähne hat der Mensch?').waitFor();
+      const early = await page.getByText('Zwanzig, pro Kieferhälfte fünf.').isVisible().catch(() => false);
+      check(!early, 'session. the answer must stay hidden until space');
+      await page.keyboard.press('Space');
+      await page.getByText('Zwanzig, pro Kieferhälfte fünf.').waitFor();
+      await page.keyboard.press('Space');
+      continue;
+    }
+    if (await page.getByRole('button', { name: /Komposit/ }).isVisible().catch(() => false)) {
+      await page.getByRole('button', { name: /Komposit/ }).click();
+      await page.getByText('Richtig!').waitFor();
+      // Space walks on after the feedback.
+      await page.keyboard.press('Space');
+      continue;
+    }
+    const gapInput = page.getByLabel('Deine Antwort für Lücke 1');
+    if (await gapInput.isVisible().catch(() => false)) {
+      if (!clozeWrongDone) {
+        await gapInput.fill('absichtlich falsch');
+        await page.getByRole('button', { name: 'Prüfen' }).click();
+        await page.getByText('Leider nicht richtig').waitFor();
+        await page.getByText('fällt zurück auf Durchgang 1').waitFor();
+        clozeAnswer = ((await page.locator('[class*="feedbackAnswer"] strong').textContent()) ?? '').trim();
+        check(clozeAnswer.length > 0, 'session. missing correct answer text after a wrong cloze answer');
+        clozeWrongDone = true;
+      } else {
+        await gapInput.fill(clozeAnswer);
+        await page.getByRole('button', { name: 'Prüfen' }).click();
+        await page.getByText('Richtig!').waitFor();
+        if (!sessionShot) {
+          await page.screenshot({ path: join(shotsDir, 'anki-lernen.jpg'), fullPage: false, quality: 60, type: 'jpeg' });
+          sessionShot = true;
+        }
+      }
+      await page.getByRole('button', { name: 'Weiter', exact: true }).click();
+      continue;
+    }
+    await page.waitForTimeout(200);
+  }
+  check(clozeWrongDone, 'session. the cloze card never appeared');
   await page.getByText('Alles erledigt für heute!').waitFor();
   await page.getByRole('button', { name: 'Zur Übersicht' }).click();
 

@@ -151,3 +151,18 @@
   display: flex;
   gap: 6px;
 }
+
+.sessionStage {
+  min-height: calc(100vh - var(--topbar-h) - 24px);
+  min-height: calc(100dvh - var(--topbar-h) - 24px);
+  display: grid;
+  place-items: center;
+  padding: 24px 0;
+}
+
+@media (max-width: 640px) {
+  .sessionStage {
+    align-items: start;
+    padding-top: 14px;
+  }
+}
