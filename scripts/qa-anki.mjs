@@ -145,7 +145,8 @@ async function main() {
   await page.getByRole('heading', { name: 'Neue Lernkarte' }).waitFor();
   await page.getByLabel('Gehört zu Lektion').selectOption('3');
   await page.getByLabel('Frage', { exact: true }).fill('Wie viele Milchzähne hat der Mensch?');
-  await page.getByLabel('Antwort', { exact: true }).fill('Zwanzig, pro Kieferhälfte fünf.');
+  // The answer holds two rows, they must survive onto the study card.
+  await page.getByLabel('Antwort', { exact: true }).fill('Zwanzig.\nPro Kieferhälfte fünf.');
   await page.getByRole('button', { name: 'Speichern' }).click();
   await page.getByText('Heute 2 Karten zum Wiederholen').waitFor();
 
@@ -167,6 +168,13 @@ async function main() {
   await page.getByRole('heading', { name: /2\. Das Gebiss/ }).waitFor();
   await page.getByRole('heading', { name: /3\. Zahnschema/ }).waitFor();
   await page.getByRole('heading', { name: /9\. Füllungen/ }).waitFor();
+
+  // The arrow next to a lesson title folds the group shut and open.
+  const groupToggle = page.getByRole('button', { name: /3\. Zahnschema/ });
+  await groupToggle.click();
+  await page.getByText('Wie viele Milchzähne hat der Mensch?').waitFor({ state: 'detached' });
+  await groupToggle.click();
+  await page.getByText('Wie viele Milchzähne hat der Mensch?').waitFor();
   await page.screenshot({ path: join(shotsDir, 'anki.jpg'), fullPage: true, quality: 60, type: 'jpeg' });
 
   // 5. The learning session. First card is the cloze card, answer it
@@ -184,10 +192,13 @@ async function main() {
     if (await page.getByRole('button', { name: 'Antwort zeigen' }).isVisible().catch(() => false)) {
       // Question up, space shows the answer, space counts as known.
       await page.getByText('Wie viele Milchzähne hat der Mensch?').waitFor();
-      const early = await page.getByText('Zwanzig, pro Kieferhälfte fünf.').isVisible().catch(() => false);
+      const early = await page.getByText('Pro Kieferhälfte fünf.').isVisible().catch(() => false);
       check(!early, 'session. the answer must stay hidden until space');
       await page.keyboard.press('Space');
-      await page.getByText('Zwanzig, pro Kieferhälfte fünf.').waitFor();
+      await page.getByText('Pro Kieferhälfte fünf.').waitFor();
+      // The answer keeps its two rows exactly as written.
+      const answerText = await page.locator('[class*="qaAnswerText"]').innerText();
+      check(answerText.includes('\n'), 'session. the answer lost its line break');
       await page.keyboard.press('Space');
       continue;
     }
@@ -205,6 +216,9 @@ async function main() {
         await page.getByRole('button', { name: 'Prüfen' }).click();
         await page.getByText('Leider nicht richtig').waitFor();
         await page.getByText('fällt zurück auf Durchgang 1').waitFor();
+        // Her own answer stays in the gap, red, with the correct one below.
+        const blankText = (await page.locator('[class*="gapBlank"]').first().textContent()) ?? '';
+        check(blankText.includes('absichtlich'), 'session. the typed answer vanished from the gap');
         // The wrong verdict offers the override button.
         await page.getByRole('button', { name: 'Meine Antwort war richtig' }).waitFor();
         clozeAnswer = ((await page.locator('[class*="feedbackAnswer"] strong').textContent()) ?? '').trim();

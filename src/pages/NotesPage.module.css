@@ -75,8 +75,50 @@
   margin: 0;
 }
 
+.noteHeadText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.groupToggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.groupToggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.chevron {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  margin-top: -3px;
+  border-right: 2px solid var(--text-soft);
+  border-bottom: 2px solid var(--text-soft);
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+}
+
+.chevronOpen {
+  margin-top: -5px;
+  transform: rotate(45deg);
+}
+
 .noteMeta {
-  margin: 2px 0 0;
+  margin: 2px 0 0 19px;
   color: var(--text-soft);
   font-size: 0.85rem;
 }

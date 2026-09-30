@@ -116,6 +116,17 @@ async function main() {
   await page.keyboard.press('Shift+Home');
   await page.getByRole('button', { name: 'Leuchtstift' }).click();
 
+  // Pressing the pen again on the painted line takes the paint off,
+  // even when the selection sweeps a little past the mark. Then the
+  // line is painted once more for the rest of the run.
+  await page.keyboard.press('Shift+Home');
+  await page.getByRole('button', { name: 'Leuchtstift' }).click();
+  const cleared = await editor.innerHTML();
+  check(!cleared.includes('<mark'), 'editor. the Leuchtstift did not come off again');
+  await page.keyboard.press('Shift+Home');
+  await page.getByRole('button', { name: 'Leuchtstift' }).click();
+  check((await editor.innerHTML()).includes('<mark'), 'editor. the second Leuchtstift pass left no mark');
+
   // A centered closing line below the list.
   await page.keyboard.press('End');
   await page.keyboard.press('Enter');
@@ -229,6 +240,15 @@ async function main() {
   await page.getByRole('heading', { name: /Lektion 9\. Füllungen/ }).waitFor();
   await page.getByText('Notizen zu 2 Lektionen', { exact: false }).waitFor();
   await page.screenshot({ path: join(shotsDir, 'notizen.jpg'), fullPage: true, quality: 60, type: 'jpeg' });
+
+  // The arrow next to a title folds the note shut and open again.
+  const noteToggle = page.getByRole('button', { name: /Lektion 2\. Das Gebiss/ });
+  await noteToggle.click();
+  await page.locator('[data-lesson="2"]').waitFor({ state: 'detached' });
+  const foldedActions = await page.getByRole('button', { name: 'Kopieren' }).count();
+  check(foldedActions === 1, `notes page. expected 1 Kopieren button while folded, found ${foldedActions}`);
+  await noteToggle.click();
+  await page.locator('[data-lesson="2"]').waitFor();
 
   // A learn card also grows straight out of a note on this page, filed
   // under the note's lesson.

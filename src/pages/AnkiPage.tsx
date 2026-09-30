@@ -69,6 +69,16 @@ export function AnkiPage() {
   const [reviewing, setReviewing] = useState(false);
   const [editing, setEditing] = useState<AnkiCard | 'new' | null>(null);
   const [deleting, setDeleting] = useState<AnkiCard | null>(null);
+  // Lessons the arrow has folded shut, everything starts open.
+  const [closed, setClosed] = useState<ReadonlySet<number>>(new Set());
+
+  const toggleLesson = (id: number) =>
+    setClosed((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   // The date can roll over while the tab stays open overnight.
   useEffect(() => {
@@ -139,24 +149,43 @@ export function AnkiPage() {
                 <h2 className={styles.weekTitle}>
                   Woche {week.week}. {week.title}
                 </h2>
-                {lessonsWithCards.map(({ meta, list }) => (
-                  <div key={meta.id} className={`card ${styles.lessonGroup}`}>
-                    <h3 className={styles.lessonTitle}>
-                      {meta.id}. {meta.title}
-                    </h3>
-                    <ul className={styles.cardList}>
-                      {list.map((card) => (
-                        <CardRow
-                          key={card.id}
-                          card={card}
-                          today={today}
-                          onEdit={() => setEditing(card)}
-                          onDelete={() => setDeleting(card)}
-                        />
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+                {lessonsWithCards.map(({ meta, list }) => {
+                  const open = !closed.has(meta.id);
+                  return (
+                    <div key={meta.id} className={`card ${styles.lessonGroup}`}>
+                      <h3 className={styles.lessonTitle}>
+                        <button
+                          type="button"
+                          className={styles.groupToggle}
+                          aria-expanded={open}
+                          onClick={() => toggleLesson(meta.id)}
+                        >
+                          <span
+                            className={`${styles.chevron} ${open ? styles.chevronOpen : ''}`}
+                            aria-hidden="true"
+                          />
+                          <span className={styles.groupLabel}>
+                            {meta.id}. {meta.title}
+                          </span>
+                          <span className={styles.groupCount}>{list.length}</span>
+                        </button>
+                      </h3>
+                      {open && (
+                        <ul className={styles.cardList}>
+                          {list.map((card) => (
+                            <CardRow
+                              key={card.id}
+                              card={card}
+                              today={today}
+                              onEdit={() => setEditing(card)}
+                              onDelete={() => setDeleting(card)}
+                            />
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })}
               </section>
             );
           })}
