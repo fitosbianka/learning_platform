@@ -6,7 +6,6 @@
 
 import { useEffect, useState } from 'react';
 import {
-  cardKindLabel,
   cardTitle,
   dueByReview,
   dueCards,
@@ -47,7 +46,6 @@ function CardRow({ card, today, onEdit, onDelete }: {
   return (
     <li className={styles.cardRow}>
       <div className={styles.cardRowMain}>
-        <span className={styles.kindChip}>{cardKindLabel(card.content.kind)}</span>
         <span className={styles.cardText}>{cardTitle(card)}</span>
       </div>
       <div className={styles.cardRowSide}>

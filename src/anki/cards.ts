@@ -215,11 +215,7 @@ export function cardTitle(card: AnkiCard): string {
   const content = card.content;
   const text =
     content.kind === 'qa' ? content.question : content.kind === 'choice' ? content.question : content.text;
-  return text.length > 90 ? `${text.slice(0, 87)}…` : text;
-}
-
-export function cardKindLabel(kind: CardContent['kind']): string {
-  return kind === 'qa' ? 'Frage und Antwort' : kind === 'choice' ? 'Auswahl' : 'Lückentext';
+  return text.length > 140 ? `${text.slice(0, 137)}…` : text;
 }
 
 /**
