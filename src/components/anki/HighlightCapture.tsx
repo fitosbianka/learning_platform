@@ -21,6 +21,8 @@ export interface HighlightDraft {
   sentence: string;
   /** The heading of the section the highlight belongs to */
   heading: string;
+  /** Lesson of the nearest data lesson wrapper, when one exists */
+  lessonId: number | null;
 }
 
 interface Spot {
@@ -37,10 +39,14 @@ export function HighlightCapture({
   containerRef,
   onCapture,
   onMark,
+  showMark = true,
 }: {
   containerRef: React.RefObject<HTMLElement | null>;
   onCapture: (draft: HighlightDraft) => void;
-  onMark: (anchor: TextAnchor) => void;
+  /** Required while the marker button shows */
+  onMark?: (anchor: TextAnchor) => void;
+  /** The notes offer only the card button, the lessons offer both */
+  showMark?: boolean;
 }) {
   const [spot, setSpot] = useState<Spot | null>(null);
   const frameRef = useRef(0);
@@ -88,12 +94,19 @@ export function HighlightCapture({
     // the card suggestions their context.
     let sentence = '';
     let heading = '';
+    let lessonId: number | null = null;
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
       const startEl =
         range.startContainer instanceof Element ? range.startContainer : range.startContainer.parentElement;
-      const block = startEl?.closest('p, li, h2, h3, figcaption');
+      // Notes write plain div lines, they count as a block too as long
+      // as they are a single line and not a whole container.
+      let block = startEl?.closest('p, li, h2, h3, figcaption') ?? null;
+      if (!block) {
+        const div = startEl?.closest('div') ?? null;
+        if (div && (div.textContent ?? '').length <= 600) block = div;
+      }
       if (block && block.contains(range.endContainer)) {
         const blockText = (block.textContent ?? '').replace(/\s+/g, ' ').trim();
         const probe = text.slice(0, 24).toLowerCase();
@@ -101,16 +114,19 @@ export function HighlightCapture({
         sentence = pieces.find((piece) => piece.toLowerCase().includes(probe)) ?? blockText;
       }
       heading = startEl?.closest('section')?.querySelector('h2')?.textContent?.trim() ?? '';
+      const lessonAttr = startEl?.closest('[data-lesson]')?.getAttribute('data-lesson');
+      const parsed = lessonAttr ? Number(lessonAttr) : NaN;
+      lessonId = Number.isInteger(parsed) && parsed >= 1 && parsed <= 21 ? parsed : null;
     }
     setSpot(null);
     window.getSelection()?.removeAllRanges();
-    onCapture({ text, sentence, heading });
+    onCapture({ text, sentence, heading, lessonId });
   };
 
   const mark = () => {
     const container = containerRef.current;
     const selection = window.getSelection();
-    if (!container || !selection || selection.rangeCount === 0) return;
+    if (!container || !selection || selection.rangeCount === 0 || !onMark) return;
     const anchor = rangeToAnchor(buildTextIndex(container), selection.getRangeAt(0));
     setSpot(null);
     selection.removeAllRanges();
@@ -125,19 +141,23 @@ export function HighlightCapture({
       // the menu would vanish before the click arrives.
       onMouseDown={(e) => e.preventDefault()}
     >
-      <button
-        type="button"
-        className={styles.menuButton}
-        onTouchEnd={(e) => {
-          e.preventDefault();
-          mark();
-        }}
-        onClick={mark}
-      >
-        <span className={styles.markSwatch} aria-hidden="true" />
-        {tm.markButton}
-      </button>
-      <span className={styles.divider} aria-hidden="true" />
+      {showMark && (
+        <>
+          <button
+            type="button"
+            className={styles.menuButton}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              mark();
+            }}
+            onClick={mark}
+          >
+            <span className={styles.markSwatch} aria-hidden="true" />
+            {tm.markButton}
+          </button>
+          <span className={styles.divider} aria-hidden="true" />
+        </>
+      )}
       <button
         type="button"
         className={styles.menuButton}

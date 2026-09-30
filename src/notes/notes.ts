@@ -106,7 +106,7 @@ function cleanNode(node: Node, doc: Document, target: Node): void {
  * Without a DOM (never the case in the app) it falls back to plain text.
  */
 export function sanitizeNoteHtml(html: string): string {
-  const plain = html.replace(/​/g, '');
+  const plain = html.replace(/\u200b/g, '');
   const capped = plain.length > NOTE_MAX_CHARS ? plain.slice(0, NOTE_MAX_CHARS) : plain;
   try {
     const doc = new DOMParser().parseFromString(`<body>${capped}</body>`, 'text/html');

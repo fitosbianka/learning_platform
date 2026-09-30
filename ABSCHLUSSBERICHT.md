@@ -141,6 +141,15 @@ Auf Wunsch nachgeruestet.
 * Ausrichtung, verschachtelte Listen und Markierungen ueberleben Speichern, Synchronisation, die Seite Notizen und den PDF Druck, die Markerfarbe wird beim Drucken ausdruecklich mitgedruckt
 * Abgesichert mit 6 neuen Tests fuer die Bereinigung von Ausrichtung, Marker und verschachtelten Listen sowie den Leuchtstift selbst, dazu der erweiterte Browserdurchlauf mit Tab, Marker und Zentrierung bis ins Druckblatt, alles ohne Konsolenfehler
 
+## Nachtrag. Lernkarten aus den Notizen
+
+Auf Wunsch nachgeruestet. Markierter Text in den eigenen Notizen bietet jetzt ebenfalls eine Lernkarte an.
+
+* Im Schreibbereich neben der Lektion erscheint bei einer Auswahl der Knopf Lernkarte, die Karte gehoert zur Lektion der Notiz
+* Auf der Seite Notizen genauso, dort erkennt der Editor die Lektion der angewaehlten Notiz und stellt sie im Auswahlfeld voreingestellt bereit
+* Die fertigen Vorschlaege fuer alle drei Kartenarten funktionieren wie beim Markieren im Lernstoff, samt Satzmuster und Glossarantworten
+* Abgesichert im Browserdurchlauf fuer beide Wege bis in den Kartenspeicher, ohne Konsolenfehler
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.

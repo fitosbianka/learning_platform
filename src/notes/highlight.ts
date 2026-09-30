@@ -85,7 +85,7 @@ export function toggleHighlight(root: HTMLElement): boolean {
     // it disappears again when the note is saved.
     selection.removeAllRanges();
     if (lastMark) {
-      const buffer = document.createTextNode('​');
+      const buffer = document.createTextNode('\u200b');
       lastMark.parentNode?.insertBefore(buffer, lastMark.nextSibling);
       const caret = document.createRange();
       caret.setStart(buffer, 1);

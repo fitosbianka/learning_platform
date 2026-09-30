@@ -148,6 +148,7 @@ export function LessonPage({
   const [removeSpot, setRemoveSpot] = useState<{ id: string; top: number; left: number } | null>(null);
   const [imageSpot, setImageSpot] = useState<{ top: number; left: number } | null>(null);
   const articleRef = useRef<HTMLElement>(null);
+  const notesAsideRef = useRef<HTMLElement>(null);
   const testRef = useRef<HTMLDivElement>(null);
   const toastTimerRef = useRef(0);
   const imageSvgRef = useRef<SVGSVGElement | null>(null);
@@ -424,6 +425,7 @@ export function LessonPage({
         </div>
         {notesOpen && (
           <aside
+            ref={notesAsideRef}
             className={styles.notesCol}
             onClick={(e) => {
               // On the phone the pane floats over a backdrop, a tap on
@@ -443,6 +445,9 @@ export function LessonPage({
         onCapture={setCardDraft}
         onMark={(anchor) => addMarking(newMarking(lessonId, anchor))}
       />
+
+      {/* Selections inside the notes pane offer a card as well. */}
+      <HighlightCapture containerRef={notesAsideRef} onCapture={setCardDraft} showMark={false} />
 
       {removeSpot && (
         <MarkRemoveButton
