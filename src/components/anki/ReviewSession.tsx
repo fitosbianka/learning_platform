@@ -13,6 +13,7 @@ import {
   clozeAnswers,
   clozeSegments,
   dueCards,
+  normalizeAnswer,
   reviewNumber,
   type AnkiCard,
   type CardContent,
@@ -69,9 +70,11 @@ function ClozePrompt({ content, typed, disabled, solved, onType, onCheck }: {
           const value = typed[segment.index] ?? '';
           const right = value.trim() !== '' && answerMatches(value, segment.text);
           if (disabled) {
+            // Her own words stay visible, the correct answer stands
+            // below the card in the feedback.
             return (
               <span key={i} className={`${styles.gapBlank} ${solved || right ? styles.gapRight : styles.gapWrong}`}>
-                {segment.text}
+                {value.trim() !== '' ? value : segment.text}
               </span>
             );
           }
@@ -265,6 +268,11 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
 
   const content = card.content;
   const showFeedback = phase.name === 'feedback';
+  // After a forgiving pass, a typo or a swap, the exact wording is
+  // still worth a look under the card.
+  const typedDiffers =
+    content.kind === 'cloze' &&
+    clozeAnswers(content).some((answer, i) => normalizeAnswer(typed[i] ?? '') !== normalizeAnswer(answer));
 
   return (
     <section
@@ -370,7 +378,7 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
           role="status"
         >
           <p className={styles.feedbackLead}>{phase.correct ? t.correctFeedback : t.wrongFeedback}</p>
-          {!phase.correct && (
+          {(!phase.correct || typedDiffers) && (
             <p className={styles.feedbackAnswer}>
               {t.correctAnswerIs} <strong>{correctAnswerText(content)}</strong>
             </p>

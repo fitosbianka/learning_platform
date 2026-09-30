@@ -91,6 +91,24 @@ describe('notes page', () => {
     expect(stored?.html).toBe('');
   });
 
+  it('folds a note shut with the arrow and open again', async () => {
+    const user = userEvent.setup();
+    const storage = makeStorage({ notes: [note(2, '<p>Zahnwechsel beginnt mit sechs.</p>')] });
+    renderWith(storage, <NotesPage />);
+
+    const toggle = screen.getByRole('button', { name: /Lektion 2\. Das Gebiss/ });
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText('Zahnwechsel beginnt mit sechs.')).toBeInTheDocument();
+
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('Zahnwechsel beginnt mit sechs.')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Kopieren' })).not.toBeInTheDocument();
+
+    await user.click(toggle);
+    expect(screen.getByText('Zahnwechsel beginnt mit sechs.')).toBeInTheDocument();
+  });
+
   it('prints a note into the print area and cleans up after the dialog', async () => {
     const user = userEvent.setup();
     const printSpy = vi.fn();

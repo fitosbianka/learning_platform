@@ -91,10 +91,12 @@ Wiederholungsplan
 * Beim Lernen prueft die Seite jede Antwort und zeigt bei einem Fehler die richtige Loesung. Eine falsche oder nicht gewusste Antwort wirft die Karte zurueck auf Durchgang 1, der Plan beginnt fuer sie von vorne. Am selben Tag kommt sie so lange wieder, bis sie sitzt, erst dann rueckt sie weiter.
 * Beim Lueckentext zeigt jede Luecke ihre Bewertung sofort. Ein passendes Wort faerbt das Feld schon beim Tippen gruen, ein falsches wird rot, sobald du die Luecke verlaesst. Die Pruefung bewertet grosszuegig, kleine Tippfehler, Umlaute als ae oe ue, eine andere Wortreihenfolge innerhalb der Antwort und richtige Woerter in vertauschten Luecken zaehlen als richtig. Haelt die Pruefung eine richtige Antwort trotzdem fuer falsch, nimmt der Knopf Meine Antwort war richtig die Rueckstufung zurueck und die Karte zaehlt als gewusst.
 * Die Lernkarte steht gross in der Bildschirmmitte. Die Leertaste oder ein Tipp auf die Karte geht voran, Frage, Antwort, naechste Karte. Bei Fragekarten zaehlt das als Gewusst, fuer Nicht gewusst gibt es den eigenen Knopf. Die faelligen Karten kommen in jeder Runde in zufaelliger Reihenfolge.
+* Die Karte zeigt Frage und Antwort genau so, wie sie geschrieben wurden. Zeilenumbrueche und aufgezaehlte Zeilen bleiben auf der Lernkarte erhalten.
+* Nach dem Pruefen einer Luecke bleibt die eigene Antwort im Satz stehen, gruen oder rot eingefaerbt. Die richtige Loesung steht darunter im Feld Richtig ist, auch dann, wenn eine grosszuegig gewertete Antwort leicht vom Original abweicht.
 
 Verwaltung
 
-* Auf der Seite Anki sind alle Karten nach Woche und darunter nach Lektion gruppiert. Dort lassen sie sich bearbeiten und loeschen.
+* Auf der Seite Anki sind alle Karten nach Woche und darunter nach Lektion gruppiert. Der Pfeil neben jedem Lektionstitel klappt die Gruppe zu und wieder auf, eine kleine Zahl zeigt, wie viele Karten darin stecken. Dort lassen sie sich bearbeiten und loeschen.
 * Die Karten laufen ueber die gleiche Synchronisation wie der Lernstand und erscheinen damit automatisch auch auf dem anderen Geraet.
 
 ## 6. Markieren im Text
@@ -110,11 +112,11 @@ Beim Markieren einer Textstelle in einer Lektion erscheinen zwei Knoepfe. Markie
 Zu jeder Lektion gibt es eigene Notizen, im gleichen klaren Look wie der Rest der Plattform.
 
 * In der Lektion den Knopf Notizen druecken. Auf grossen Bildschirmen teilt sich die Seite, links der Lernstoff, rechts die Notizen. Auf dem Handy legen sich die Notizen ueber die Lektion.
-* Beim Schreiben stehen Titel, Untertitel, Fett, Kursiv, Unterstrichen, Aufzaehlung, nummerierte Liste, drei Schriftarten und vier Schriftgroessen bereit. Dazu die Ausrichtung links, zentriert oder rechts, Unterpunkte und Unterunterpunkte per Tab oder ueber die Einrueckknoepfe, und ein gelber Leuchtstift fuer markierte Stellen. Alles davon bleibt gespeichert, synchronisiert mit und erscheint im PDF Druck.
+* Beim Schreiben stehen Titel, Untertitel, Fett, Kursiv, Unterstrichen, Aufzaehlung, nummerierte Liste, drei Schriftarten und vier Schriftgroessen bereit. Dazu die Ausrichtung links, zentriert oder rechts, Unterpunkte und Unterunterpunkte per Tab oder ueber die Einrueckknoepfe, und ein gelber Leuchtstift fuer markierte Stellen. Ein zweiter Druck auf den Leuchtstift bei angewaehlter markierter Stelle nimmt die Markierung wieder weg, auch wenn die Auswahl etwas ueber den Rand hinausgeht. Alles davon bleibt gespeichert, synchronisiert mit und erscheint im PDF Druck.
 * Der Knopf Speichern sichert sofort, zusaetzlich wird kurz nach dem Tippen automatisch gesichert. Die Notizen wandern ueber die Synchronisation mit auf die anderen Geraete.
 * Ein Tipp auf eine Zeichnung in der Lektion bietet Bild in die Notizen einfügen an. Die Zeichnung landet gestochen scharf in den Notizen der Lektion, samt Bildunterschrift, und erscheint auch im PDF Druck.
 * Markierter Text in den Notizen bietet Lernkarte an, im Schreibbereich neben der Lektion genauso wie auf der Seite Notizen. Die Karte wird der Lektion der Notiz zugeordnet und kommt mit denselben fertigen Vorschlaegen wie beim Markieren im Lernstoff.
-* Die Seite Notizen sammelt alle Notizblaetter nach Woche und Lektion. Dort gibt es pro Notiz Kopieren fuer die Notizen App auf MacBook oder Handy, Teilen fuers Handy, Als PDF drucken sowie Loeschen, und oben Alle als PDF drucken.
+* Die Seite Notizen sammelt alle Notizblaetter nach Woche und Lektion. Der Pfeil neben jedem Lektionstitel klappt die Notiz zu und wieder auf. Dort gibt es pro Notiz Kopieren fuer die Notizen App auf MacBook oder Handy, Teilen fuers Handy, Als PDF drucken sowie Loeschen, und oben Alle als PDF drucken.
 
 ## 8. Tests und Qualitaetslauf
 

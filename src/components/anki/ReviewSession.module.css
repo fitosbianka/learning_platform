@@ -52,6 +52,8 @@
   font-size: 1.4rem;
   line-height: 1.55;
   margin-bottom: 22px;
+  /* Line breaks and bullet rows stay exactly as they were written. */
+  white-space: pre-wrap;
 }
 
 @media (max-width: 640px) {
@@ -87,6 +89,7 @@
   align-items: center;
   gap: 12px;
   min-height: 48px;
+  white-space: pre-wrap;
   padding: 10px 18px;
   border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-small);
@@ -238,6 +241,7 @@
   margin: 0;
   font-size: 1.15rem;
   line-height: 1.6;
+  white-space: pre-wrap;
 }
 
 .selfGrade {

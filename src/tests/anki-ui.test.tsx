@@ -260,6 +260,9 @@ describe('review session', () => {
     await user.type(screen.getByLabelText('Deine Antwort für Lücke 1'), 'Dentin');
     await user.click(screen.getByRole('button', { name: 'Prüfen' }));
     expect(screen.getByText(/fällt zurück auf Durchgang 1/)).toBeInTheDocument();
+    // Her own answer stays in the gap, the correct one stands below.
+    expect(screen.getByText('Dentin')).toBeInTheDocument();
+    expect(screen.getByText('Zahnschmelz')).toBeInTheDocument();
     expect(storage.load().cards[0]?.stage).toBe(0);
 
     // Space steps ahead out of the feedback, the card returns.
@@ -388,5 +391,23 @@ describe('anki page', () => {
     expect(screen.getByText('Wozu lädt der Recall ein?')).toBeInTheDocument();
     expect(screen.getByText('Heute 1 Karte zum Wiederholen')).toBeInTheDocument();
     expect(storage.load().cards).toHaveLength(1);
+  });
+
+  it('folds a lesson group shut with the arrow and open again', async () => {
+    const user = userEvent.setup();
+    const card = newCard(2, { kind: 'qa', question: 'Wie viele Wurzeln hat ein Sechser?', answer: 'Meist drei.' });
+    const storage = makeStorage({ cards: [card] });
+    renderWith(storage, <AnkiPage />);
+
+    expect(screen.getByText('Wie viele Wurzeln hat ein Sechser?')).toBeInTheDocument();
+    const toggle = screen.getByRole('button', { name: /2\. Das Gebiss/ });
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('Wie viele Wurzeln hat ein Sechser?')).not.toBeInTheDocument();
+
+    await user.click(toggle);
+    expect(screen.getByText('Wie viele Wurzeln hat ein Sechser?')).toBeInTheDocument();
   });
 });

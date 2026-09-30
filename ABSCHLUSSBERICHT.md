@@ -168,6 +168,16 @@ Auf Wunsch nachgeruestet.
 * Haelt die Pruefung eine Antwort faelschlich fuer falsch, steht im roten Feld neu der Knopf Meine Antwort war richtig. Er nimmt die Rueckstufung zurueck, die Karte zaehlt als gewusst und ihr Plan laeuft normal weiter
 * Abgesichert mit 5 neuen Tests fuer Tippfehler, Umlautschreibweisen, Wortreihenfolge, vertauschte Luecken und den Ruecknahmeknopf samt erhaltenem Plan, dazu der erweiterte Browserdurchlauf, alles ohne Konsolenfehler
 
+## Nachtrag. Karten wie geschrieben, zugeklappte Gruppen und Leuchtstift Reparatur
+
+Auf Wunsch nachgeruestet.
+
+* Die Lernkarte zeigt Frage und Antwort genau so, wie sie geschrieben wurden. Zeilenumbrueche und aufgezaehlte Zeilen bleiben beim Lernen erhalten, das Layout der Karte bleibt unveraendert
+* Nach dem Pruefen einer Luecke bleibt die eigene Antwort im Satz stehen, gruen oder rot eingefaerbt, statt von der Loesung ueberschrieben zu werden. Die richtige Loesung steht darunter im Feld Richtig ist, neu auch dann, wenn eine grosszuegig gewertete Antwort leicht vom Original abweicht
+* Auf der Seite Anki traegt jeder Lektionstitel einen Pfeil. Er klappt die Kartengruppe der Lektion zu und wieder auf, eine kleine Zahl zeigt die Karten darin. Auf der Seite Notizen klappt derselbe Pfeil jede Notiz zu und auf
+* Der Leuchtstift in den Notizen laesst sich wieder entfernen. Ein zweiter Druck auf den Knopf bei angewaehlter markierter Stelle nimmt die Markierung weg. Das funktioniert jetzt auch, wenn die Auswahl knapp vor der Markierung beginnt oder knapp dahinter endet, wie es beim Ziehen mit der Maus praktisch immer passiert, und es entfernt mehrere Markierungen in einem Zug
+* Abgesichert mit 5 neuen Tests fuer das Entfernen mit ungenauer Auswahl, mehrere Markierungen, gemischte Auswahl und die Klappgruppen beider Seiten, dazu die erweiterten Browserdurchlaeufe mit mehrzeiliger Antwort, stehen gebliebener eigener Antwort, Klappen und Leuchtstift Entfernung, alles ohne Konsolenfehler
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.

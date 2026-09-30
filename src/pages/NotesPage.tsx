@@ -80,6 +80,16 @@ export function NotesPage() {
   const { notes, deleteNote, saveCard } = useAppState();
   const [printJobs, setPrintJobs] = useState<LessonNote[] | null>(null);
   const [deleting, setDeleting] = useState<number | null>(null);
+  // Lessons the arrow has folded shut, everything starts open.
+  const [closed, setClosed] = useState<ReadonlySet<number>>(new Set());
+
+  const toggleNote = (id: number) =>
+    setClosed((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [cardDraft, setCardDraft] = useState<HighlightDraft | null>(null);
   const pageRef = useRef<HTMLDivElement>(null);
@@ -158,42 +168,62 @@ export function NotesPage() {
                 <h2 className={styles.weekTitle}>
                   Woche {week.week}. {week.title}
                 </h2>
-                {weekNotes.map((note) => (
-                  <article key={note.lessonId} className={`card ${styles.noteCard}`}>
-                    <div className={styles.noteHead}>
-                      <div>
-                        <h3 className={styles.noteTitle}>{lessonTitle(note.lessonId)}</h3>
-                        <p className={styles.noteMeta}>{t.updated(formatDate(note.updatedAt))}</p>
+                {weekNotes.map((note) => {
+                  const open = !closed.has(note.lessonId);
+                  return (
+                    <article key={note.lessonId} className={`card ${styles.noteCard}`}>
+                      <div className={styles.noteHead}>
+                        <div className={styles.noteHeadText}>
+                          <h3 className={styles.noteTitle}>
+                            <button
+                              type="button"
+                              className={styles.groupToggle}
+                              aria-expanded={open}
+                              onClick={() => toggleNote(note.lessonId)}
+                            >
+                              <span
+                                className={`${styles.chevron} ${open ? styles.chevronOpen : ''}`}
+                                aria-hidden="true"
+                              />
+                              {lessonTitle(note.lessonId)}
+                            </button>
+                          </h3>
+                          <p className={styles.noteMeta}>{t.updated(formatDate(note.updatedAt))}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className={styles.noteView} data-lesson={note.lessonId}>
-                      <div className="noteContent" dangerouslySetInnerHTML={{ __html: note.html }} />
-                    </div>
-                    <div className={styles.noteActions}>
-                      <Link to={`/lektion/${note.lessonId}?notizen=1`} className="btn btnSmall">
-                        {t.editButton}
-                      </Link>
-                      <button type="button" className="btn btnSmall" onClick={() => void copyNote(note)}>
-                        {t.copyButton}
-                      </button>
-                      {canShare && (
-                        <button type="button" className="btn btnSmall" onClick={() => void shareNote(note)}>
-                          {t.shareButton}
-                        </button>
+                      {open && (
+                        <>
+                          <div className={styles.noteView} data-lesson={note.lessonId}>
+                            <div className="noteContent" dangerouslySetInnerHTML={{ __html: note.html }} />
+                          </div>
+                          <div className={styles.noteActions}>
+                            <Link to={`/lektion/${note.lessonId}?notizen=1`} className="btn btnSmall">
+                              {t.editButton}
+                            </Link>
+                            <button type="button" className="btn btnSmall" onClick={() => void copyNote(note)}>
+                              {t.copyButton}
+                            </button>
+                            {canShare && (
+                              <button type="button" className="btn btnSmall" onClick={() => void shareNote(note)}>
+                                {t.shareButton}
+                              </button>
+                            )}
+                            <button type="button" className="btn btnSmall" onClick={() => setPrintJobs([note])}>
+                              {t.printButton}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btnGhost btnSmall"
+                              onClick={() => setDeleting(note.lessonId)}
+                            >
+                              {t.deleteButton}
+                            </button>
+                          </div>
+                        </>
                       )}
-                      <button type="button" className="btn btnSmall" onClick={() => setPrintJobs([note])}>
-                        {t.printButton}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btnGhost btnSmall"
-                        onClick={() => setDeleting(note.lessonId)}
-                      >
-                        {t.deleteButton}
-                      </button>
-                    </div>
-                  </article>
-                ))}
+                    </article>
+                  );
+                })}
               </section>
             );
           })}
