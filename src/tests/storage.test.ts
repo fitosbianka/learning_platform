@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BACKUPS_KEY,
+  RESCUE_KEY,
   STORAGE_KEY,
   buildExportFile,
   createAppStorage,
@@ -52,6 +54,43 @@ describe('createAppStorage', () => {
     backend.map.set(STORAGE_KEY, JSON.stringify({ version: 99 }));
     const storage2 = createAppStorage(backend);
     expect(storage2.load()).toEqual(defaultStore());
+  });
+
+  it('keeps rolling safety copies and skips broken entries', () => {
+    const backend = memoryBackend();
+    const storage = createAppStorage(backend);
+    storage.saveBackups([
+      { savedAt: '2026-09-30T08:00:00.000Z', store: { ...defaultStore(), finishedLessons: [1] } },
+    ]);
+
+    const fresh = createAppStorage(backend);
+    expect(fresh.loadBackups()).toHaveLength(1);
+    expect(fresh.loadBackups()[0]?.store.finishedLessons).toEqual([1]);
+
+    // A broken entry in the list never spoils the healthy ones.
+    backend.map.set(
+      BACKUPS_KEY,
+      JSON.stringify([
+        { savedAt: '2026-09-29T08:00:00.000Z', store: { version: 99 } },
+        { savedAt: '2026-09-28T08:00:00.000Z', store: { ...defaultStore(), finishedLessons: [2] } },
+      ]),
+    );
+    const third = createAppStorage(backend);
+    expect(third.loadBackups()).toHaveLength(1);
+    expect(third.loadBackups()[0]?.store.finishedLessons).toEqual([2]);
+  });
+
+  it('parks an unreadable store under the rescue key instead of losing it', () => {
+    const backend = memoryBackend();
+    backend.map.set(STORAGE_KEY, '{broken');
+    const storage = createAppStorage(backend);
+    expect(storage.load()).toEqual(defaultStore());
+    expect(backend.map.get(RESCUE_KEY)).toBe('{broken');
+
+    // Saving fresh data afterwards keeps the parked copy untouched.
+    storage.save({ ...defaultStore(), finishedLessons: [1] });
+    expect(backend.map.get(RESCUE_KEY)).toBe('{broken');
+    expect(backend.map.get(STORAGE_KEY)).toContain('"finishedLessons":[1]');
   });
 
   it('keeps working in memory when the backend is unavailable', () => {

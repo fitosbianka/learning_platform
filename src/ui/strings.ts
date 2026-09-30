@@ -260,6 +260,8 @@ export const strings = {
       'Verbindet deine Geräte über eine kleine Cloudablage in deinem Vercel Projekt. Der Lernstand gleicht sich danach automatisch ab.',
     introOn: 'Dieses Gerät gleicht den Lernstand automatisch mit deinen anderen Geräten ab.',
     enable: 'Synchronisation einschalten',
+    enableFirstHint:
+      'Wichtig. Nur das erste Gerät schaltet die Synchronisation ein. Jedes weitere Gerät verbindest du unten mit dem Kopplungslink oder dem Code des ersten Geräts, sonst entstehen getrennte Ablagen, die sich nicht sehen.',
     yourCode: 'Dein Gerätecode',
     codeHint: 'Öffne den Kopplungslink auf dem anderen Gerät oder gib dort diesen Code ein.',
     copyLink: 'Kopplungslink kopieren',
@@ -295,13 +297,29 @@ export const strings = {
     importHint: 'Liest eine exportierte Datei ein und ergänzt Versuche ohne Doppelte.',
     importSuccess: 'Import erfolgreich. Dein Fortschritt wurde zusammengeführt.',
     importInvalid: 'Diese Datei ist keine gültige Sicherung der Lernplattform.',
+    backupTitle: 'Sicherungskopien',
+    backupIntro:
+      'Die Plattform legt auf diesem Gerät jeden Tag automatisch eine Sicherungskopie deines Lernstands an, zusätzlich vor jedem Import und vor dem Zurücksetzen. Zusammenführen holt eine Kopie zurück und ergänzt den aktuellen Stand, dabei geht nichts verloren.',
+    backupEmpty: 'Noch keine Sicherungskopie auf diesem Gerät. Die erste entsteht automatisch, sobald Lernstand da ist.',
+    backupSavedAt: (date: string, time: string) => `Stand vom ${date} um ${time} Uhr`,
+    backupSummary: (lessons: number, cards: number, notes: number) => {
+      const l = lessons === 1 ? '1 Lektion' : `${lessons} Lektionen`;
+      const c = cards === 1 ? '1 Lernkarte' : `${cards} Lernkarten`;
+      const n = notes === 1 ? '1 Notiz' : `${notes} Notizen`;
+      return `${l} abgeschlossen, ${c}, ${n}`;
+    },
+    backupRestore: 'Zusammenführen',
+    backupRestored: 'Sicherungskopie zusammengeführt. Dein Lernstand wurde ergänzt.',
+
     resetTitle: 'Zurücksetzen',
     resetButton: 'Alles zurücksetzen',
-    resetHint: 'Löscht Lernstand, Testversuche und Einstellungen.',
+    resetHint:
+      'Löscht Lernstand, Testversuche und Notizen auf diesem Gerät. Die Synchronisation wird vorher getrennt, die Cloudablage und deine anderen Geräte behalten ihren Stand.',
     resetConfirm1Title: 'Wirklich alles zurücksetzen?',
-    resetConfirm1Text: 'Lernstand und alle Testversuche gehen verloren.',
+    resetConfirm1Text: 'Lernstand und alle Testversuche gehen auf diesem Gerät verloren.',
     resetConfirm2Title: 'Ganz sicher?',
-    resetConfirm2Text: 'Das kann nicht rückgängig gemacht werden. Ein Export vorher schadet nie.',
+    resetConfirm2Text:
+      'Vorher entsteht automatisch eine Sicherungskopie auf diesem Gerät. Ein Export schadet trotzdem nie.',
     resetConfirmYes: 'Ja, zurücksetzen',
     resetCancel: 'Abbrechen',
     resetDone: 'Alles wurde zurückgesetzt.',

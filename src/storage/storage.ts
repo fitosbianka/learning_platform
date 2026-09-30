@@ -7,7 +7,7 @@
  */
 
 import { mergeCards, normalizeGaps, type AnkiCard, type CardContent, type ClozeGap } from '../anki/cards';
-import { mergeNotes, sanitizeNoteHtml, NOTE_MAX_CHARS, type LessonNote } from '../notes/notes';
+import { isEmptyNote, mergeNotes, sanitizeNoteHtml, NOTE_MAX_CHARS, type LessonNote } from '../notes/notes';
 import { mergeMarkings, MARK_TEXT_MAX, type Marking } from '../marks/marks';
 
 export interface TestAttemptAnswer {
@@ -44,6 +44,10 @@ export interface StoreData {
 
 export const STORAGE_KEY = 'zahnkurs.store.v1';
 export const SYNC_KEY = 'zahnkurs.sync.v1';
+export const BACKUPS_KEY = 'zahnkurs.backups.v1';
+/** An unreadable store is parked here instead of being overwritten. */
+export const RESCUE_KEY = 'zahnkurs.store.rescue.v1';
+export const MAX_BACKUPS = 3;
 
 /** Local settings of the device sync, kept outside the learning data. */
 export interface SyncSettings {
@@ -303,6 +307,17 @@ export function mergeStores(current: StoreData, imported: StoreData): StoreData 
   };
 }
 
+/** Whether a store holds anything worth protecting with a safety copy. */
+export function storeHasContent(data: StoreData): boolean {
+  return (
+    data.finishedLessons.length > 0 ||
+    Object.keys(data.attempts).length > 0 ||
+    data.cards.some((c) => !c.deleted) ||
+    data.notes.some((n) => !isEmptyNote(n.html)) ||
+    data.markings.some((m) => !m.deleted)
+  );
+}
+
 export function buildSyncPayload(data: StoreData): SyncPayload {
   return {
     finishedLessons: data.finishedLessons,
@@ -380,6 +395,12 @@ export function parseExportFile(text: string): StoreData {
 
 type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
+/** One automatic safety copy of the whole learning progress. */
+export interface StoreBackup {
+  savedAt: string;
+  store: StoreData;
+}
+
 export interface AppStorage {
   /** False when the browser does not allow persistent storage */
   readonly persistent: boolean;
@@ -387,6 +408,8 @@ export interface AppStorage {
   save(data: StoreData): void;
   loadSync(): SyncSettings;
   saveSync(settings: SyncSettings): void;
+  loadBackups(): StoreBackup[];
+  saveBackups(backups: StoreBackup[]): void;
 }
 
 function detectStorage(): StorageLike | null {
@@ -410,6 +433,7 @@ export function createAppStorage(backend?: StorageLike | null): AppStorage {
   const storage = backend === undefined ? detectStorage() : backend;
   let memory: StoreData | null = null;
   let syncMemory: SyncSettings | null = null;
+  let backupsMemory: StoreBackup[] | null = null;
   let persistent = storage !== null;
 
   return {
@@ -448,14 +472,23 @@ export function createAppStorage(backend?: StorageLike | null): AppStorage {
     load(): StoreData {
       if (memory) return memory;
       if (storage) {
+        let raw: string | null = null;
         try {
-          const raw = storage.getItem(STORAGE_KEY);
+          raw = storage.getItem(STORAGE_KEY);
           if (raw !== null) {
             memory = parseStoreData(JSON.parse(raw));
             return memory;
           }
         } catch {
-          // Broken or unreadable data, start fresh below.
+          // Broken or unreadable data. Park the raw text under the
+          // rescue key so a later save cannot silently destroy it.
+          try {
+            if (raw !== null && storage.getItem(RESCUE_KEY) === null) {
+              storage.setItem(RESCUE_KEY, raw);
+            }
+          } catch {
+            // No space for the rescue copy, nothing more to do.
+          }
         }
       }
       memory = defaultStore();
@@ -468,6 +501,49 @@ export function createAppStorage(backend?: StorageLike | null): AppStorage {
         storage.setItem(STORAGE_KEY, JSON.stringify(data));
       } catch {
         persistent = false;
+      }
+    },
+    loadBackups(): StoreBackup[] {
+      if (backupsMemory) return backupsMemory;
+      const list: StoreBackup[] = [];
+      if (storage) {
+        try {
+          const raw = storage.getItem(BACKUPS_KEY);
+          if (raw !== null) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              for (const entry of parsed) {
+                try {
+                  const e = entry as Record<string, unknown>;
+                  if (typeof e.savedAt !== 'string') continue;
+                  list.push({ savedAt: e.savedAt, store: parseStoreData(e.store) });
+                } catch {
+                  // One broken safety copy never spoils the others.
+                }
+              }
+            }
+          }
+        } catch {
+          // Unreadable list, start empty.
+        }
+      }
+      backupsMemory = list;
+      return backupsMemory;
+    },
+    saveBackups(backups: StoreBackup[]): void {
+      backupsMemory = [...backups];
+      if (!storage) return;
+      let list = backupsMemory;
+      // When space runs out, fewer copies are better than none.
+      while (true) {
+        try {
+          storage.setItem(BACKUPS_KEY, JSON.stringify(list));
+          return;
+        } catch {
+          if (list.length <= 1) return;
+          list = list.slice(0, list.length - 1);
+          backupsMemory = list;
+        }
       }
     },
   };

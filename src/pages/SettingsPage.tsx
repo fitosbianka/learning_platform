@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { isEmptyNote } from '../notes/notes';
 import { useAppState } from '../state/context';
 import { navigate } from '../router/useHashRoute';
 import { formatSyncCode, pairingLink } from '../sync/sync';
-import { formatTime, strings } from '../ui/strings';
+import { formatDate, formatTime, strings } from '../ui/strings';
 import styles from './SettingsPage.module.css';
 
 const t = strings.settings;
@@ -76,6 +77,9 @@ function SyncSection({ joinCode }: { joinCode: string | null }) {
             <div className={styles.rowText}>
               <p className={styles.rowTitle}>{ts.enable}</p>
               <p className={styles.hint}>{ts.introOff}</p>
+              <p className={styles.hint}>
+                <strong>{ts.enableFirstHint}</strong>
+              </p>
             </div>
             <button type="button" className="btn btnPrimary" onClick={() => void enableSync()}>
               {ts.enable}
@@ -140,6 +144,52 @@ function SyncSection({ joinCode }: { joinCode: string | null }) {
   );
 }
 
+
+/** The automatic local safety copies with a merge back button. */
+function BackupSection() {
+  const { backups, restoreBackup } = useAppState();
+  const [restored, setRestored] = useState(false);
+
+  return (
+    <section className={`card ${styles.section}`} aria-label={t.backupTitle}>
+      <h2 className={styles.sectionTitle}>{t.backupTitle}</h2>
+      <p className={styles.hint}>{t.backupIntro}</p>
+      {backups.length === 0 ? (
+        <p className={styles.hint}>{t.backupEmpty}</p>
+      ) : (
+        backups.map((backup) => {
+          const lessons = backup.store.finishedLessons.length;
+          const cards = backup.store.cards.filter((c) => !c.deleted).length;
+          const notes = backup.store.notes.filter((n) => !isEmptyNote(n.html)).length;
+          return (
+            <div key={backup.savedAt} className={styles.row}>
+              <div className={styles.rowText}>
+                <p className={styles.rowTitle}>
+                  {t.backupSavedAt(formatDate(backup.savedAt), formatTime(backup.savedAt))}
+                </p>
+                <p className={styles.hint}>{t.backupSummary(lessons, cards, notes)}</p>
+              </div>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => {
+                  if (restoreBackup(backup.savedAt)) setRestored(true);
+                }}
+              >
+                {t.backupRestore}
+              </button>
+            </div>
+          );
+        })
+      )}
+      {restored && (
+        <p className={`${styles.status} ${styles.statusOk}`} role="status">
+          {t.backupRestored}
+        </p>
+      )}
+    </section>
+  );
+}
 
 function exportFileName(): string {
   const now = new Date();
@@ -253,6 +303,8 @@ export function SettingsPage({ joinCode = null }: { joinCode?: string | null }) 
           </p>
         )}
       </section>
+
+      <BackupSection />
 
       <section className={`card ${styles.section}`} aria-label={t.resetTitle}>
         <h2 className={styles.sectionTitle}>{t.resetTitle}</h2>
