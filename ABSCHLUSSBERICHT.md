@@ -150,6 +150,15 @@ Auf Wunsch nachgeruestet. Markierter Text in den eigenen Notizen bietet jetzt eb
 * Die fertigen Vorschlaege fuer alle drei Kartenarten funktionieren wie beim Markieren im Lernstoff, samt Satzmuster und Glossarantworten
 * Abgesichert im Browserdurchlauf fuer beide Wege bis in den Kartenspeicher, ohne Konsolenfehler
 
+## Nachtrag. Lernen wie am Kartentisch
+
+Auf Wunsch nachgeruestet.
+
+* Waehrend einer Lernrunde steht die Karte gross und mittig auf dem Bildschirm, der Seitenkopf tritt zurueck
+* Die Leertaste oder ein Tipp auf die Karte geht voran. Frage, Antwort aufdecken, weiter. Bei Fragekarten zaehlt das als Gewusst, Nicht gewusst bleibt ein eigener Knopf, die Ziffern 1 und 2 funktionieren weiterhin, und waehrend des Tippens in eine Luecke bleibt die Leertaste ein normales Leerzeichen
+* Die faelligen Karten kommen in jeder Runde in zufaelliger Reihenfolge statt in der Reihenfolge, in der sie geschrieben wurden
+* Der Browserdurchlauf wurde so umgebaut, dass er jede zufaellige Reihenfolge meistert, und lief zweimal in Folge sauber durch, ohne Konsolenfehler
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.

@@ -211,18 +211,20 @@ describe('review session', () => {
 
     expect(screen.getByText('Durchgang 3 von 4')).toBeInTheDocument();
     expect(screen.getByText('Wie viele Milchzähne hat der Mensch?')).toBeInTheDocument();
+    expect(screen.queryByText('Zwanzig.')).not.toBeInTheDocument();
 
-    // Reveal, admit the miss, the card resets to round one and returns.
-    await user.click(screen.getByRole('button', { name: 'Antwort zeigen' }));
+    // Space uncovers the answer, then the miss resets to round one.
+    await user.keyboard(' ');
     expect(screen.getByText('Zwanzig.')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Nicht gewusst' }));
     expect(storage.load().cards[0]?.stage).toBe(0);
     expect(screen.getByText('Noch 1 Karte heute')).toBeInTheDocument();
     expect(screen.getByText('Durchgang 1 von 4')).toBeInTheDocument();
 
-    // Second try, known now, one round passed from the start.
-    await user.click(screen.getByRole('button', { name: 'Antwort zeigen' }));
-    await user.click(screen.getByRole('button', { name: 'Gewusst' }));
+    // Second try. A tap on the card reveals, space counts as known.
+    await user.click(screen.getByRole('region', { name: 'Anki' }));
+    expect(screen.getByText('Zwanzig.')).toBeInTheDocument();
+    await user.keyboard(' ');
     expect(screen.getByText('Alles erledigt für heute!')).toBeInTheDocument();
 
     const stored = storage.load().cards[0];
@@ -259,6 +261,11 @@ describe('review session', () => {
     await user.click(screen.getByRole('button', { name: 'Prüfen' }));
     expect(screen.getByText(/fällt zurück auf Durchgang 1/)).toBeInTheDocument();
     expect(storage.load().cards[0]?.stage).toBe(0);
+
+    // Space steps ahead out of the feedback, the card returns.
+    await user.keyboard(' ');
+    expect(screen.getByText('Noch 1 Karte heute')).toBeInTheDocument();
+    expect(screen.getByLabelText('Deine Antwort für Lücke 1')).toBeInTheDocument();
   });
 
   it('checks a typed cloze answer ignoring case and punctuation', async () => {
