@@ -200,14 +200,104 @@ export function normalizeAnswer(s: string): string {
     .trim();
 }
 
+/** Umlauts and the sharp s fold to their two letter spellings. */
+function foldGerman(s: string): string {
+  return s.replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
+}
+
+/** Plain edit distance between two short strings. */
+function editDistance(a: string, b: string): number {
+  if (a === b) return 0;
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i += 1) {
+    const row = [i];
+    for (let j = 1; j <= b.length; j += 1) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      row.push(Math.min((row[j - 1] ?? 0) + 1, (prev[j] ?? 0) + 1, (prev[j - 1] ?? 0) + cost));
+    }
+    prev = row;
+  }
+  return prev[b.length] ?? 0;
+}
+
+/** How many typos a word of this length may carry. */
+function typoBudget(length: number): number {
+  if (length <= 4) return 0;
+  if (length <= 8) return 1;
+  if (length <= 13) return 2;
+  return 3;
+}
+
+/** One typed word against one expected word, already folded. */
+function wordMatches(typedWord: string, expectedWord: string): boolean {
+  if (typedWord === expectedWord) return true;
+  const budget = typoBudget(expectedWord.length);
+  if (budget === 0 || Math.abs(typedWord.length - expectedWord.length) > budget) return false;
+  return editDistance(typedWord, expectedWord) <= budget;
+}
+
+/** Lowercased words without punctuation, umlauts folded. */
+function answerTokens(s: string): string[] {
+  return foldGerman(normalizeAnswer(s))
+    .split(/[\s,;/]+/)
+    .map((token) => token.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ''))
+    .filter((token) => token !== '');
+}
+
+/** Tries to pair every item on one side with a distinct partner. */
+function pairsUp<A, B>(left: readonly A[], right: readonly B[], fits: (a: A, b: B) => boolean): boolean {
+  if (left.length !== right.length) return false;
+  const used = new Array<boolean>(right.length).fill(false);
+  const place = (i: number): boolean => {
+    if (i === left.length) return true;
+    for (let j = 0; j < right.length; j += 1) {
+      if (used[j] || !fits(left[i] as A, right[j] as B)) continue;
+      used[j] = true;
+      if (place(i + 1)) return true;
+      used[j] = false;
+    }
+    return false;
+  };
+  return place(0);
+}
+
+/**
+ * Whether a typed answer counts for the expected one. Case, edge
+ * punctuation, small typos, ae oe ue spellings and a changed word
+ * order are all forgiven, but every expected word must show up.
+ */
+export function answerMatches(typedAnswer: string, expected: string): boolean {
+  const typed = foldGerman(normalizeAnswer(typedAnswer));
+  const wanted = foldGerman(normalizeAnswer(expected));
+  if (wanted === '') return typed === '';
+  if (typed === wanted) return true;
+  if (typed === '') return false;
+  const typedTokens = answerTokens(typedAnswer);
+  const wantedTokens = answerTokens(expected);
+  if (pairsUp(typedTokens, wantedTokens, wordMatches)) return true;
+  // Joined spellings catch words typed together or split apart.
+  return wordMatches(typedTokens.join(''), wantedTokens.join(''));
+}
+
+/** The whole cloze card. The gaps may also be filled in swapped order. */
+export function clozeCorrect(
+  content: Extract<CardContent, { kind: 'cloze' }>,
+  typed: readonly string[],
+): boolean {
+  const answers = clozeAnswers(content);
+  if (typed.length !== answers.length) return false;
+  if (answers.every((answer, i) => answerMatches(typed[i] ?? '', answer))) return true;
+  return pairsUp(typed, answers, (t, a) => answerMatches(t, a));
+}
+
 export function checkAnswer(content: CardContent, input: string | number | boolean | string[]): boolean {
   // A question card is graded by the learner, true means known.
   if (content.kind === 'qa') return input === true;
   if (content.kind === 'choice') return input === content.correctIndex;
-  const answers = clozeAnswers(content);
   const typed = typeof input === 'string' ? [input] : Array.isArray(input) ? input : null;
-  if (!typed || typed.length !== answers.length) return false;
-  return answers.every((answer, i) => normalizeAnswer(typed[i] ?? '') === normalizeAnswer(answer));
+  return typed !== null && clozeCorrect(content, typed);
 }
 
 /** The visible side of a card for lists, shortened. */

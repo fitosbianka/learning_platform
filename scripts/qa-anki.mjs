@@ -205,11 +205,17 @@ async function main() {
         await page.getByRole('button', { name: 'Prüfen' }).click();
         await page.getByText('Leider nicht richtig').waitFor();
         await page.getByText('fällt zurück auf Durchgang 1').waitFor();
+        // The wrong verdict offers the override button.
+        await page.getByRole('button', { name: 'Meine Antwort war richtig' }).waitFor();
         clozeAnswer = ((await page.locator('[class*="feedbackAnswer"] strong').textContent()) ?? '').trim();
         check(clozeAnswer.length > 0, 'session. missing correct answer text after a wrong cloze answer');
         clozeWrongDone = true;
       } else {
-        await gapInput.fill(clozeAnswer);
+        // One dropped letter still counts and the gap already shows
+        // the green verdict before the check.
+        const attempt = clozeAnswer.length >= 6 ? clozeAnswer.slice(0, 2) + clozeAnswer.slice(3) : clozeAnswer;
+        await gapInput.fill(attempt);
+        await page.locator('input[class*="gapInputRight"]').first().waitFor();
         await page.getByRole('button', { name: 'Prüfen' }).click();
         await page.getByText('Richtig!').waitFor();
         if (!sessionShot) {

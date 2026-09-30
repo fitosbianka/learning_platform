@@ -159,6 +159,15 @@ Auf Wunsch nachgeruestet.
 * Die faelligen Karten kommen in jeder Runde in zufaelliger Reihenfolge statt in der Reihenfolge, in der sie geschrieben wurden
 * Der Browserdurchlauf wurde so umgebaut, dass er jede zufaellige Reihenfolge meistert, und lief zweimal in Folge sauber durch, ohne Konsolenfehler
 
+## Nachtrag. Sofortige Bewertung und grosszuegige Pruefung beim Lueckentext
+
+Auf Wunsch nachgeruestet.
+
+* Jede Luecke zeigt ihre Bewertung sofort. Ein passendes Wort faerbt das Feld schon beim Tippen gruen, ein falsches wird rot, sobald die Luecke verlassen wird, und beim Nachbessern springt die Farbe gleich wieder um
+* Die Pruefung bewertet intelligent. Kleine Tippfehler gehen durch, ein Wort bis 4 Buchstaben muss exakt stimmen, bis 8 Buchstaben ist 1 Fehler erlaubt, bis 13 Buchstaben sind es 2 und darueber 3. Umlaute duerfen als ae, oe und ue geschrieben werden, die Woerter einer Antwort duerfen in anderer Reihenfolge stehen und zusammen oder getrennt geschrieben sein, und die richtigen Woerter zaehlen auch dann, wenn sie in vertauschten Luecken stehen
+* Haelt die Pruefung eine Antwort faelschlich fuer falsch, steht im roten Feld neu der Knopf Meine Antwort war richtig. Er nimmt die Rueckstufung zurueck, die Karte zaehlt als gewusst und ihr Plan laeuft normal weiter
+* Abgesichert mit 5 neuen Tests fuer Tippfehler, Umlautschreibweisen, Wortreihenfolge, vertauschte Luecken und den Ruecknahmeknopf samt erhaltenem Plan, dazu der erweiterte Browserdurchlauf, alles ohne Konsolenfehler
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.

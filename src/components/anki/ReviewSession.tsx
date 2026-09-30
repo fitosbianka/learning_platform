@@ -8,11 +8,11 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
+  answerMatches,
   checkAnswer,
   clozeAnswers,
   clozeSegments,
   dueCards,
-  normalizeAnswer,
   reviewNumber,
   type AnkiCard,
   type CardContent,
@@ -46,37 +46,51 @@ function correctAnswerText(content: CardContent): string {
   return clozeAnswers(content).join(', ');
 }
 
-function ClozePrompt({ content, typed, disabled, onType, onCheck }: {
+function ClozePrompt({ content, typed, disabled, solved, onType, onCheck }: {
   content: Extract<CardContent, { kind: 'cloze' }>;
   typed: string[];
   disabled: boolean;
+  /** In the feedback, whether the whole answer counted as right. */
+  solved: boolean;
   onType: (index: number, value: string) => void;
   onCheck: () => void;
 }) {
   const segments = clozeSegments(content);
   const gapSegments = segments.filter((segment) => segment.kind === 'gap');
   const allFilled = gapSegments.every((segment) => (typed[segment.index] ?? '').trim() !== '');
+  // A gap turns green the moment it fits, but red only after she left
+  // it, so nothing flashes while she is still typing the word.
+  const [visited, setVisited] = useState<boolean[]>([]);
   return (
     <>
       <p className={styles.prompt}>
         {segments.map((segment, i) => {
           if (segment.kind === 'text') return <span key={i}>{segment.text}</span>;
+          const value = typed[segment.index] ?? '';
+          const right = value.trim() !== '' && answerMatches(value, segment.text);
           if (disabled) {
-            const right = normalizeAnswer(typed[segment.index] ?? '') === normalizeAnswer(segment.text);
             return (
-              <span key={i} className={`${styles.gapBlank} ${right ? styles.gapRight : styles.gapWrong}`}>
+              <span key={i} className={`${styles.gapBlank} ${solved || right ? styles.gapRight : styles.gapWrong}`}>
                 {segment.text}
               </span>
             );
           }
+          const wrong = !right && value.trim() !== '' && visited[segment.index] === true;
           return (
             <input
               key={i}
               type="text"
-              className={styles.gapInput}
+              className={`${styles.gapInput} ${right ? styles.gapInputRight : wrong ? styles.gapInputWrong : ''}`}
               style={{ width: `${Math.min(Math.max(segment.text.length, 4), 18) + 2}ch` }}
               value={typed[segment.index] ?? ''}
               onChange={(e) => onType(segment.index, e.target.value)}
+              onBlur={() =>
+                setVisited((prev) => {
+                  const next = [...prev];
+                  next[segment.index] = true;
+                  return next;
+                })
+              }
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && allFilled) {
                   e.preventDefault();
@@ -84,6 +98,7 @@ function ClozePrompt({ content, typed, disabled, onType, onCheck }: {
                 }
               }}
               aria-label={t.gapInputLabel(segment.index + 1)}
+              aria-invalid={wrong || undefined}
               autoComplete="off"
               autoCapitalize="off"
               spellCheck={false}
@@ -102,7 +117,7 @@ function ClozePrompt({ content, typed, disabled, onType, onCheck }: {
 }
 
 export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => void }) {
-  const { cards, passCardReview, failCardReview } = useAppState();
+  const { cards, passCardReview, failCardReview, overrideCardPass } = useAppState();
   const [queue, setQueue] = useState<string[]>(() => shuffled(dueCards(cards, today).map((c) => c.id)));
   const [doneCount, setDoneCount] = useState(0);
   const [phase, setPhase] = useState<Phase>({ name: 'answering' });
@@ -111,6 +126,9 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
   // Passing a review advances the stage right away, the badge keeps
   // showing the round that was just answered until Weiter.
   const [shownRound, setShownRound] = useState<number | null>(null);
+  // The card as it was before the answer, so a wrong verdict she
+  // disagrees with can be taken back without losing the schedule.
+  const [beforeAnswer, setBeforeAnswer] = useState<AnkiCard | null>(null);
 
   const currentId = queue[0];
   const card: AnkiCard | undefined = useMemo(
@@ -133,6 +151,7 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
     if (!card || phase.name !== 'answering') return;
     const correct = checkAnswer(card.content, value);
     if (typeof value === 'number' || typeof value === 'boolean') setPicked(value);
+    setBeforeAnswer(card);
     setShownRound(reviewNumber(card));
     if (correct) passCardReview(card.id);
     else failCardReview(card.id);
@@ -147,6 +166,20 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
     setTyped([]);
     setPicked(null);
     setShownRound(null);
+    setBeforeAnswer(null);
+  };
+
+  /** She was right after all. The reset is taken back, the card passes. */
+  const overrideRight = () => {
+    if (phase.name !== 'feedback' || phase.correct || !beforeAnswer) return;
+    overrideCardPass(beforeAnswer);
+    setQueue((q) => q.slice(1));
+    setDoneCount((n) => n + 1);
+    setPhase({ name: 'answering' });
+    setTyped([]);
+    setPicked(null);
+    setShownRound(null);
+    setBeforeAnswer(null);
   };
 
   /** Question cards uncover their answer first. */
@@ -315,9 +348,11 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
 
       {content.kind === 'cloze' && (
         <ClozePrompt
+          key={card.id}
           content={content}
           typed={typed}
           disabled={showFeedback}
+          solved={phase.name === 'feedback' && phase.correct}
           onType={(index, value) =>
             setTyped((prev) => {
               const next = [...prev];
@@ -340,10 +375,19 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
               {t.correctAnswerIs} <strong>{correctAnswerText(content)}</strong>
             </p>
           )}
-          <button type="button" className="btn btnPrimary" onClick={next}>
-            {t.next}
-          </button>
-          <p className={styles.gradeNote}>{t.continueHint}</p>
+          <div className={styles.answerRow}>
+            <button type="button" className="btn btnPrimary" onClick={next}>
+              {t.next}
+            </button>
+            {!phase.correct && content.kind === 'cloze' && (
+              <button type="button" className="btn" onClick={overrideRight}>
+                {t.overrideRight}
+              </button>
+            )}
+          </div>
+          <p className={styles.gradeNote}>
+            {!phase.correct && content.kind === 'cloze' ? `${t.overrideNote} ${t.continueHint}` : t.continueHint}
+          </p>
         </div>
       )}
     </section>

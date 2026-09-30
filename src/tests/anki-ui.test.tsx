@@ -281,6 +281,63 @@ describe('review session', () => {
     expect(screen.getByText('Alles erledigt für heute!')).toBeInTheDocument();
     expect(storage.load().cards[0]?.stage).toBe(1);
   });
+
+  it('shows the verdict per gap right away and forgives a typo', async () => {
+    const user = userEvent.setup();
+    const card = clozeCard(4, 'Fluorid härtet den Zahnschmelz im Mund', ['Fluorid', 'Zahnschmelz']);
+    const storage = makeStorage({ cards: [card] });
+    renderWith(storage, <ReviewSession today={todayKey()} onQuit={() => {}} />);
+
+    const first = screen.getByLabelText('Deine Antwort für Lücke 1');
+    const second = screen.getByLabelText('Deine Antwort für Lücke 2');
+
+    // A wrong word turns red once she leaves the gap, then green
+    // as soon as the corrected word fits, typo and all.
+    await user.type(first, 'Dentin');
+    expect(first.className).not.toMatch(/gapInputWrong/);
+    await user.click(second);
+    expect(first.className).toMatch(/gapInputWrong/);
+    await user.clear(first);
+    await user.type(first, 'Fluorit');
+    expect(first.className).toMatch(/gapInputRight/);
+
+    await user.type(second, 'Zahnschmeltz');
+    expect(second.className).toMatch(/gapInputRight/);
+    await user.click(screen.getByRole('button', { name: 'Prüfen' }));
+    expect(screen.getByText('Richtig!')).toBeInTheDocument();
+    expect(storage.load().cards[0]?.stage).toBe(1);
+  });
+
+  it('accepts the right words typed into swapped gaps', async () => {
+    const user = userEvent.setup();
+    const card = clozeCard(4, 'Fluorid härtet den Zahnschmelz im Mund', ['Fluorid', 'Zahnschmelz']);
+    const storage = makeStorage({ cards: [card] });
+    renderWith(storage, <ReviewSession today={todayKey()} onQuit={() => {}} />);
+
+    await user.type(screen.getByLabelText('Deine Antwort für Lücke 1'), 'Zahnschmelz');
+    await user.type(screen.getByLabelText('Deine Antwort für Lücke 2'), 'Fluorid');
+    await user.click(screen.getByRole('button', { name: 'Prüfen' }));
+    expect(screen.getByText('Richtig!')).toBeInTheDocument();
+    expect(storage.load().cards[0]?.stage).toBe(1);
+  });
+
+  it('lets her take back a wrong verdict, the schedule stays', async () => {
+    const user = userEvent.setup();
+    const card = { ...clozeCard(4, 'Fluorid härtet den Zahnschmelz', ['Zahnschmelz']), stage: 3, nextDue: todayKey() };
+    const storage = makeStorage({ cards: [card] });
+    renderWith(storage, <ReviewSession today={todayKey()} onQuit={() => {}} />);
+
+    await user.type(screen.getByLabelText('Deine Antwort für Lücke 1'), 'Dentin');
+    await user.click(screen.getByRole('button', { name: 'Prüfen' }));
+    expect(screen.getByText(/fällt zurück auf Durchgang 1/)).toBeInTheDocument();
+    expect(storage.load().cards[0]?.stage).toBe(0);
+
+    await user.click(screen.getByRole('button', { name: 'Meine Antwort war richtig' }));
+    expect(screen.getByText('Alles erledigt für heute!')).toBeInTheDocument();
+    const stored = storage.load().cards[0];
+    expect(stored?.stage).toBe(4);
+    expect(stored?.nextDue).toBeNull();
+  });
 });
 
 describe('anki page', () => {
