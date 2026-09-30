@@ -62,14 +62,18 @@ Einmalige Einrichtung
 
 Geraete koppeln
 
-1. Auf dem ersten Geraet die Einstellungen oeffnen und Synchronisation einschalten druecken. Es erscheint ein Geraetecode.
-2. Kopplungslink kopieren druecken und den Link an dich selbst schicken, zum Beispiel per Nachricht oder Mail. Auf dem anderen Geraet den Link oeffnen, fertig. Alternativ kann dort auch der Code von Hand eingegeben werden.
+1. Auf dem ersten Geraet die Einstellungen oeffnen und Synchronisation einschalten druecken. Es erscheint ein Geraetecode. Wichtig, das passiert nur auf dem ersten Geraet, die Einstellungen weisen jetzt auch deutlich darauf hin.
+2. Kopplungslink kopieren druecken und den Link an dich selbst schicken, zum Beispiel per Nachricht oder Mail. Auf jedem weiteren Geraet den Link oeffnen, fertig. Alternativ kann dort unter Anderes Geraet verbinden auch der Code von Hand eingegeben werden. Nicht auf dem zweiten Geraet Synchronisation einschalten druecken, sonst entsteht dort eine eigene, getrennte Ablage.
 3. Ab jetzt gleichen sich die Geraete automatisch ab, beim Oeffnen der Seite, beim Wechsel zurueck in den Browser und kurz nach jeder abgeschlossenen Lektion oder jedem Test. In den Einstellungen zeigt eine Statuszeile den letzten Abgleich, dort gibt es auch Jetzt abgleichen und Synchronisation ausschalten.
 
 Gut zu wissen
 
 * Der Geraetecode ist der Schluessel zu deinem Lernstand. Nur Geraete mit diesem Code sehen ihn. Wer die Webseite ohne Code oeffnet, sieht nichts von deinem Fortschritt.
+* Alle Geraete muessen in den Einstellungen denselben Geraetecode zeigen. Zeigen zwei Geraete verschiedene Codes, arbeiten sie in getrennten Ablagen. Zum Zusammenlegen auf dem einen Geraet den Code des anderen unter Anderes Geraet verbinden eingeben, das Verbinden fuehrt beide Staende zusammen und loescht nichts.
+* Haben Geraete einmal getrennte Ablagen erzeugt, bleibt jeder alte Stand unter seinem Code in der Cloudablage erhalten. Die Codes stehen im Vercel Dashboard unter Storage in der Upstash Datenbank im Data Browser, jeder Eintrag beginnt mit zahnkurs gefolgt vom Code. Den passenden Code einfach auf dem Geraet eingeben, das den Stand zurueckholen soll.
 * Synchronisiert werden Lernstand, Testversuche, die Anki Lernkarten samt Wiederholungsplan, die Markierungen im Text und die Notizen. Der Dunkelmodus bleibt bewusst pro Geraet einstellbar.
+* Das Verbinden und der laufende Abgleich fuehren immer zusammen und ueberschreiben nichts. Alles zuruecksetzen betrifft nur das eigene Geraet, die Synchronisation wird dabei vorher getrennt, die Cloudablage und die anderen Geraete behalten ihren Stand.
+* Die Plattform legt auf jedem Geraet automatisch taeglich eine Sicherungskopie des Lernstands an, zusaetzlich vor jedem Import und vor dem Zuruecksetzen. In den Einstellungen unter Sicherungskopien laesst sich jede Kopie mit einem Klick wieder mit dem aktuellen Stand zusammenfuehren.
 * Ohne eingerichtete Datenablage funktioniert die Plattform wie bisher, nur eben pro Geraet. Die Einstellungen zeigen in dem Fall einen Hinweis mit diesen Schritten.
 * Lokal mit npm run dev gibt es den Abgleichdienst nicht, er laeuft nur auf der veroeffentlichten Seite.
 

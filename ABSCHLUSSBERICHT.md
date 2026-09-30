@@ -178,6 +178,17 @@ Auf Wunsch nachgeruestet.
 * Der Leuchtstift in den Notizen laesst sich wieder entfernen. Ein zweiter Druck auf den Knopf bei angewaehlter markierter Stelle nimmt die Markierung weg. Das funktioniert jetzt auch, wenn die Auswahl knapp vor der Markierung beginnt oder knapp dahinter endet, wie es beim Ziehen mit der Maus praktisch immer passiert, und es entfernt mehrere Markierungen in einem Zug
 * Abgesichert mit 5 neuen Tests fuer das Entfernen mit ungenauer Auswahl, mehrere Markierungen, gemischte Auswahl und die Klappgruppen beider Seiten, dazu die erweiterten Browserdurchlaeufe mit mehrzeiliger Antwort, stehen gebliebener eigener Antwort, Klappen und Leuchtstift Entfernung, alles ohne Konsolenfehler
 
+## Nachtrag. Sicherungskopien und ein sicheres Zuruecksetzen
+
+Nach einem Vorfall mit getrennten Synchronisationsablagen nachgeruestet, damit Lernstand nie mehr verloren gehen kann.
+
+* Die Plattform legt auf jedem Geraet automatisch jeden Tag eine lokale Sicherungskopie des kompletten Lernstands an, zusaetzlich vor jedem Import und vor dem Zuruecksetzen. Die drei neuesten Kopien bleiben erhalten
+* In den Einstellungen zeigt der neue Abschnitt Sicherungskopien jede Kopie mit Datum, Uhrzeit und Inhalt, etwa wie viele Lektionen, Lernkarten und Notizen darin stecken. Zusammenfuehren holt eine Kopie mit einem Klick zurueck und ergaenzt den aktuellen Stand, dabei geht nichts verloren
+* Alles zuruecksetzen trennt jetzt zuerst die Synchronisation und wirkt nur noch auf das eigene Geraet. Vorher konnte ein Zuruecksetzen den leeren Stand in die Cloudablage schieben und so auch dort den Lernstand ueberschreiben, das ist damit ausgeschlossen
+* Ein unlesbar gewordener Speicher wird nicht mehr stillschweigend durch einen frischen ersetzt, sondern unter einem Rettungsschluessel geparkt, damit nichts verloren geht
+* Die Einstellungen sagen beim Einschalten der Synchronisation jetzt deutlich, dass nur das erste Geraet einschaltet und jedes weitere sich mit dem Kopplungslink oder dem Code verbindet, sonst entstehen getrennte Ablagen
+* Abgesichert mit 6 neuen Tests fuer die Sicherungskopien, das Zusammenfuehren, das getrennte Zuruecksetzen und den Rettungsschluessel, insgesamt 168 Tests, dazu alle vier Browserdurchlaeufe, alles ohne Konsolenfehler
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.

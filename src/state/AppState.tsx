@@ -14,7 +14,10 @@ import {
   mergeStores,
   mergeSyncPayload,
   parseExportFile,
+  storeHasContent,
+  MAX_BACKUPS,
   type AppStorage,
+  type StoreBackup,
   type StoreData,
   type SyncSettings,
 } from '../storage/storage';
@@ -77,6 +80,7 @@ export function AppStateProvider({
   const [system, setSystem] = useState<Theme>(systemTheme);
   const [syncSettings, setSyncSettings] = useState<SyncSettings>(() => appStorage.loadSync());
   const [syncStatus, setSyncStatus] = useState<SyncStatus>(() => (appStorage.loadSync().code ? 'ok' : 'off'));
+  const [backups, setBackups] = useState<StoreBackup[]>(() => appStorage.loadBackups());
 
   const storeRef = useRef(store);
   const settingsRef = useRef(syncSettings);
@@ -109,6 +113,27 @@ export function AppStateProvider({
     },
     [appStorage],
   );
+
+  /** Puts a safety copy of the current progress in front of the list. */
+  const takeBackup = useCallback(() => {
+    const current = storeRef.current;
+    if (!storeHasContent(current)) return;
+    const next = [
+      { savedAt: new Date().toISOString(), store: current },
+      ...appStorage.loadBackups(),
+    ].slice(0, MAX_BACKUPS);
+    appStorage.saveBackups(next);
+    setBackups(appStorage.loadBackups());
+  }, [appStorage]);
+
+  // One safety copy per day, taken when the app comes up with content.
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const newest = appStorage.loadBackups()[0]?.savedAt.slice(0, 10);
+    if (newest !== today) takeBackup();
+    // Runs once per app start on purpose.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const markSynced = useCallback(() => {
     const now = new Date().toISOString();
@@ -366,15 +391,31 @@ export function AppStateProvider({
       importJson: (text) => {
         try {
           const imported = parseExportFile(text);
+          takeBackup();
           update((prev) => mergeStores(prev, imported));
           return true;
         } catch {
           return false;
         }
       },
-      resetAll: () => update(() => defaultStore()),
+      backups,
+      restoreBackup: (savedAt) => {
+        const backup = appStorage.loadBackups().find((b) => b.savedAt === savedAt);
+        if (!backup) return false;
+        update((prev) => mergeStores(prev, backup.store));
+        return true;
+      },
+      resetAll: () => {
+        // The reset stays on this device. A safety copy is taken first
+        // and the sync link is cut, so the cloud record under the old
+        // code keeps the learning progress of the other devices.
+        takeBackup();
+        saveSettings({ code: null, lastSyncAt: null });
+        setSyncStatus('off');
+        update(() => defaultStore());
+      },
     };
-  }, [store, theme, appStorage, update, syncSettings, syncStatus, enableSync, joinSync, disableSync, syncNow]);
+  }, [store, theme, appStorage, update, syncSettings, syncStatus, enableSync, joinSync, disableSync, syncNow, backups, takeBackup, saveSettings]);
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;
 }

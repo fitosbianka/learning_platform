@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { TestAttempt } from '../storage/storage';
+import type { StoreBackup, TestAttempt } from '../storage/storage';
 import type { AnkiCard } from '../anki/cards';
 import type { LessonNote } from '../notes/notes';
 import type { Marking } from '../marks/marks';
@@ -52,6 +52,10 @@ export interface AppState {
   setLastLesson: (lessonId: number) => void;
   exportJson: () => string;
   importJson: (text: string) => boolean;
+  /** Automatic local safety copies, newest first */
+  backups: readonly StoreBackup[];
+  /** Merges the picked safety copy back into the current progress */
+  restoreBackup: (savedAt: string) => boolean;
   resetAll: () => void;
 }
 
