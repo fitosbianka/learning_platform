@@ -202,6 +202,14 @@ Auf Wunsch nachgeruestet. Das Fenster zum Schreiben einer Lernkarte schloss sich
 * Jetzt schliessen nur noch Abbrechen, Speichern und die Escape Taste das Fenster, ein Klick daneben tut nichts mehr
 * Abgesichert mit einem neuen Test und einem zusaetzlichen Schritt im Browserdurchlauf
 
+## Nachtrag. Lernen pro Lektion und Zeilen im Lueckentext
+
+Auf Wunsch nachgeruestet.
+
+* Neben jeder Lektion mit faelligen Karten steht auf der Seite Anki ein eigener Knopf Lernen. Er startet eine Lernrunde nur ueber die Karten dieser Lektion, die Karte traegt waehrend der Runde ein Lektionsschild. Der grosse Knopf oben lernt weiterhin alles Faellige
+* Der Lueckentext behaelt seine Zeilen jetzt ueberall. Eine markierte Textstelle mit mehreren Zeilen, etwa eine Aufzaehlung aus den Notizen, kam bisher als eine einzige Zeile im Karteneditor an, weil die Uebernahme alle Umbrueche durch Leerzeichen ersetzte. Jetzt bleiben die Umbrueche erhalten, die Vorschau beim Luecken waehlen zeigt sie an, und die Lernkarte zeigt den Text genau im geschriebenen Layout
+* Abgesichert mit 2 neuen Tests fuer die Lektionsrunde und die erhaltenen Zeilen, insgesamt 172, dazu der erweiterte Browserdurchlauf mit einer mehrzeiligen Lueckentextkarte, die ueber den neuen Lektionsknopf gelernt wird
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.

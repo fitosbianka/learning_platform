@@ -410,6 +410,59 @@ describe('anki page', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  it('learns only the picked lesson through its own button', async () => {
+    const user = userEvent.setup();
+    const cardTwo = newCard(2, { kind: 'qa', question: 'Frage zu Lektion zwei?', answer: 'A.' });
+    const cardThree = newCard(3, { kind: 'qa', question: 'Frage zu Lektion drei?', answer: 'B.' });
+    const storage = makeStorage({ cards: [cardTwo, cardThree] });
+    renderWith(storage, <AnkiPage />);
+
+    const group = screen
+      .getByRole('heading', { name: /3\. Zahnschema/ })
+      .closest('[class*="lessonGroup"]') as HTMLElement;
+    await user.click(within(group).getByRole('button', { name: 'Lernen' }));
+
+    // Only the lesson 3 card is in the session, labelled with its lesson.
+    expect(screen.getByText('Noch 1 Karte heute')).toBeInTheDocument();
+    expect(screen.getByText('Lektion 3')).toBeInTheDocument();
+    expect(screen.getByText('Frage zu Lektion drei?')).toBeInTheDocument();
+    expect(screen.queryByText('Frage zu Lektion zwei?')).not.toBeInTheDocument();
+
+    await user.keyboard(' ');
+    await user.keyboard(' ');
+    expect(screen.getByText('Alles erledigt für heute!')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Zur Übersicht' }));
+
+    // The other lesson stays due for the big session.
+    expect(screen.getByText('Heute 1 Karte zum Wiederholen')).toBeInTheDocument();
+    expect(storage.load().cards.find((c) => c.id === cardThree.id)?.stage).toBe(1);
+    expect(storage.load().cards.find((c) => c.id === cardTwo.id)?.stage).toBe(0);
+  });
+
+  it('keeps line breaks from a marked passage through to the card', async () => {
+    const user = userEvent.setup();
+    const storage = makeStorage();
+    const onSave = vi.fn();
+    renderWith(
+      storage,
+      <CardEditor
+        initial={null}
+        prefillText={'Zahnarten im Gebiss\n1. Schneidezaehne\n2. Molaren'}
+        lessonId={2}
+        onSave={onSave}
+        onCancel={() => {}}
+      />,
+    );
+
+    expect(screen.getByLabelText('Satz für die Lücke')).toHaveValue(
+      'Zahnarten im Gebiss\n1. Schneidezaehne\n2. Molaren',
+    );
+    await user.click(screen.getByRole('button', { name: 'Speichern' }));
+    expect(onSave).toHaveBeenCalled();
+    const saved = onSave.mock.calls[0]?.[0] as AnkiCard;
+    expect(saved.content.kind === 'cloze' && saved.content.text).toContain('\n');
+  });
+
   it('folds a lesson group shut with the arrow and open again', async () => {
     const user = userEvent.setup();
     const card = newCard(2, { kind: 'qa', question: 'Wie viele Wurzeln hat ein Sechser?', answer: 'Meist drei.' });

@@ -165,6 +165,34 @@ async function main() {
   await page.getByRole('button', { name: 'Speichern' }).click();
   await page.getByText('Heute 3 Karten zum Wiederholen').waitFor();
 
+  // 4b. A Lückentext with several rows for lesson 5. The layout stays
+  // as written, and the new Lernen button next to the lesson learns
+  // only this card.
+  await page.getByRole('button', { name: 'Neue Karte' }).click();
+  await page.getByRole('button', { name: 'Lückentext' }).click();
+  await page.getByLabel('Gehört zu Lektion').selectOption('5');
+  await page
+    .getByLabel('Satz für die Lücke')
+    .fill('Die Zahnarten im Ueberblick\n1. Schneidezaehne\n2. Eckzaehne\n3. Molaren');
+  await page.getByRole('button', { name: 'Molaren', exact: true }).click();
+  await page.getByRole('button', { name: 'Speichern' }).click();
+  await page.getByText('Heute 4 Karten zum Wiederholen').waitFor();
+
+  const group5 = page.locator('[class*="lessonGroup"]', { hasText: 'Die Zahnarten im Ueberblick' });
+  await group5.getByRole('button', { name: 'Lernen' }).click();
+  await page.getByText('Noch 1 Karte heute').waitFor();
+  await page.getByText('Lektion 5').waitFor();
+  const promptText = await page.locator('[class*="prompt"]').innerText();
+  check(promptText.includes('\n'), 'lesson session. the cloze card lost its line breaks');
+  await page.getByLabel('Deine Antwort für Lücke 1').fill('Schneidezaehne');
+  await page.getByLabel('Deine Antwort für Lücke 2').fill('Molaren');
+  await page.getByRole('button', { name: 'Prüfen' }).click();
+  await page.getByText('Richtig!').waitFor();
+  await page.getByRole('button', { name: 'Weiter', exact: true }).click();
+  await page.getByText('Alles erledigt für heute!').waitFor();
+  await page.getByRole('button', { name: 'Zur Übersicht' }).click();
+  await page.getByText('Heute 3 Karten zum Wiederholen').waitFor();
+
   // Grouping by week and lesson.
   await page.getByRole('heading', { name: 'Woche 1. Grundlagen' }).waitFor();
   await page.getByRole('heading', { name: 'Woche 2. Diagnostik und Behandlungen' }).waitFor();
@@ -251,7 +279,7 @@ async function main() {
 
   // 6. Overview after the session. Nothing due, schedule moved by one day.
   await page.getByText('Für heute ist alles wiederholt.').waitFor();
-  await page.getByText('3 Karten insgesamt, davon 0 gelernt').waitFor();
+  await page.getByText('4 Karten insgesamt, davon 0 gelernt').waitFor();
   const stored = await page.evaluate(() => {
     const raw = localStorage.getItem('zahnkurs.store.v1');
     if (!raw) throw new Error('store missing');
@@ -264,7 +292,7 @@ async function main() {
     const data = JSON.parse(raw);
     return { cards: data.cards ?? [], tomorrowKey: `${y}-${m}-${d}` };
   });
-  check(stored.cards.length === 3, `storage. expected 3 cards, found ${stored.cards.length}`);
+  check(stored.cards.length === 4, `storage. expected 4 cards, found ${stored.cards.length}`);
   for (const card of stored.cards) {
     check(card.stage === 1, `storage. expected stage 1 after the session, found ${card.stage}`);
     check(card.nextDue === stored.tomorrowKey, `storage. expected next due ${stored.tomorrowKey}, found ${card.nextDue}`);
@@ -280,14 +308,14 @@ async function main() {
 
   // 8. Everything survives a reload.
   await page.reload({ waitUntil: 'networkidle' });
-  await page.getByText('3 Karten insgesamt, davon 0 gelernt').waitFor();
+  await page.getByText('4 Karten insgesamt, davon 0 gelernt').waitFor();
   await page.getByText('Für heute ist alles wiederholt.').waitFor();
 
   // 9. Deleting a card after the confirmation.
   const choiceRow = page.locator('li', { hasText: 'Welches Material ist zahnfarben?' }).last();
   await choiceRow.getByRole('button', { name: 'Löschen' }).click();
   await page.getByRole('button', { name: 'Ja, löschen' }).click();
-  await page.getByText('2 Karten insgesamt, davon 0 gelernt').waitFor();
+  await page.getByText('3 Karten insgesamt, davon 0 gelernt').waitFor();
   const gone = await page.getByText('Welches Material ist zahnfarben?').count();
   check(gone === 0, 'delete. the removed card is still visible');
 

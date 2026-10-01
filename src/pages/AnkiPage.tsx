@@ -66,7 +66,9 @@ function CardRow({ card, today, onEdit, onDelete }: {
 export function AnkiPage() {
   const { cards, saveCard, deleteCard, lastLesson } = useAppState();
   const [today, setToday] = useState(() => todayKey());
-  const [reviewing, setReviewing] = useState(false);
+  // null shows the overview, 'all' learns everything due, a number
+  // learns only that lesson's due cards.
+  const [reviewing, setReviewing] = useState<'all' | number | null>(null);
   const [editing, setEditing] = useState<AnkiCard | 'new' | null>(null);
   const [deleting, setDeleting] = useState<AnkiCard | null>(null);
   // Lessons the arrow has folded shut, everything starts open.
@@ -96,10 +98,14 @@ export function AnkiPage() {
   const learnedCount = cards.filter(isLearned).length;
 
   return (
-    <div className={`container ${reviewing ? 'containerWide' : ''}`}>
-      {reviewing ? (
+    <div className={`container ${reviewing !== null ? 'containerWide' : ''}`}>
+      {reviewing !== null ? (
         <div className={styles.sessionStage}>
-          <ReviewSession today={today} onQuit={() => setReviewing(false)} />
+          <ReviewSession
+            today={today}
+            lessonId={reviewing === 'all' ? null : reviewing}
+            onQuit={() => setReviewing(null)}
+          />
         </div>
       ) : (
         <>
@@ -121,7 +127,7 @@ export function AnkiPage() {
                     ) : null,
                   )}
                 </ul>
-                <button type="button" className="btn btnPrimary" onClick={() => setReviewing(true)}>
+                <button type="button" className="btn btnPrimary" onClick={() => setReviewing('all')}>
                   {t.startReview}
                 </button>
               </>
@@ -151,25 +157,37 @@ export function AnkiPage() {
                 </h2>
                 {lessonsWithCards.map(({ meta, list }) => {
                   const open = !closed.has(meta.id);
+                  const dueInLesson = list.filter((c) => isDue(c, today)).length;
                   return (
                     <div key={meta.id} className={`card ${styles.lessonGroup}`}>
-                      <h3 className={styles.lessonTitle}>
-                        <button
-                          type="button"
-                          className={styles.groupToggle}
-                          aria-expanded={open}
-                          onClick={() => toggleLesson(meta.id)}
-                        >
-                          <span
-                            className={`${styles.chevron} ${open ? styles.chevronOpen : ''}`}
-                            aria-hidden="true"
-                          />
-                          <span className={styles.groupLabel}>
-                            {meta.id}. {meta.title}
-                          </span>
-                          <span className={styles.groupCount}>{list.length}</span>
-                        </button>
-                      </h3>
+                      <div className={styles.groupHead}>
+                        <h3 className={styles.lessonTitle}>
+                          <button
+                            type="button"
+                            className={styles.groupToggle}
+                            aria-expanded={open}
+                            onClick={() => toggleLesson(meta.id)}
+                          >
+                            <span
+                              className={`${styles.chevron} ${open ? styles.chevronOpen : ''}`}
+                              aria-hidden="true"
+                            />
+                            <span className={styles.groupLabel}>
+                              {meta.id}. {meta.title}
+                            </span>
+                            <span className={styles.groupCount}>{list.length}</span>
+                          </button>
+                        </h3>
+                        {dueInLesson > 0 && (
+                          <button
+                            type="button"
+                            className="btn btnSmall"
+                            onClick={() => setReviewing(meta.id)}
+                          >
+                            {t.learnLesson}
+                          </button>
+                        )}
+                      </div>
                       {open && (
                         <ul className={styles.cardList}>
                           {list.map((card) => (
