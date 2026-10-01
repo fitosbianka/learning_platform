@@ -167,6 +167,8 @@ export const strings = {
 
     remaining: (n: number) => (n === 1 ? 'Noch 1 Karte heute' : `Noch ${n} Karten heute`),
     roundBadge: (n: number) => `Durchgang ${n} von 4`,
+    learnLesson: 'Lernen',
+    sessionLessonBadge: (n: number) => `Lektion ${n}`,
     check: 'Prüfen',
     next: 'Weiter',
     correctFeedback: 'Richtig!',

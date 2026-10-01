@@ -79,7 +79,15 @@
   margin-bottom: 14px;
 }
 
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .lessonTitle {
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: 0.98rem;
   margin: 0;
 }

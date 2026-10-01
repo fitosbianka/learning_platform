@@ -136,6 +136,8 @@
   border-radius: var(--radius-small);
   padding: 12px 14px;
   line-height: 2.1;
+  /* Line breaks of the written text stay visible while picking gaps. */
+  white-space: pre-wrap;
 }
 
 .tokenWord {

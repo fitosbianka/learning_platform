@@ -119,9 +119,20 @@ function ClozePrompt({ content, typed, disabled, solved, onType, onCheck }: {
   );
 }
 
-export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => void }) {
+export function ReviewSession({ today, lessonId = null, onQuit }: {
+  today: string;
+  /** Restricts the session to one lesson, null learns everything due */
+  lessonId?: number | null;
+  onQuit: () => void;
+}) {
   const { cards, passCardReview, failCardReview, overrideCardPass } = useAppState();
-  const [queue, setQueue] = useState<string[]>(() => shuffled(dueCards(cards, today).map((c) => c.id)));
+  const [queue, setQueue] = useState<string[]>(() =>
+    shuffled(
+      dueCards(cards, today)
+        .filter((c) => lessonId === null || c.lessonId === lessonId)
+        .map((c) => c.id),
+    ),
+  );
   const [doneCount, setDoneCount] = useState(0);
   const [phase, setPhase] = useState<Phase>({ name: 'answering' });
   const [typed, setTyped] = useState<string[]>([]);
@@ -286,6 +297,7 @@ export function ReviewSession({ today, onQuit }: { today: string; onQuit: () => 
     >
       <div className={styles.sessionHead}>
         <span className={styles.roundBadge}>{t.roundBadge(shownRound ?? reviewNumber(card))}</span>
+        {lessonId !== null && <span className={styles.lessonBadge}>{t.sessionLessonBadge(lessonId)}</span>}
         <span className={styles.remaining}>{t.remaining(queue.length)}</span>
         <button type="button" className="btn btnGhost btnSmall" onClick={onQuit}>
           {t.quit}

@@ -101,12 +101,13 @@ Wiederholungsplan
 * Beim Lernen prueft die Seite jede Antwort und zeigt bei einem Fehler die richtige Loesung. Eine falsche oder nicht gewusste Antwort wirft die Karte zurueck auf Durchgang 1, der Plan beginnt fuer sie von vorne. Am selben Tag kommt sie so lange wieder, bis sie sitzt, erst dann rueckt sie weiter.
 * Beim Lueckentext zeigt jede Luecke ihre Bewertung sofort. Ein passendes Wort faerbt das Feld schon beim Tippen gruen, ein falsches wird rot, sobald du die Luecke verlaesst. Die Pruefung bewertet grosszuegig, kleine Tippfehler, Umlaute als ae oe ue, eine andere Wortreihenfolge innerhalb der Antwort und richtige Woerter in vertauschten Luecken zaehlen als richtig. Haelt die Pruefung eine richtige Antwort trotzdem fuer falsch, nimmt der Knopf Meine Antwort war richtig die Rueckstufung zurueck und die Karte zaehlt als gewusst.
 * Die Lernkarte steht gross in der Bildschirmmitte. Die Leertaste oder ein Tipp auf die Karte geht voran, Frage, Antwort, naechste Karte. Bei Fragekarten zaehlt das als Gewusst, fuer Nicht gewusst gibt es den eigenen Knopf. Die faelligen Karten kommen in jeder Runde in zufaelliger Reihenfolge.
-* Die Karte zeigt Frage und Antwort genau so, wie sie geschrieben wurden. Zeilenumbrueche und aufgezaehlte Zeilen bleiben auf der Lernkarte erhalten.
+* Die Karte zeigt Frage und Antwort genau so, wie sie geschrieben wurden. Zeilenumbrueche und aufgezaehlte Zeilen bleiben auf der Lernkarte erhalten. Das gilt auch fuer den Lueckentext, von der markierten Textstelle ueber die Vorschau beim Luecken waehlen bis zur Lernkarte bleibt jede Zeile an ihrem Platz.
 * Nach dem Pruefen einer Luecke bleibt die eigene Antwort im Satz stehen, gruen oder rot eingefaerbt. Die richtige Loesung steht darunter im Feld Richtig ist, auch dann, wenn eine grosszuegig gewertete Antwort leicht vom Original abweicht.
 
 Verwaltung
 
 * Auf der Seite Anki sind alle Karten nach Woche und darunter nach Lektion gruppiert. Der Pfeil neben jedem Lektionstitel klappt die Gruppe zu und wieder auf, eine kleine Zahl zeigt, wie viele Karten darin stecken. Dort lassen sie sich bearbeiten und loeschen.
+* Neben jeder Lektion mit faelligen Karten steht ein eigener Knopf Lernen. Er startet eine Lernrunde nur ueber diese Lektion, die Karte traegt dabei ein Lektionsschild. Der grosse Knopf oben lernt weiterhin alles Faellige auf einmal.
 * Die Karten laufen ueber die gleiche Synchronisation wie der Lernstand und erscheinen damit automatisch auch auf dem anderen Geraet.
 
 ## 6. Markieren im Text

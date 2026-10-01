@@ -38,8 +38,14 @@ export interface CardEditorProps {
   onCancel: () => void;
 }
 
+/** Tidies a highlighted passage but keeps its line breaks. */
 function cleanHighlight(raw: string): string {
-  return raw.replace(/\s+/g, ' ').trim().slice(0, 400);
+  return raw
+    .replace(/[^\S\n]+/g, ' ')
+    .replace(/ *\n */g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+    .slice(0, 600);
 }
 
 export function CardEditor({
@@ -52,18 +58,21 @@ export function CardEditor({
   onCancel,
 }: CardEditorProps) {
   const prefill = cleanHighlight(prefillText ?? '');
+  // The suggestion patterns read whole sentences, they get the passage
+  // without line breaks while the card text keeps the layout.
+  const prefillFlat = prefill.replace(/\s+/g, ' ').trim();
   const initialContent = initial?.content ?? null;
 
   // A highlighted passage fills every kind with a ready suggestion, so
   // the card can be saved as it is or adjusted first.
   const choiceSuggestion = useMemo(
-    () => (initialContent === null && prefill ? suggestChoice(prefill, initial?.lessonId ?? lessonId) : null),
+    () => (initialContent === null && prefillFlat ? suggestChoice(prefillFlat, initial?.lessonId ?? lessonId) : null),
     // The prefill never changes while the editor is open.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
   const qaSuggestion = useMemo(
-    () => (initialContent === null && prefill ? suggestQa(prefill, prefillContext ?? {}) : null),
+    () => (initialContent === null && prefillFlat ? suggestQa(prefillFlat, prefillContext ?? {}) : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
@@ -84,7 +93,7 @@ export function CardEditor({
       ? [...initialContent.options]
       : choiceSuggestion
         ? [...choiceSuggestion.options]
-        : [prefill, '', ''],
+        : [prefillFlat, '', ''],
   );
   const [correctIndex, setCorrectIndex] = useState(
     initialContent?.kind === 'choice' ? initialContent.correctIndex : (choiceSuggestion?.correctIndex ?? 0),
