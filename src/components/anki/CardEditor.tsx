@@ -199,13 +199,15 @@ export function CardEditor({
   const meta = lessonIndex[lesson - 1];
 
   return (
-    <div className={styles.overlay} onClick={onCancel}>
+    // A click or an ending text selection outside the window must not
+    // close the editor, half written cards are too easy to lose that
+    // way. Only Abbrechen, Speichern and Escape close it.
+    <div className={styles.overlay}>
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="card-editor-title"
         className={styles.dialog}
-        onClick={(e) => e.stopPropagation()}
       >
         <h2 id="card-editor-title" className={styles.title}>
           {initial ? t.editorTitleEdit : t.editorTitleNew}

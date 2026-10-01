@@ -140,8 +140,11 @@ async function main() {
   const chipText = (await chip.textContent()) ?? '';
   check(chipText.includes('Durchgang 1'), `overview. unexpected round chip text ${chipText}`);
 
-  // 3. A brand new question card for lesson 3.
+  // 3. A brand new question card for lesson 3. A click outside the
+  // window, like a text selection ending on the page, closes nothing.
   await page.getByRole('button', { name: 'Neue Karte' }).click();
+  await page.getByRole('heading', { name: 'Neue Lernkarte' }).waitFor();
+  await page.mouse.click(20, 400);
   await page.getByRole('heading', { name: 'Neue Lernkarte' }).waitFor();
   await page.getByLabel('Gehört zu Lektion').selectOption('3');
   await page.getByLabel('Frage', { exact: true }).fill('Wie viele Milchzähne hat der Mensch?');
