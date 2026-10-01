@@ -195,6 +195,13 @@ Nach einem Vorfall mit getrennten Synchronisationsablagen nachgeruestet, damit L
 * Der Browserdurchlauf der Synchronisation probt jetzt das komplette Zusammenspiel von mehreren Geraeten. Lektionen, Karten und Notizen wandern in beide Richtungen, Loeschungen ziehen nach, der Sofortversand beim Verlassen der App wird gemessen, und ein Geraet mit eigener getrennter Ablage wird ueber den Kopplungslink geheilt, ohne dass etwas verloren geht
 * Abgesichert mit 6 neuen Tests fuer die Sicherungskopien, das Zusammenfuehren, das getrennte Zuruecksetzen und den Rettungsschluessel, insgesamt 168 Tests, dazu alle vier Browserdurchlaeufe, alles ohne Konsolenfehler
 
+## Nachtrag. Kartenfenster schliesst nicht mehr aus Versehen
+
+Auf Wunsch nachgeruestet. Das Fenster zum Schreiben einer Lernkarte schloss sich bei jedem Klick neben das Fenster, auch wenn dort nur eine Textauswahl oder das Loeschen eines ganzen Satzes endete, und halb geschriebene Karten gingen verloren.
+
+* Jetzt schliessen nur noch Abbrechen, Speichern und die Escape Taste das Fenster, ein Klick daneben tut nichts mehr
+* Abgesichert mit einem neuen Test und einem zusaetzlichen Schritt im Browserdurchlauf
+
 ## Notizen zum Inhalt
 
 Der Inhalt war vollstaendig und strukturell fehlerfrei, es musste nichts korrigiert werden. Die Beobachtungen und die Behandlung der Spezialfaelle stehen in NOTES_FOR_REVIEW.md.

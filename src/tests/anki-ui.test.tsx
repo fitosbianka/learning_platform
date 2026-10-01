@@ -393,6 +393,23 @@ describe('anki page', () => {
     expect(storage.load().cards).toHaveLength(1);
   });
 
+  it('keeps the card editor open when a click lands outside the window', async () => {
+    const user = userEvent.setup();
+    const storage = makeStorage();
+    renderWith(storage, <AnkiPage />);
+
+    await user.click(screen.getByRole('button', { name: 'Neue Karte' }));
+    await user.type(screen.getByLabelText('Frage'), 'Halbe Frage bis hier');
+
+    const overlay = document.querySelector('[class*="overlay"]') as HTMLElement;
+    await user.click(overlay);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByLabelText('Frage')).toHaveValue('Halbe Frage bis hier');
+
+    await user.click(screen.getByRole('button', { name: 'Abbrechen' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
   it('folds a lesson group shut with the arrow and open again', async () => {
     const user = userEvent.setup();
     const card = newCard(2, { kind: 'qa', question: 'Wie viele Wurzeln hat ein Sechser?', answer: 'Meist drei.' });
